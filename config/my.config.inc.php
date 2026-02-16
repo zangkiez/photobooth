@@ -39,7 +39,7 @@ return [
         'layouts_enabled' => [
             '1+2-1',
         ],
-        'limit' => 1,
+        'limit' => 3,
         'dashedline_color' => '#df0c0c',
         'take_frame' => 'once',
         'frame' => 'private/images/frames/สำเนาของ Second​ hand​ Market​ _​ Music​ _3.png',

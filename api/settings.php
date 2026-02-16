@@ -1,5 +1,6 @@
 <?php
 
+use Photobooth\Collage;
 use Photobooth\Environment;
 
 require_once '../lib/boot.php';
@@ -7,6 +8,14 @@ require_once '../lib/boot.php';
 use Photobooth\Utility\PathUtility;
 
 header('Content-Type: application/javascript');
+
+// Recalculate collage limit from collage.json so frontend always has the correct count
+try {
+    $limitData = Collage::calculateLimit($config['collage']);
+    $config['collage']['limit'] = $limitData['limit'];
+} catch (\Throwable $e) {
+    // keep existing limit on error
+}
 
 // Override secret configuration we don't need access from javascript for
 $config['mail']['password'] = 'secret';

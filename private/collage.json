@@ -12,7 +12,7 @@
 	"text_line2": "we love",
 	"text_line3": "OpenSource",
 	"text_linespace": "90",
-	"#apply_frame": "once",
+	"apply_frame": "once",
 	"frame": "",
 	"background": "resources/img/background/สำเนาของ Second​ hand​ Market​ _​ Music​ _3.png",
 	"background_color": "#f50a0a",
