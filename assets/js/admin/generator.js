@@ -95,6 +95,7 @@ function loadCurrentConfig() {
     let frameImage = collageConfig.frame;
     let show_frame = frameImage ? true : false;
     let applyFrame = collageConfig.take_frame;
+    let backgroundOnTop = collageConfig.background_on_top || false;
     let placeholder = collageConfig.placeholder;
     let placeholderpath = collageConfig.placeholderpath;
     let placeholderposition = collageConfig.placeholderposition;
@@ -119,6 +120,7 @@ function loadCurrentConfig() {
         frameImage = current_config.frame;
         show_frame = frameImage ? true : false;
         applyFrame = current_config.apply_frame;
+        backgroundOnTop = current_config.background_on_top || false;
         placeholder = current_config.placeholder;
         placeholderpath = current_config.placeholderpath;
         placeholderposition = current_config.placeholderposition;
@@ -156,6 +158,7 @@ function loadCurrentConfig() {
     $('input[name=\'show-frame\'][data-trigger=\'general\']').prop('checked', show_frame);
 
     $('select[name=\'apply_frame\']').val(applyFrame);
+    $('input[name=\'generator-background_on_top\'][data-trigger=\'general\']').prop('checked', backgroundOnTop);
 
     //placeholder
     $('input[name=\'placeholder_image_position\']').val(placeholderposition);
@@ -196,7 +199,7 @@ function loadCurrentConfig() {
         let exampleImage = $('#' + identifier);
         exampleImage.removeClass('hidden');
 
-        inputLayout.find('input:not([type=hidden])').each(function (propertyPosition) {
+        inputLayout.find('input[data-prop]').each(function (propertyPosition) {
             let inputType = $(this).attr('type');
             if (inputType === 'range') {
                 $(this).parent().find('span:first').text(layout[i][propertyPosition]);
@@ -224,6 +227,7 @@ function changeGeneralSetting() {
     const c_apply_frame = $('select[name=\'apply_frame\']').val();
     const c_show_frame = $('input[name=\'show-frame\'][data-trigger=\'general\']').is(':checked');
     const c_show_background = $('input[name=\'show-background\'][data-trigger=\'general\']').is(':checked');
+    const c_background_on_top = $('input[name=\'generator-background_on_top\'][data-trigger=\'general\']').is(':checked');
 
     const c_text_enabled = $('input[name=\'text_enabled\'][data-trigger=\'general\']').is(':checked');
     let c_text_font = $('input[name=\'text_font_family\']')[0].getAttribute('data-fontclass');
@@ -245,12 +249,31 @@ function changeGeneralSetting() {
 
     canvasDOM.css('aspect-ratio', aspect_ratio);
     canvasDOM.css('background-color', c_bg_color);
-    canvasDOM.find('div#collage_background img').attr('src', c_bg_public);
-    canvasDOM.find('div#collage_background img').addClass('hidden');
 
+    const bgDiv = canvasDOM.find('div#collage_background');
+    const bgImgElement = bgDiv.find('img');
+    const pictureDivs = canvasDOM.find('div[id^=\'picture-\']');
+    const frameDiv = canvasDOM.find('div#collage_frame');
+    const textDiv = canvasDOM.find('div#collage_text');
+
+    bgImgElement.attr('src', c_bg_public);
+    bgImgElement.addClass('hidden');
     if (c_show_background) {
-        canvasDOM.find('div#collage_background img').removeClass('hidden');
+        bgImgElement.removeClass('hidden');
     }
+
+    // Layer stacking: background_on_top puts background ABOVE photos
+    if (c_background_on_top) {
+        bgDiv.css('z-index', 5);
+        pictureDivs.css('z-index', 1);
+        bgImgElement.css('opacity', 0.7);
+    } else {
+        bgDiv.css('z-index', 0);
+        pictureDivs.css('z-index', 1);
+        bgImgElement.css('opacity', 1);
+    }
+    frameDiv.css('z-index', 10);
+    textDiv.css('z-index', 15);
 
     let collageImgs = canvasDOM.find('div#collage_frame img');
     let pictureFrameImgs = canvasDOM.find('img.picture-frame');
@@ -326,7 +349,8 @@ function changeGeneralSetting() {
         collageTextDOM.removeClass('hidden');
     }
 
-    for (let i = 0; i < 5; i++) {
+    const totalImages = canvasDOM.find('div[id^=\'picture-\']').length;
+    for (let i = 0; i < totalImages; i++) {
         updateImage(i);
     }
 }
@@ -509,6 +533,7 @@ function saveConfiguration() {
         frame: $('input[name=\'generator-frame\']').val(),
         background: $('input[name=\'generator-background\']').val(),
         background_color: $('input[name=\'background_color\']').val(),
+        background_on_top: $('input[name=\'generator-background_on_top\'][data-trigger=\'general\']').is(':checked'),
         placeholder: $('input[name=\'enable_placeholder_image\'][data-trigger=\'general\']').is(':checked'),
         placeholderpath: $('input[name=\'placeholder_image\']').val(),
         placeholderposition: $('input[name=\'placeholder_image_position\']').val(),
@@ -518,7 +543,7 @@ function saveConfiguration() {
     $('div.image_layout:visible').each(function () {
         let container = $(this);
         let single_image_layout = [];
-        container.find('input:not([type=hidden])').each(function () {
+        container.find('input[data-prop]').each(function () {
             let to_save = $(this).val();
             if ($(this).attr('type') === 'checkbox') {
                 to_save = $(this).is(':checked') && configuration.apply_frame === 'always';

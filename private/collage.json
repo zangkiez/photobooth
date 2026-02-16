@@ -14,13 +14,13 @@
 	"text_linespace": "90",
 	"apply_frame": "once",
 	"frame": "",
-	"background": "",
+	"background": "resources/img/background/06.jpg",
 	"background_color": "#ffffff",
-	"background_on_top": false,
+	"background_on_top": true,
 	"placeholder": false,
 	"placeholderpath": "",
 	"placeholderposition": "1",
 	"layout": [
-		["resources/img/demo/seal-station-norddeich-04.jpg","496","446","x*0.5","y*0.5","0",false]
+		["336","190","x*0.5","y*0.5","0",false]
 	]
 }

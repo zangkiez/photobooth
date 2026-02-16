@@ -522,7 +522,7 @@ $font_styles .= '</style>';
     AdminInput::renderCheckbox(
         [
             'name' => 'generator-background_on_top',
-            'value' => 'false',
+            'value' => !empty($config['collage']['background_on_top']) ? 'true' : 'false',
             'attributes' => ['data-trigger' => 'general']
         ],
         'collage:collage_background_on_top'
@@ -897,23 +897,23 @@ AdminInput::renderColor(
             </div>
             <div class="result_images md:max-h-[75vh] flex-1 relative lg:flex-[3_1_0%] p-4 md:p-8 bg-slate-300">
                 <div id="result_canvas" class="relative m-0 left-[50%] top-[50%] right-0 bottom-0 translate-y-[0%] md:translate-y-[-50%] translate-x-[-50%] max-w-full max-h-full shadow-xl">
-                    <div id="collage_background" class="absolute h-full">
-                        <img class="h-full hidden object-contain object-top" src="" alt="Choose the background">
+                    <div id="collage_background" class="absolute h-full w-full" style="z-index:0;">
+                        <img class="h-full w-full hidden object-cover" src="" alt="Choose the background">
                     </div>
                     <?php
 for ($i = 0; $i < count($demoImages); $i++) {
     $imagePath = PathUtility::getPublicPath($demoImages[$i]);
     $hiddenClass = $i == 0 ? '' : 'hidden';
-    echo "<div id='picture-$i' class='absolute overflow-hidden w-full h-full $hiddenClass'>
+    echo "<div id='picture-$i' class='absolute overflow-hidden w-full h-full $hiddenClass' style='z-index:1;'>
             <img class='absolute object-left-top rotate-0 max-w-none' data-src='$imagePath'>
             <img class='picture-frame absolute object-left-top rotate-0 max-w-none hidden' />
           </div>";
 }
 ?>
-                    <div id="collage_frame" class="absolute h-full w-full">
+                    <div id="collage_frame" class="absolute h-full w-full" style="z-index:10;">
                         <img class="h-full w-full hidden" src="" alt="Choose the frame">
                     </div>
-                    <div id="collage_text" class="absolute h-full font-selected">
+                    <div id="collage_text" class="absolute h-full font-selected" style="z-index:15;">
                         <div class='relative'>
                             <div class='absolute whitespace-nowrap origin-top-left text-line-1 leading-none'></div>
                             <div class='absolute whitespace-nowrap origin-top-left text-line-2 leading-none'></div>

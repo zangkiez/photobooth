@@ -240,37 +240,28 @@ function changeGeneralSetting() {
   var canvasDOM = $('#result_canvas');
   canvasDOM.css('aspect-ratio', aspect_ratio);
   canvasDOM.css('background-color', c_bg_color);
-  var bgImgElement = canvasDOM.find('div#collage_background img');
+  var bgDiv = canvasDOM.find('div#collage_background');
+  var bgImgElement = bgDiv.find('img');
+  var pictureDivs = canvasDOM.find('div[id^=\'picture-\']');
+  var frameDiv = canvasDOM.find('div#collage_frame');
+  var textDiv = canvasDOM.find('div#collage_text');
   bgImgElement.attr('src', c_bg_public);
   bgImgElement.addClass('hidden');
   if (c_show_background) {
     bgImgElement.removeClass('hidden');
   }
-  
-  // Layer stacking order: adjust z-index based on background_on_top
-  // When background is on top, it should appear above photos but below frame/text
-  var bgDiv = canvasDOM.find('div#collage_background');
-  var pictureDivs = canvasDOM.find('div[id^=\'picture-\']');
-  var frameDiv = canvasDOM.find('div#collage_frame');
-  var textDiv = canvasDOM.find('div#collage_text');
-  
+  // Layer stacking: background_on_top puts background ABOVE photos
   if (c_background_on_top) {
-    // Background on top: photos(1) < background(5) < frame(10) < text(15)
-    pictureDivs.css('z-index', 1);
     bgDiv.css('z-index', 5);
-    frameDiv.css('z-index', 10);
-    textDiv.css('z-index', 15);
-    // Apply semi-transparency to background when on top (like Collage.php does)
+    pictureDivs.css('z-index', 1);
     bgImgElement.css('opacity', 0.7);
   } else {
-    // Normal order: background(0) < photos(1) < frame(10) < text(15)
     bgDiv.css('z-index', 0);
     pictureDivs.css('z-index', 1);
-    frameDiv.css('z-index', 10);
-    textDiv.css('z-index', 15);
-    // Full opacity when background is behind
     bgImgElement.css('opacity', 1);
   }
+  frameDiv.css('z-index', 10);
+  textDiv.css('z-index', 15);
   var collageImgs = canvasDOM.find('div#collage_frame img');
   var pictureFrameImgs = canvasDOM.find('img.picture-frame');
   var allImgs = collageImgs.add(pictureFrameImgs);
@@ -332,7 +323,8 @@ function changeGeneralSetting() {
   if (c_text_enabled) {
     collageTextDOM.removeClass('hidden');
   }
-  for (var i = 0; i < 5; i++) {
+  var totalImages = canvasDOM.find('div[id^=\'picture-\']').length;
+  for (var i = 0; i < totalImages; i++) {
     updateImage(i);
   }
 }
