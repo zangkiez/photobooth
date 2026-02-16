@@ -340,6 +340,12 @@ class AdminInput
                             </h2>
                             <div class="ml-auto flex items-center justify-center p-3 text-xl fa fa-close" onclick="closeAdminImageSelect()"></div>
                         </div>
+                        ' . (!empty($setting['allow_upload']) ? '
+                        <div class="w-full py-3 border-b border-gray-200">
+                            <label class="block text-sm font-bold text-brand-1 mb-2">' . $languageService->translate('choose_image_from_computer') . '</label>
+                            <input type="file" class="adminImageSelectUploadInput w-full text-sm" accept="image/*" data-target-name="' . htmlspecialchars($setting['name']) . '">
+                        </div>
+                        ' : '') . '
                         <div class="flex w-full h-full flex-col overflow-y-auto">
                             <div class="grid grid-cols-3 gap-4">
                                 ' . $images . '

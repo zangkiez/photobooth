@@ -23,7 +23,60 @@ $(function () {
 $(window).on('resize', changeGeneralSetting);
 $('[data-trigger=\'general\']').change(changeGeneralSetting);
 $('[data-trigger=\'image\']').change(handleInputUpdate);
+$('input[name^="picture-image-"]').on('change', function () {
+  var index = $(this).attr('name').replace('picture-image-', '');
+  updateImage(index);
+  var path = $(this).val();
+  var card = $(this).closest('div[data-picture]');
+  if (card.length && path) {
+    card.css('background-image', 'linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,.5)), url(' + toPublicUrl(path) + ')');
+  }
+});
 $('#loadCurrentConfiguration').click(loadCurrentConfig);
+
+$(document).on('change', '.adminImageSelectUploadInput', function () {
+  var fileInput = this;
+  var file = fileInput.files && fileInput.files[0];
+  if (!file) return;
+  var targetName = $(fileInput).attr('data-target-name');
+  var parent = $(fileInput).closest('.adminImageSelection');
+  if (!parent.length || !targetName) return;
+  var formData = new FormData();
+  formData.append('type', 'upload_image');
+  if (typeof csrf !== 'undefined' && csrf && csrf.token) formData.append('csrf', csrf.token);
+  formData.append('image', file);
+  var apiUrl = (typeof environment !== 'undefined' && environment && environment.baseUrl)
+    ? (environment.baseUrl.replace(/\/$/, '') + '/api/admin.php') : 'api/admin.php';
+  fetch(apiUrl, { method: 'POST', body: formData })
+    .then(function (res) {
+      if (!res.ok) return res.json().then(function (body) { throw new Error(body.error || 'Upload failed'); });
+      return res.json();
+    })
+    .then(function (data) {
+      var path = data.path;
+      if (!path) throw new Error('No path returned');
+      var previewElement = parent.find('.adminImageSelection-preview')[0];
+      var textElement = parent.find('.adminImageSelection-text')[0];
+      var inputElement = parent.find('input[name="' + targetName + '"]')[0];
+      if (!inputElement) return;
+      var publicUrl = toPublicUrl(path);
+      $(inputElement).val(path);
+      if (previewElement) {
+        $(previewElement).attr('src', publicUrl);
+        $(previewElement).parent().removeClass('hidden');
+      }
+      if (textElement) $(textElement).text(path);
+      $(inputElement).trigger('change');
+      parent.removeClass('isOpen');
+      fileInput.value = '';
+    })
+    .catch(function (err) {
+      if (typeof openToast === 'function') openToast(err.message || 'Upload failed', 'isError', 5000);
+      else alert(err.message || 'Upload failed');
+      fileInput.value = '';
+    });
+});
+
 function toPublicUrl(path) {
   if (!path) {
     return '';
@@ -281,7 +334,12 @@ function changeImageSetting(new_value, prop_name, index, isPlaceholder) {
   var img_container = $('#picture-' + index);
   var contImages = img_container.find('img');
   var firstImg = contImages.first();
-  if (isPlaceholder) {
+  var slotImagePath = $('input[name=\'picture-image-' + index + '\']').val();
+  if (slotImagePath) {
+    var url = toPublicUrl(slotImagePath);
+    firstImg.attr('src', url);
+    firstImg.data('src', url);
+  } else if (isPlaceholder) {
     firstImg.attr('src', toPublicUrl($('input[name=\'placeholder_image\']').val()));
   } else {
     firstImg.attr('src', firstImg.data('src'));

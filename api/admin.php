@@ -6,6 +6,7 @@
 require_once __DIR__ . '/../admin/admin_boot.php';
 
 use Photobooth\Collage;
+use Photobooth\FileUploader;
 use Photobooth\Enum\FolderEnum;
 use Photobooth\Environment;
 use Photobooth\Service\ConfigurationService;
@@ -33,6 +34,37 @@ $defaultConfig = $configurationService->getDefaultConfiguration();
 
 $data = ArrayUtility::replaceBooleanValues($_POST);
 $action = $data['type'] ?? null;
+
+// Upload image from admin (e.g. collage generator: choose from computer)
+if ($action === 'upload_image') {
+    $logger->debug('Admin upload image.');
+    if (empty($_FILES['image']) || !is_uploaded_file($_FILES['image']['tmp_name']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+        http_response_code(400);
+        echo json_encode(['error' => 'No image uploaded or upload failed.']);
+        exit;
+    }
+    $single = $_FILES['image'];
+    $filesForUploader = [
+        'name' => [$single['name']],
+        'type' => [$single['type']],
+        'tmp_name' => [$single['tmp_name']],
+        'error' => [$single['error']],
+        'size' => [$single['size']],
+    ];
+    $uploader = new FileUploader('data/tmp', $filesForUploader, $logger);
+    $response = $uploader->uploadFiles();
+    if (!$response['success'] || empty($response['uploadedFiles'])) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => $response['message'] ?? 'Upload failed.',
+            'failedFiles' => $response['failedFiles'] ?? [],
+        ]);
+        exit;
+    }
+    $relativePath = 'data/tmp/' . $response['uploadedFiles'][0];
+    echo json_encode(['path' => $relativePath]);
+    exit;
+}
 
 // Reset
 if ($action === 'reset') {

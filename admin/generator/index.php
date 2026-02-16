@@ -225,6 +225,151 @@ $font_styles .= '</style>';
             align-items: center;
             justify-content: center;
         }
+        /* Generator page: clearer layout, easier to use */
+        .generator-page .result_section { align-items: stretch; gap: 1rem; }
+        .generator-page .result_positions {
+            max-height: min(75vh, 900px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            padding-right: 0.5rem;
+        }
+        .generator-page .result_positions::-webkit-scrollbar { width: 8px; }
+        .generator-page .result_positions::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .generator-page .result_positions::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        .generator-page .generator-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        .generator-page .generator-section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--brand-1, #333);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.35rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .generator-page .images_settings {
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+            border-top: 2px dashed #e2e8f0;
+        }
+        .generator-page .images_settings .generator-section-title { margin-bottom: 0.75rem; }
+        .generator-page #layout_containers {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 0.5rem 0 1.5rem;
+            min-height: 120px;
+            align-items: start;
+        }
+        .generator-page .image_layout {
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background-color: #fff;
+            padding: 1.25rem !important;
+            gap: 1rem !important;
+            position: relative;
+            display: flex !important;
+            flex-direction: column;
+            transition: all 0.2s ease-in-out;
+        }
+        .generator-page .image_layout:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .generator-page .image_layout .image-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .generator-page .image_layout .image-title {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.95rem;
+        }
+        .generator-page .image_layout .delete-btn {
+            color: #ef4444;
+            background: #fee2e2;
+            border: none;
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .generator-page .image_layout .delete-btn:hover {
+            background: #fecaca;
+            color: #dc2626;
+        }
+        .generator-page .image_layout .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        .generator-page .image_layout .full-width {
+            width: 100%;
+        }
+        .generator-page .image_layout .adminImageSelection-preview { 
+            border-radius: 8px; 
+            border: 1px solid #e2e8f0;
+            max-height: 150px;
+            object-fit: contain;
+            background-color: #f8fafc;
+        }
+        .generator-page #addImage {
+            margin-top: 0.25rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        .generator-page .result_images {
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 280px;
+        }
+        .generator-page #result_canvas { border-radius: 8px; }
+        .generator-page button[onclick="saveConfiguration()"] {
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+            font-size: 1.5rem;
+        }
+        /* JSON Config Display */
+        .config-display {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 200px;
+            margin-top: 1rem;
+            position: relative;
+        }
+        .config-display-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        .config-display-btn:hover { background: rgba(255,255,255,0.2); }
     </style>
     <style id="fontselectedStyle"></style>
     <div class="w-full flex items-center justify-center flex-col">
@@ -591,24 +736,46 @@ AdminInput::renderColor(
                 </div>
                 <hr>
                 <div class="images_settings flex flex-col gap-4">
-                    <div id="layout_containers" class="flex gap-4 overflow-x-auto">
+                    <div id="layout_containers">
                         <?php for ($i = 0; $i < count($demoImages); $i++) {
                             $hidden_class = 'hidden';
                             if ($i == 0) {
                                 $hidden_class = '';
                             }
-                            $computed_style = 'background-image: linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,.5)), url(\'' . PathUtility::getPublicPath($demoImages[$i]) . '\')';
-                            $computed_classes = 'image_layout relative p-3 md:p-5 grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-2 bg-cover bg-center min-w-72 h-fit ' . $hidden_class;
+                            $demoRelPath = ltrim(str_replace('\\', '/', str_replace(PathUtility::getRootPath(), '', $demoImages[$i])), '/');
+                            $computed_classes = 'image_layout ' . $hidden_class;
                             ?>
-                            <div data-picture="picture-<?=$i?>" style="<?=$computed_style?>" class="<?=$computed_classes?>">
-                                <div class="absolute top-1 right-1 z-10 hidden">
-                                    <button class="bg-white p-1 rounded-md" onclick="hideImage(\'picture-<?=$i?>\')"><i class="fa fa-minus fa-lg"></i></button>
+                            <div data-picture="picture-<?=$i?>" class="<?=$computed_classes?>">
+                                <div class="image-header">
+                                    <span class="image-title">Image <?=$i + 1?></span>
+                                    <button type="button" class="delete-btn" onclick="hideImage('picture-<?=$i?>')" title="Remove Image">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
                                 </div>
-                                <div>
+                                <div class="full-width">
                                     <?=
+                                    AdminInput::renderImageSelect(
+                                        [
+                                            'name' => 'picture-image-' . $i,
+                                            'value' => $demoRelPath,
+                                            'paths' => [
+                                                PathUtility::getAbsolutePath('resources/img/demo'),
+                                                PathUtility::getAbsolutePath('private/images/placeholder'),
+                                                PathUtility::getAbsolutePath('data/tmp'),
+                                                PathUtility::getAbsolutePath('data/images'),
+                                            ],
+                                            'attributes' => ['data-trigger' => 'image']
+                                        ],
+                                        'choose_image'
+                                    )
+                                    ?>
+                                </div>
+                                <div class="input-group">
+                                    <div>
+                                        <?=
                                             AdminInput::renderInput(
                                                 [
-                                                    'type' => 'text',
+                                                    'type' => 'number',
                                                     'name' => 'picture-x-position-' . $i,
                                                     'value' => rand(100, 500),
                                                     'placeholder' => 'x position',
@@ -617,12 +784,12 @@ AdminInput::renderColor(
                                                 'collage:generator:x_position'
                                             )
                             ?>
-                                </div>
-                                <div>
-                                    <?=
+                                    </div>
+                                    <div>
+                                        <?=
                                 AdminInput::renderInput(
                                     [
-                                        'type' => 'text',
+                                        'type' => 'number',
                                         'name' => 'picture-y-position-' . $i,
                                         'value' => rand(100, 500),
                                         'placeholder' => 'y position',
@@ -631,9 +798,11 @@ AdminInput::renderColor(
                                     'collage:generator:y_position'
                                 )
                             ?>
+                                    </div>
                                 </div>
-                                <div>
-                                    <?=
+                                <div class="input-group">
+                                    <div>
+                                        <?=
                                 AdminInput::renderInput(
                                     [
                                         'type' => 'text',
@@ -645,9 +814,9 @@ AdminInput::renderColor(
                                     'collage:generator:image_width'
                                 )
                             ?>
-                                </div>
-                                <div>
-                                    <?=
+                                    </div>
+                                    <div>
+                                        <?=
                                 AdminInput::renderInput(
                                     [
                                         'type' => 'text',
@@ -659,9 +828,11 @@ AdminInput::renderColor(
                                     'collage:generator:image_height'
                                 )
                             ?>
+                                    </div>
                                 </div>
-                                <div>
-                                    <?=
+                                <div class="input-group">
+                                    <div>
+                                        <?=
                                 AdminInput::renderRange(
                                     [
                                         'type' => 'number',
@@ -677,9 +848,9 @@ AdminInput::renderColor(
                                     'collage:generator:image_rotation'
                                 )
                             ?>
-                                </div>
-                                <div>
-                                    <?=
+                                    </div>
+                                    <div class="flex items-center pt-6">
+                                        <?=
                                 AdminInput::renderCheckbox(
                                     [
                                         'name' => 'picture-show-frame-' . $i,
@@ -689,12 +860,23 @@ AdminInput::renderColor(
                                     'collage:generator:show_single_frame'
                                 )
                             ?>
+                                    </div>
                                 </div>
                             </div>
                         <?php } ?>
                     </div>
-                    <div>
-                        <?= AdminInput::renderCta('add_image', 'addImage') ?>
+                    <div class="flex justify-center mt-6 mb-8">
+                        <div class="w-full md:w-1/3">
+                            <?= AdminInput::renderCta('add_image', 'addImage') ?>
+                        </div>
+                    </div>
+
+                    <div class="generator-section mt-4">
+                        <div class="generator-section-title">Current Configuration (JSON)</div>
+                        <div class="config-display" id="config-display-box">
+                            <button class="config-display-btn" onclick="copyConfig()">Copy</button>
+                            <code id="config-json-content"></code>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -754,6 +936,96 @@ $assetService = AssetService::getInstance();
 
 include PathUtility::getAbsolutePath('admin/components/footer.scripts.php');
 echo '<script src="' . $assetService->getUrl('resources/js/admin/generator.js') . '"></script>';
+?>
+<script>
+function copyConfig() {
+    const content = document.getElementById('config-json-content').innerText;
+    navigator.clipboard.writeText(content).then(() => {
+        if(typeof openToast === 'function') openToast("Configuration copied to clipboard");
+        else alert("Copied!");
+    });
+}
+
+// Hook into saveConfiguration to update the display
+const originalSaveConfiguration = window.saveConfiguration;
+window.saveConfiguration = function() {
+    // Call original to prepare the object (it might submit, so we intercept before if possible,
+    // but generator.js defines saveConfiguration to submit form.
+    // We need to replicate the logic or modify generator.js.
+    // Since we cant easily modify the function inside generator.js without replacing it,
+    // let's just update the display when inputs change.
+}
+
+function updateConfigDisplay() {
+    // This logic mimics saveConfiguration in generator.js to build the object
+    let configuration = {
+        width: $('input[name=\'final_width\']').val(),
+        height: $('input[name=\'final_height\']').val(),
+        text_custom_style: $('input[name=\'text_enabled\'][data-trigger=\'general\']').is(':checked'),
+        text_font_size: $('input[name=\'text_font_size\']').val(),
+        text_rotation: $('input[name=\'text_rotation\']').val(),
+        text_locationx: $('input[name=\'text_location_x\']').val(),
+        text_locationy: $('input[name=\'text_location_y\']').val(),
+        text_font_color: $('input[name=\'text_font_color\']').val(),
+        text_font: $('input[name=\'text_font_family\']').val(),
+        text_line1: $('input[name=\'text_line_1\']').val(),
+        text_line2: $('input[name=\'text_line_2\']').val(),
+        text_line3: $('input[name=\'text_line_3\']').val(),
+        text_linespace: $('input[name=\'text_line_space\']').val(),
+        apply_frame: $('select[name=\'apply_frame\']').val(),
+        frame: $('input[name=\'generator-frame\']').val(),
+        background: $('input[name=\'generator-background\']').val(),
+        background_color: $('input[name=\'background_color\']').val(),
+        placeholder: $('input[name=\'enable_placeholder_image\'][data-trigger=\'general\']').is(':checked'),
+        placeholderpath: $('input[name=\'placeholder_image\']').val(),
+        placeholderposition: $('input[name=\'placeholder_image_position\']').val(),
+        layout: []
+    };
+
+    $('div.image_layout:visible').each(function () {
+        let container = $(this);
+        let single_image_layout = [];
+        container.find('input:not([type=hidden])').each(function () {
+            let to_save = $(this).val();
+            if ($(this).attr('type') === 'checkbox') {
+                to_save = $(this).is(':checked') && configuration.apply_frame === 'always';
+            }
+            single_image_layout.push(to_save);
+        });
+        configuration.layout.push(single_image_layout);
+    });
+
+    // Simple formatting
+    let json = JSON.stringify(configuration, null, 4);
+    $('#config-json-content').text(json);
+}
+
+// Update on any change
+$(document).on('change keyup', 'input, select', function() {
+    setTimeout(updateConfigDisplay, 100);
+});
+$(function() {
+    setTimeout(updateConfigDisplay, 500);
+});
+
+// Enable ArrowUp/ArrowDown for text inputs that contain numbers
+$(document).on('keydown', 'input[type=text]', function(e) {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        const val = this.value;
+        // Check if it's a pure number
+        if (!isNaN(val) && !isNaN(parseFloat(val))) {
+            e.preventDefault();
+            let num = parseFloat(val);
+            const step = e.shiftKey ? 10 : 1;
+            if (e.key === 'ArrowUp') num += step;
+            else num -= step;
+            this.value = num;
+            $(this).trigger('change');
+        }
+    }
+});
+</script>
+<?php
 
 if ($success) {
     echo '<script>setTimeout(function(){openToast("' . $languageService->translate('collage:generator:configuration_saved') . '")},500);</script>';

@@ -12,7 +12,62 @@ $(function () {
 $(window).on('resize', changeGeneralSetting);
 $('[data-trigger=\'general\']').change(changeGeneralSetting);
 $('[data-trigger=\'image\']').change(handleInputUpdate);
+$('input[name^="picture-image-"]').on('change', function () {
+    const index = $(this).attr('name').replace('picture-image-', '');
+    updateImage(index);
+    // Update card background to show selected image
+    const path = $(this).val();
+    const card = $(this).closest('div[data-picture]');
+    if (card.length && path) {
+        card.css('background-image', 'linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,.5)), url(' + toPublicUrl(path) + ')');
+    }
+});
 $('#loadCurrentConfiguration').click(loadCurrentConfig);
+
+// Upload from computer in image select modal
+$(document).on('change', '.adminImageSelectUploadInput', function () {
+    const fileInput = this;
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    const targetName = $(fileInput).data('target-name');
+    const parent = $(fileInput).closest('.adminImageSelection');
+    if (!parent.length || !targetName) return;
+    const formData = new FormData();
+    formData.append('type', 'upload_image');
+    if (typeof csrf !== 'undefined' && csrf && csrf.token) formData.append('csrf', csrf.token);
+    formData.append('image', file);
+    const apiUrl = (typeof environment !== 'undefined' && environment && environment.baseUrl)
+        ? (environment.baseUrl.replace(/\/$/, '') + '/api/admin.php') : 'api/admin.php';
+    fetch(apiUrl, { method: 'POST', body: formData })
+        .then(function (res) {
+            if (!res.ok) return res.json().then(function (body) { throw new Error(body.error || 'Upload failed'); });
+            return res.json();
+        })
+        .then(function (data) {
+            const path = data.path;
+            if (!path) throw new Error('No path returned');
+            const previewElement = parent.find('.adminImageSelection-preview')[0];
+            const textElement = parent.find('.adminImageSelection-text')[0];
+            const inputElement = parent.find('input[name="' + targetName + '"]')[0];
+            if (!inputElement) return;
+            const publicUrl = toPublicUrl(path);
+            $(inputElement).val(path);
+            if (previewElement) {
+                $(previewElement).attr('src', publicUrl);
+                $(previewElement).parent().removeClass('hidden');
+            }
+            if (textElement) $(textElement).text(path);
+            $(inputElement).trigger('change');
+            parent.removeClass('isOpen');
+            fileInput.value = '';
+        })
+        .catch(function (err) {
+            if (typeof openToast === 'function') openToast(err.message || 'Upload failed', 'isError', 5000);
+            else alert(err.message || 'Upload failed');
+            fileInput.value = '';
+        });
+});
+
 function toPublicUrl(path) {
     if (!path) {
         return '';
@@ -308,7 +363,12 @@ function changeImageSetting(new_value, prop_name, index, isPlaceholder) {
     const img_container = $('#picture-' + index);
     let contImages = img_container.find('img');
     let firstImg = contImages.first();
-    if (isPlaceholder) {
+    const slotImagePath = $('input[name=\'picture-image-' + index + '\']').val();
+    if (slotImagePath) {
+        const url = toPublicUrl(slotImagePath);
+        firstImg.attr('src', url);
+        firstImg.data('src', url);
+    } else if (isPlaceholder) {
         firstImg.attr('src', toPublicUrl($('input[name=\'placeholder_image\']').val()));
     } else {
         firstImg.attr('src', firstImg.data('src'));
