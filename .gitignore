@@ -11,8 +11,11 @@ node_modules/
 !private/README.md
 resources/css/*
 !resources/css/README.md
+!resources/css/*.css
 resources/js/*
 !resources/js/README.md
+!resources/js/*.js
+!resources/js/**/*.js
 resources/revisions.json
 stats
 trash
