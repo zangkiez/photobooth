@@ -44,43 +44,62 @@ if (isset($_POST['new-configuration'])) {
     if ($fp) {
         fwrite($fp, $newConfiguration);
         fclose($fp);
-        if ($config['collage']['layout'] === 'collage.json') {
-            $collageJson = json_decode($newConfiguration);
-            $startPreloaded = true;
-            $arrayCollageJson = (array) $collageJson;
 
+        $collageJson = json_decode($newConfiguration);
+        $startPreloaded = true;
+        $arrayCollageJson = (array) $collageJson;
+
+        // Always sync key settings from generator to main config
+        if (array_key_exists('background', $arrayCollageJson) && $arrayCollageJson['background'] !== '') {
+            $newConfig['collage']['background'] = $arrayCollageJson['background'];
+        }
+        if (array_key_exists('background_color', $arrayCollageJson)) {
+            $newConfig['collage']['background_color'] = $arrayCollageJson['background_color'];
+        }
+        if (array_key_exists('background_on_top', $arrayCollageJson)) {
+            $newConfig['collage']['background_on_top'] = (bool) $arrayCollageJson['background_on_top'];
+        }
+        if (array_key_exists('frame', $arrayCollageJson) && $arrayCollageJson['frame'] !== '') {
+            $newConfig['collage']['frame'] = $arrayCollageJson['frame'];
+        }
+        if (array_key_exists('apply_frame', $arrayCollageJson)) {
+            $newConfig['collage']['take_frame'] = $arrayCollageJson['apply_frame'];
+        }
+        if (array_key_exists('placeholder', $arrayCollageJson)) {
+            $newConfig['collage']['placeholder'] = $arrayCollageJson['placeholder'];
+        }
+        if (array_key_exists('placeholderposition', $arrayCollageJson)) {
+            $newConfig['collage']['placeholderposition'] = $arrayCollageJson['placeholderposition'];
+        }
+        if (array_key_exists('placeholderpath', $arrayCollageJson)) {
+            $newConfig['collage']['placeholderpath'] = $arrayCollageJson['placeholderpath'];
+        }
+
+        // Layout-specific: limit count only applies when using collage.json layout
+        if ($config['collage']['layout'] === 'collage.json') {
             if (array_key_exists('layout', $arrayCollageJson)) {
                 $newConfig['collage']['limit'] = count($arrayCollageJson['layout']);
             } else {
                 $newConfig['collage']['limit'] = count($arrayCollageJson);
             }
-            if (array_key_exists('placeholder', $arrayCollageJson)) {
-                $newConfig['collage']['placeholder'] = $arrayCollageJson['placeholder'];
-            }
-            if (array_key_exists('placeholderposition', $arrayCollageJson)) {
-                $newConfig['collage']['placeholderposition'] = $arrayCollageJson['placeholderposition'];
-            }
-            if (array_key_exists('placeholderpath', $arrayCollageJson)) {
-                $newConfig['collage']['placeholderpath'] = $arrayCollageJson['placeholderpath'];
-            }
-            if (array_key_exists('background_on_top', $arrayCollageJson)) {
-                $newConfig['collage']['background_on_top'] = (bool) $arrayCollageJson['background_on_top'];
-            }
-            // If there is a collage placeholder whithin the correct range (0 < placeholderposition <= collage limit), we need to decrease the collage limit by 1
-            if ($newConfig['collage']['placeholder']) {
-                $collagePlaceholderPosition = (int) $newConfig['collage']['placeholderposition'];
-                if ($collagePlaceholderPosition > 0 && $collagePlaceholderPosition <= $newConfig['collage']['limit']) {
-                    $newConfig['collage']['limit'] = $newConfig['collage']['limit'] - 1;
-                } else {
-                    $newConfig['collage']['placeholder'] = false;
-                    $warning = true;
-                }
-            }
-            try {
-                $configurationService->update($newConfig);
-            } catch (\Exception $exception) {
+        }
+
+        // Adjust limit for placeholder
+        if ($newConfig['collage']['placeholder']) {
+            $collagePlaceholderPosition = (int) $newConfig['collage']['placeholderposition'];
+            $currentLimit = $newConfig['collage']['limit'] ?? $config['collage']['limit'];
+            if ($collagePlaceholderPosition > 0 && $collagePlaceholderPosition <= $currentLimit) {
+                $newConfig['collage']['limit'] = $currentLimit - 1;
+            } else {
+                $newConfig['collage']['placeholder'] = false;
                 $warning = true;
             }
+        }
+
+        try {
+            $configurationService->update($newConfig);
+        } catch (\Exception $exception) {
+            $warning = true;
         }
     } else {
         $error = true;
@@ -408,7 +427,7 @@ $font_styles .= '</style>';
                                     AdminInput::renderColor(
                                         [
                                             'name' => 'background_color',
-                                            'value' => '#FFFFFF',
+                                            'value' => $config['collage']['background_color'] ?? '#FFFFFF',
                                             'placeholder' => 'background color',
                                             'attributes' => ['data-trigger' => 'general']
                                         ],
@@ -420,7 +439,7 @@ $font_styles .= '</style>';
                                 <?= AdminInput::renderImageSelect(
                                     [
             'name' => 'generator-background',
-            'value' => '',
+            'value' => $config['collage']['background'] ?? '',
             'paths' => [
                 PathUtility::getAbsolutePath('resources/img/background'),
                 PathUtility::getAbsolutePath('private/images/background'),
@@ -436,7 +455,7 @@ $font_styles .= '</style>';
     AdminInput::renderImageSelect(
         [
             'name' => 'generator-frame',
-            'value' => '',
+            'value' => $config['collage']['frame'] ?? '',
             'paths' => [
                 PathUtility::getAbsolutePath('resources/img/frames'),
                 PathUtility::getAbsolutePath('private/images/frames'),
@@ -486,7 +505,7 @@ $font_styles .= '</style>';
                 'always' => 'Always',
                 'once' => 'Once',
             ],
-            'value' => 'once',
+            'value' => $config['collage']['take_frame'] ?? 'once',
             'attributes' => ['data-trigger' => 'general']
         ],
         'collage:collage_take_frame'
@@ -498,7 +517,7 @@ $font_styles .= '</style>';
     AdminInput::renderCheckbox(
         [
             'name' => 'show-background',
-            'value' => 'false',
+            'value' => !empty($config['collage']['background']) ? 'true' : 'false',
             'attributes' => ['data-trigger' => 'general']
         ],
         'collage:generator:show_background'
@@ -510,7 +529,7 @@ $font_styles .= '</style>';
     AdminInput::renderCheckbox(
         [
             'name' => 'show-frame',
-            'value' => 'false',
+            'value' => !empty($config['collage']['frame']) ? 'true' : 'false',
             'attributes' => ['data-trigger' => 'general']
         ],
         'collage:generator:show_frame'
@@ -898,7 +917,7 @@ AdminInput::renderColor(
             <div class="result_images md:max-h-[75vh] flex-1 relative lg:flex-[3_1_0%] p-4 md:p-8 bg-slate-300">
                 <div id="result_canvas" class="relative m-0 left-[50%] top-[50%] right-0 bottom-0 translate-y-[0%] md:translate-y-[-50%] translate-x-[-50%] max-w-full max-h-full shadow-xl">
                     <div id="collage_background" class="absolute h-full w-full" style="z-index:0;">
-                        <img class="h-full w-full hidden object-cover" src="" alt="Choose the background">
+                        <img class="h-full hidden object-contain object-top" src="" alt="Choose the background">
                     </div>
                     <?php
 for ($i = 0; $i < count($demoImages); $i++) {

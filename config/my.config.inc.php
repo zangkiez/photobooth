@@ -4,6 +4,7 @@ return [
     'ui' => [
         'language' => 'th',
         'local_timezone' => 'Asia/Bangkok',
+        'shutter_cheese_img' => null,
     ],
     'adminpanel' => [
         'view' => 'expert',
@@ -34,17 +35,18 @@ return [
     'collage' => [
         'cntdwn_time' => 2,
         'continuous_time' => 4,
-        'layout' => '2x4-2',
+        'layout' => 'collage.json',
         'layouts_enabled' => [
             '1+2-1',
         ],
+        'limit' => 1,
         'dashedline_color' => '#df0c0c',
-        'background_color' => '#08723b',
+        'take_frame' => 'once',
         'frame' => 'private/images/frames/สำเนาของ Second​ hand​ Market​ _​ Music​ _3.png',
         'polaroid_effect' => true,
-        'placeholderpath' => 'resources/img/demo/seal-station-norddeich-02.jpg',
-        'background' => 'private/images/background/สำเนาของ Second​ hand​ Market​ _​ Music​ _3.png',
+        'background' => 'resources/img/background/สำเนาของ Second​ hand​ Market​ _​ Music​ _3.png',
         'background_on_top' => true,
+        'background_color' => '#f50a0a',
     ],
     'textoncollage' => [
         'line1' => 'Between',
@@ -63,6 +65,7 @@ return [
     'background' => [
         'defaults' => 'resources/img/background.png',
         'chroma' => 'resources/img/background.png',
+        'admin' => 'resources/img/background.png',
     ],
     'preview' => [
         'mode' => 'device_cam',

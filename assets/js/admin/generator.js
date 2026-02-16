@@ -262,16 +262,9 @@ function changeGeneralSetting() {
         bgImgElement.removeClass('hidden');
     }
 
-    // Layer stacking: background_on_top puts background ABOVE photos
-    if (c_background_on_top) {
-        bgDiv.css('z-index', 5);
-        pictureDivs.css('z-index', 1);
-        bgImgElement.css('opacity', 0.7);
-    } else {
-        bgDiv.css('z-index', 0);
-        pictureDivs.css('z-index', 1);
-        bgImgElement.css('opacity', 1);
-    }
+    // Layer stacking: background_on_top puts background ABOVE photos (matching Collage.php behavior)
+    bgDiv.css('z-index', c_background_on_top ? 5 : 0);
+    pictureDivs.css('z-index', 1);
     frameDiv.css('z-index', 10);
     textDiv.css('z-index', 15);
 
