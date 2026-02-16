@@ -57,7 +57,11 @@ try {
     if (!isset($_POST['filter'])) {
         $logger->debug('No filter provided.');
     } elseif (!empty($_POST['filter'])) {
-        $vars['imageFilter'] = ImageFilterEnum::tryFrom($_POST['filter']);
+        $filterInput = $_POST['filter'];
+        $vars['imageFilter'] = ImageFilterEnum::tryFrom($filterInput);
+        if ($vars['imageFilter'] === null && is_string($filterInput) && str_starts_with($filterInput, ImageUtility::CUBE_FILTER_PREFIX)) {
+            $vars['imageFilter'] = $filterInput;
+        }
     }
 } catch (\Exception $e) {
     // Handle the exception

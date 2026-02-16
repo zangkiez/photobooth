@@ -127,7 +127,10 @@ class Collage
         return null;
     }
 
-    public static function createCollage(array $config, array $srcImagePaths, string $destImagePath, ?ImageFilterEnum $filter = null, ?CollageConfig $c = null): bool
+    /**
+     * @param ImageFilterEnum|string|null $filter Built-in filter enum, or "cube:Name" for .cube LUT, or null/PLAIN for no filter
+     */
+    public static function createCollage(array $config, array $srcImagePaths, string $destImagePath, ImageFilterEnum|string|null $filter = null, ?CollageConfig $c = null): bool
     {
         if ($c === null) {
             $c = CollageConfigFactory::fromConfig($config);
@@ -380,7 +383,8 @@ class Collage
             }
 
             // apply filter
-            if ($filter !== null && $filter !== ImageFilterEnum::PLAIN) {
+            $noFilter = $filter === null || ($filter instanceof ImageFilterEnum && $filter === ImageFilterEnum::PLAIN);
+            if (!$noFilter) {
                 ImageUtility::applyFilter($filter, $imageResource);
                 $imageHandler->imageModified = true;
             }

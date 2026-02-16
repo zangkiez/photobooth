@@ -8,6 +8,13 @@ use Photobooth\Enum\ImageFilterEnum;
 
 class ImageUtility
 {
+    /** @var string[] Paths to scan for .cube LUT files (relative to project root) */
+    public const CUBE_LUT_PATHS = [
+        'resources/lut',
+        'private/lut',
+    ];
+
+    public const CUBE_FILTER_PREFIX = 'cube:';
     public const supportedFileExtensionsProcessing = [
         'gif',
         'png',
@@ -111,8 +118,180 @@ class ImageUtility
         }
     }
 
-    public static function applyFilter(?ImageFilterEnum $filter, GdImage $image): void
+    /**
+     * Returns list of available .cube (Lightroom-style) filters for the UI.
+     * Each item: ['value' => 'cube:Basename', 'label' => 'Human label'].
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    public static function getCubeFilters(): array
     {
+        $list = [];
+        $seen = [];
+        foreach (self::CUBE_LUT_PATHS as $relPath) {
+            $path = PathUtility::getAbsolutePath($relPath);
+            if (!is_dir($path)) {
+                continue;
+            }
+            try {
+                $files = FileUtility::getFilesFromPath($path, ['cube']);
+                foreach ($files as $absPath) {
+                    $base = pathinfo($absPath, PATHINFO_FILENAME);
+                    if (isset($seen[$base])) {
+                        continue;
+                    }
+                    $seen[$base] = true;
+                    $list[] = [
+                        'value' => self::CUBE_FILTER_PREFIX . $base,
+                        'label' => self::cubeNameToLabel($base),
+                    ];
+                }
+            } catch (\Throwable $e) {
+                // skip invalid paths
+            }
+        }
+        usort($list, static fn ($a, $b) => strcasecmp($a['label'], $b['label']));
+        return $list;
+    }
+
+    private static function cubeNameToLabel(string $base): string
+    {
+        return trim(preg_replace('/[-_]+/', ' ', $base));
+    }
+
+    /**
+     * Resolve cube filter value (e.g. "cube:BlueHour") to absolute .cube file path.
+     *
+     * @throws Exception if not found
+     */
+    public static function resolveCubePath(string $cubeFilterValue): string
+    {
+        if (str_starts_with($cubeFilterValue, self::CUBE_FILTER_PREFIX)) {
+            $cubeFilterValue = substr($cubeFilterValue, strlen(self::CUBE_FILTER_PREFIX));
+        }
+        $base = preg_replace('/[^a-zA-Z0-9._-]/', '', $cubeFilterValue);
+        if ($base === '') {
+            throw new Exception('Invalid cube filter name.');
+        }
+        foreach (self::CUBE_LUT_PATHS as $relPath) {
+            $path = PathUtility::getAbsolutePath($relPath);
+            $file = $path . DIRECTORY_SEPARATOR . $base . '.cube';
+            if (is_file($file)) {
+                return $file;
+            }
+        }
+        throw new Exception('Cube file not found: ' . $base . '.cube');
+    }
+
+    /**
+     * Apply a 3D LUT from a .cube file (e.g. from Lightroom) to the image.
+     *
+     * @throws Exception
+     */
+    public static function applyCubeLut(string $cubeFilePath, GdImage $image): void
+    {
+        if (!is_readable($cubeFilePath)) {
+            throw new Exception('Cube file not readable: ' . $cubeFilePath);
+        }
+        $lut = self::parseCubeFile($cubeFilePath);
+        $width = imagesx($image);
+        $height = imagesy($image);
+        $size = $lut['size'];
+        $data = $lut['data'];
+        $n2 = $size * $size;
+        $n1 = $size;
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                $idx = imagecolorat($image, $x, $y);
+                $r = ($idx >> 16) & 0xFF;
+                $g = ($idx >> 8) & 0xFF;
+                $b = $idx & 0xFF;
+                $ri = (int) round($r / 255.0 * ($size - 1));
+                $gi = (int) round($g / 255.0 * ($size - 1));
+                $bi = (int) round($b / 255.0 * ($size - 1));
+                $ri = max(0, min($size - 1, $ri));
+                $gi = max(0, min($size - 1, $gi));
+                $bi = max(0, min($size - 1, $bi));
+                $pos = $ri * $n2 + $gi * $n1 + $bi;
+                $out = $data[$pos];
+                $newR = (int) round($out[0] * 255);
+                $newG = (int) round($out[1] * 255);
+                $newB = (int) round($out[2] * 255);
+                $newR = max(0, min(255, $newR));
+                $newG = max(0, min(255, $newG));
+                $newB = max(0, min(255, $newB));
+                imagesetpixel($image, $x, $y, ($newR << 16) | ($newG << 8) | $newB);
+            }
+        }
+    }
+
+    /**
+     * Parse .cube file into size and 1D array of [R,G,B] (0-1) per LUT cell.
+     *
+     * @return array{size: int, data: list<array{0: float, 1: float, 2: float}>}
+     * @throws Exception
+     */
+    private static function parseCubeFile(string $cubeFilePath): array
+    {
+        $content = file_get_contents($cubeFilePath);
+        if ($content === false) {
+            throw new Exception('Cannot read cube file.');
+        }
+        $size = null;
+        $lines = preg_split('/\r\n|\r|\n/', $content);
+        $data = [];
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || $line[0] === '#' || str_starts_with($line, 'TITLE') || str_starts_with($line, 'DOMAIN')) {
+                continue;
+            }
+            if (preg_match('/^LUT_3D_SIZE\s+(\d+)/', $line, $m)) {
+                $size = (int) $m[1];
+                if ($size < 2 || $size > 256) {
+                    throw new Exception('Invalid LUT_3D_SIZE in cube file.');
+                }
+                continue;
+            }
+            $parts = preg_split('/\s+/', $line, 4);
+            if (count($parts) >= 3 && is_numeric($parts[0]) && is_numeric($parts[1]) && is_numeric($parts[2])) {
+                $data[] = [
+                    (float) $parts[0],
+                    (float) $parts[1],
+                    (float) $parts[2],
+                ];
+            }
+        }
+        if ($size === null || count($data) !== $size * $size * $size) {
+            throw new Exception('Invalid or incomplete cube file.');
+        }
+        return ['size' => $size, 'data' => $data];
+    }
+
+    /**
+     * Apply filter: either a built-in enum or a .cube LUT (value starting with "cube:").
+     *
+     * @param ImageFilterEnum|string|null $filter enum, or "cube:Name", or null for no filter
+     */
+    public static function applyFilter(ImageFilterEnum|string|null $filter, GdImage $image): void
+    {
+        if ($filter === null) {
+            return;
+        }
+        if (is_string($filter)) {
+            if (str_starts_with($filter, self::CUBE_FILTER_PREFIX)) {
+                $path = self::resolveCubePath($filter);
+                self::applyCubeLut($path, $image);
+            }
+            return;
+        }
+        self::applyFilterEnum($filter, $image);
+    }
+
+    public static function applyFilterEnum(?ImageFilterEnum $filter, GdImage $image): void
+    {
+        if ($filter === null) {
+            return;
+        }
         switch ($filter) {
             case ImageFilterEnum::ANTIQUE:
                 imagefilter($image, IMG_FILTER_BRIGHTNESS, 0);
