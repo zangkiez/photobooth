@@ -1,8 +1,8 @@
 archives/
 bower_components/
 config/*
-!config/config.inc.php
-!config/tailwind.admin.config.js
+!config/*
+!config/**/*
 
 digicamcontrol/
 HEAD
