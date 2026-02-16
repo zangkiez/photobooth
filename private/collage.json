@@ -1,0 +1,29 @@
+{
+    "width": "1800",
+    "height": "1200",
+    "text_custom_style": false,
+    "text_font_size": "50",
+    "text_rotation": "0",
+    "text_locationx": "1470",
+    "text_locationy": "250",
+    "text_font_color": "#000000",
+    "text_font": "",
+    "text_line1": "Photobooth",
+    "text_line2": "we love",
+    "text_line3": "OpenSource",
+    "text_linespace": "90",
+    "apply_frame": null,
+    "frame": "",
+    "background": "resources/img/background.png",
+    "background_color": "#ffffff",
+    "placeholder": false,
+    "placeholderpath": "",
+    "placeholderposition": "",
+    "layout": [
+        ["0", "0", "x/2", "y/2", "0", false],
+        ["x/2", "0", "x/2", "y/2", "0", false],
+        ["0", "y/2", "x/2", "y/2", "0", false],
+        ["x/2", "y/2", "x/2", "y/2", "0", false]
+    ],
+    "background_on_top": true
+}

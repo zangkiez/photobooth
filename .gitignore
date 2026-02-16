@@ -3,12 +3,11 @@ bower_components/
 config/*
 !config/config.inc.php
 !config/tailwind.admin.config.js
-data/
+
 digicamcontrol/
 HEAD
 manual/faq.*
 node_modules/
-private/*
 !private/README.md
 resources/css/*
 !resources/css/README.md
