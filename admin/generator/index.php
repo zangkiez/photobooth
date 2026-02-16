@@ -63,6 +63,9 @@ if (isset($_POST['new-configuration'])) {
             if (array_key_exists('placeholderpath', $arrayCollageJson)) {
                 $newConfig['collage']['placeholderpath'] = $arrayCollageJson['placeholderpath'];
             }
+            if (array_key_exists('background_on_top', $arrayCollageJson)) {
+                $newConfig['collage']['background_on_top'] = (bool) $arrayCollageJson['background_on_top'];
+            }
             // If there is a collage placeholder whithin the correct range (0 < placeholderposition <= collage limit), we need to decrease the collage limit by 1
             if ($newConfig['collage']['placeholder']) {
                 $collagePlaceholderPosition = (int) $newConfig['collage']['placeholderposition'];
@@ -514,6 +517,18 @@ $font_styles .= '</style>';
     )
 ?>
                             </div>
+                            <div class="flex flex-col">
+                                <?=
+    AdminInput::renderCheckbox(
+        [
+            'name' => 'generator-background_on_top',
+            'value' => 'false',
+            'attributes' => ['data-trigger' => 'general']
+        ],
+        'collage:collage_background_on_top'
+    )
+?>
+                            </div>
                         </div>
                         <div>
                             <span class="w-full flex flex-col text-xl font-bold text-brand-1 mb-2">
@@ -946,15 +961,7 @@ function copyConfig() {
     });
 }
 
-// Hook into saveConfiguration to update the display
-const originalSaveConfiguration = window.saveConfiguration;
-window.saveConfiguration = function() {
-    // Call original to prepare the object (it might submit, so we intercept before if possible,
-    // but generator.js defines saveConfiguration to submit form.
-    // We need to replicate the logic or modify generator.js.
-    // Since we cant easily modify the function inside generator.js without replacing it,
-    // let's just update the display when inputs change.
-}
+// Keep original saveConfiguration (do not override – it submits the form and must run)
 
 function updateConfigDisplay() {
     // This logic mimics saveConfiguration in generator.js to build the object
@@ -976,6 +983,7 @@ function updateConfigDisplay() {
         frame: $('input[name=\'generator-frame\']').val(),
         background: $('input[name=\'generator-background\']').val(),
         background_color: $('input[name=\'background_color\']').val(),
+        background_on_top: $('input[name=\'generator-background_on_top\'][data-trigger=\'general\']').is(':checked'),
         placeholder: $('input[name=\'enable_placeholder_image\'][data-trigger=\'general\']').is(':checked'),
         placeholderpath: $('input[name=\'placeholder_image\']').val(),
         placeholderposition: $('input[name=\'placeholder_image_position\']').val(),
@@ -985,7 +993,7 @@ function updateConfigDisplay() {
     $('div.image_layout:visible').each(function () {
         let container = $(this);
         let single_image_layout = [];
-        container.find('input:not([type=hidden])').each(function () {
+        container.find('input[data-prop]').each(function () {
             let to_save = $(this).val();
             if ($(this).attr('type') === 'checkbox') {
                 to_save = $(this).is(':checked') && configuration.apply_frame === 'always';

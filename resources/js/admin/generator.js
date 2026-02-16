@@ -104,6 +104,7 @@ function loadCurrentConfig() {
   var frameImage = collageConfig.frame;
   var show_frame = frameImage ? true : false;
   var applyFrame = collageConfig.take_frame;
+  var backgroundOnTop = collageConfig.background_on_top || false;
   var placeholder = collageConfig.placeholder;
   var placeholderpath = collageConfig.placeholderpath;
   var placeholderposition = collageConfig.placeholderposition;
@@ -128,6 +129,7 @@ function loadCurrentConfig() {
     frameImage = current_config.frame;
     show_frame = frameImage ? true : false;
     applyFrame = current_config.apply_frame;
+    backgroundOnTop = current_config.background_on_top || false;
     placeholder = current_config.placeholder;
     placeholderpath = current_config.placeholderpath;
     placeholderposition = current_config.placeholderposition;
@@ -156,6 +158,7 @@ function loadCurrentConfig() {
   $('input[name=\'generator-frame\']').parents('.adminImageSelection').find('.adminImageSelection-preview').attr('src', toPublicUrl(frameImage));
   $('input[name=\'show-frame\'][data-trigger=\'general\']').prop('checked', show_frame);
   $('select[name=\'apply_frame\']').val(applyFrame);
+  $('input[name=\'generator-background_on_top\'][data-trigger=\'general\']').prop('checked', backgroundOnTop);
 
   //placeholder
   $('input[name=\'placeholder_image_position\']').val(placeholderposition);
@@ -189,7 +192,7 @@ function loadCurrentConfig() {
     inputLayout.removeClass('hidden');
     var exampleImage = $('#' + identifier);
     exampleImage.removeClass('hidden');
-    inputLayout.find('input:not([type=hidden])').each(function (propertyPosition) {
+    inputLayout.find('input[data-prop]').each(function (propertyPosition) {
       var inputType = $(this).attr('type');
       if (inputType === 'range') {
         $(this).parent().find('span:first').text(layout[i][propertyPosition]);
@@ -219,6 +222,7 @@ function changeGeneralSetting() {
   var c_apply_frame = $('select[name=\'apply_frame\']').val();
   var c_show_frame = $('input[name=\'show-frame\'][data-trigger=\'general\']').is(':checked');
   var c_show_background = $('input[name=\'show-background\'][data-trigger=\'general\']').is(':checked');
+  var c_background_on_top = $('input[name=\'generator-background_on_top\'][data-trigger=\'general\']').is(':checked');
   var c_text_enabled = $('input[name=\'text_enabled\'][data-trigger=\'general\']').is(':checked');
   var c_text_font = $('input[name=\'text_font_family\']')[0].getAttribute('data-fontclass');
   var c_text_font_unique_id = $('input[name=\'text_font_family\']').data('unique-id');
@@ -236,10 +240,36 @@ function changeGeneralSetting() {
   var canvasDOM = $('#result_canvas');
   canvasDOM.css('aspect-ratio', aspect_ratio);
   canvasDOM.css('background-color', c_bg_color);
-  canvasDOM.find('div#collage_background img').attr('src', c_bg_public);
-  canvasDOM.find('div#collage_background img').addClass('hidden');
+  var bgImgElement = canvasDOM.find('div#collage_background img');
+  bgImgElement.attr('src', c_bg_public);
+  bgImgElement.addClass('hidden');
   if (c_show_background) {
-    canvasDOM.find('div#collage_background img').removeClass('hidden');
+    bgImgElement.removeClass('hidden');
+  }
+  
+  // Layer stacking order: adjust z-index based on background_on_top
+  // When background is on top, it should appear above photos but below frame/text
+  var bgDiv = canvasDOM.find('div#collage_background');
+  var pictureDivs = canvasDOM.find('div[id^=\'picture-\']');
+  var frameDiv = canvasDOM.find('div#collage_frame');
+  var textDiv = canvasDOM.find('div#collage_text');
+  
+  if (c_background_on_top) {
+    // Background on top: photos(1) < background(5) < frame(10) < text(15)
+    pictureDivs.css('z-index', 1);
+    bgDiv.css('z-index', 5);
+    frameDiv.css('z-index', 10);
+    textDiv.css('z-index', 15);
+    // Apply semi-transparency to background when on top (like Collage.php does)
+    bgImgElement.css('opacity', 0.7);
+  } else {
+    // Normal order: background(0) < photos(1) < frame(10) < text(15)
+    bgDiv.css('z-index', 0);
+    pictureDivs.css('z-index', 1);
+    frameDiv.css('z-index', 10);
+    textDiv.css('z-index', 15);
+    // Full opacity when background is behind
+    bgImgElement.css('opacity', 1);
   }
   var collageImgs = canvasDOM.find('div#collage_frame img');
   var pictureFrameImgs = canvasDOM.find('img.picture-frame');
@@ -485,6 +515,7 @@ function saveConfiguration() {
     frame: $('input[name=\'generator-frame\']').val(),
     background: $('input[name=\'generator-background\']').val(),
     background_color: $('input[name=\'background_color\']').val(),
+    background_on_top: $('input[name=\'generator-background_on_top\'][data-trigger=\'general\']').is(':checked'),
     placeholder: $('input[name=\'enable_placeholder_image\'][data-trigger=\'general\']').is(':checked'),
     placeholderpath: $('input[name=\'placeholder_image\']').val(),
     placeholderposition: $('input[name=\'placeholder_image_position\']').val(),
@@ -493,7 +524,7 @@ function saveConfiguration() {
   $('div.image_layout:visible').each(function () {
     var container = $(this);
     var single_image_layout = [];
-    container.find('input:not([type=hidden])').each(function () {
+    container.find('input[data-prop]').each(function () {
       var to_save = $(this).val();
       if ($(this).attr('type') === 'checkbox') {
         to_save = $(this).is(':checked') && configuration.apply_frame === 'always';
