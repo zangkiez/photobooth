@@ -48,11 +48,11 @@
   --font-family: 'Space Grotesk', 'Kanit', sans-serif;
 
   /* Shadows - Hard Edge (Neo-Brutalism) */
-  --shadow-hard: 6px 6px 0 rgba(0,0,0,1);
-  --shadow-hard-sm: 3px 3px 0 rgba(0,0,0,1);
-  --shadow-hard-lg: 10px 10px 0 rgba(0,0,0,1);
+  --shadow-hard: 6px 6px 0 rgba(0, 0, 0, 1);
+  --shadow-hard-sm: 3px 3px 0 rgba(0, 0, 0, 1);
+  --shadow-hard-lg: 10px 10px 0 rgba(0, 0, 0, 1);
   --shadow-color: 8px 8px 0 var(--mag-cyan);
-  --shadow-hover: 12px 12px 0 rgba(0,0,0,1);
+  --shadow-hover: 12px 12px 0 rgba(0, 0, 0, 1);
 
   /* Borders */
   --border-thick: 4px solid var(--mag-black);
@@ -70,49 +70,90 @@
    ANIMATIONS
    ============================================ */
 @keyframes slide-up {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes slide-in-left {
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes slide-in-right {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes scale-in {
-  from { transform: scale(0); }
-  to { transform: scale(1); }
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 
 @keyframes rotate-in {
-  from { transform: rotate(-180deg) scale(0); }
-  to { transform: rotate(0) scale(1); }
+  from {
+    transform: rotate(-180deg) scale(0);
+  }
+  to {
+    transform: rotate(0) scale(1);
+  }
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes flash {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes wiggle {
-  0%, 100% { transform: rotate(-3deg); }
-  50% { transform: rotate(3deg); }
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
 }
 
 /* ============================================
    BASE STYLES
    ============================================ */
-html, body {
+html,
+body {
   font-family: var(--font-body);
   background-color: var(--mag-cream);
   color: var(--mag-black);
@@ -152,8 +193,8 @@ html, body {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
   pointer-events: none;
 }
@@ -280,7 +321,7 @@ html, body {
 
 .button:active {
   transform: translate(3px, 3px);
-  box-shadow: 0 0 0 rgba(0,0,0,1);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 1);
 }
 
 /* Button Variants */
@@ -302,7 +343,7 @@ html, body {
 }
 
 /* Modern Button Override */
-[data-ui-button="modern"] .button {
+[data-ui-button='modern'] .button {
   border-radius: 0;
   width: 100px;
   height: 100px;
@@ -311,14 +352,14 @@ html, body {
   box-shadow: var(--shadow-hard);
 }
 
-[data-ui-button="modern"] .button:hover {
+[data-ui-button='modern'] .button:hover {
   background: var(--mag-red);
   transform: translate(-4px, -4px) rotate(-5deg);
-  box-shadow: 10px 10px 0 rgba(0,0,0,1);
+  box-shadow: 10px 10px 0 rgba(0, 0, 0, 1);
 }
 
 /* Modern Squared */
-[data-ui-button="modern_squared"] .button {
+[data-ui-button='modern_squared'] .button {
   border-radius: 0;
   background: var(--mag-white);
   box-shadow: var(--shadow-hard);
@@ -326,7 +367,7 @@ html, body {
 
 /* Take Photo - SPECIAL */
 #takePic,
-[data-command="takePic"] {
+[data-command='takePic'] {
   background: var(--mag-red) !important;
   color: var(--mag-white) !important;
   font-size: 1.25rem;
@@ -335,20 +376,20 @@ html, body {
 }
 
 #takePic:hover,
-[data-command="takePic"]:hover {
+[data-command='takePic']:hover {
   background: var(--mag-black) !important;
   animation: none;
 }
 
 /* Take Collage */
 #takeCollage,
-[data-command="takeCollage"] {
+[data-command='takeCollage'] {
   background: var(--mag-cyan) !important;
 }
 
 /* Gallery Button */
 #gallery-button,
-[data-command="gallery"] {
+[data-command='gallery'] {
   background: var(--mag-yellow) !important;
 }
 
@@ -474,33 +515,6 @@ html, body {
   text-transform: uppercase;
 }
 
-/* Keep loader message truly centered during countdown/processing. */
-.stage--loader .stage-message {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  right: auto !important;
-  bottom: auto !important;
-  translate: none !important;
-  transform: translate(-50%, -50%) !important;
-  margin: 0 !important;
-  z-index: 20 !important;
-  width: auto !important;
-  max-width: calc(100% - 4rem) !important;
-
-  /* Make text readable over preview/transparent background */
-  text-shadow:
-    0 0 20px rgba(0, 0, 0, 0.8),
-    0 2px 4px rgba(0, 0, 0, 0.9),
-    2px 2px 0 var(--mag-black) !important;
-  color: var(--mag-white) !important;
-  font-weight: 700 !important;
-  padding: var(--space-sm) var(--space-md) !important;
-  background: rgba(0, 0, 0, 0.5) !important;
-  border-radius: 8px !important;
-  backdrop-filter: blur(10px) !important;
-}
-
 /* Countdown Number */
 #counter {
   font-family: var(--font-display);
@@ -615,7 +629,7 @@ html, body {
 .sidenav {
   background: var(--mag-white);
   border-left: var(--border-thick);
-  box-shadow: -10px 0 0 rgba(0,0,0,0.1);
+  box-shadow: -10px 0 0 rgba(0, 0, 0, 0.1);
 }
 
 .sidenav-list-item {
@@ -633,7 +647,7 @@ html, body {
 .sidenav-list-item:hover {
   background: var(--mag-cyan);
   transform: translateX(-4px);
-  box-shadow: 6px 6px 0 rgba(0,0,0,1);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 1);
 }
 
 .sidenav-close {
@@ -744,8 +758,8 @@ html, body {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+    linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
   background-size: 100px 100px;
   pointer-events: none;
   z-index: 1;
@@ -784,10 +798,10 @@ html, body {
 }
 
 /* Print Message - Yellow Accent */
-.stage-message:has-text("กำลังพิมพ์"),
-.stage-message:has-text("printing"),
-.overlay-message:has-text("กำลังพิมพ์"),
-.overlay-message:has-text("printing") {
+.stage-message:has-text('กำลังพิมพ์'),
+.stage-message:has-text('printing'),
+.overlay-message:has-text('กำลังพิมพ์'),
+.overlay-message:has-text('printing') {
   background: var(--mag-yellow) !important;
   transform: translate(-50%, -50%) rotate(2deg) !important;
 }
@@ -823,92 +837,92 @@ html, body {
    ============================================ */
 
 /* Layer 1: Attribute selector (highest specificity) */
-[id="screensaver-overlay"][class~="screensaver-overlay"],
-[id="screensaver-overlay"][class~="screensaver-overlay"].screensaver-overlay--active,
-[id="screensaver-overlay"][class~="screensaver-overlay"].screensaver-overlay--gallery {
-    all: unset !important;
-    position: fixed !important;
-    bottom: 80px !important;
-    right: 20px !important;
-    left: auto !important;
-    top: auto !important;
-    width: auto !important;
-    height: auto !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    background-image: none !important;
-    z-index: 2147483647 !important;
-    pointer-events: none !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    inset: auto auto 80px 20px !important;
-    transform: none !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    border: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: visible !important;
-    min-width: auto !important;
-    min-height: auto !important;
-    max-width: none !important;
-    max-height: none !important;
-    clip-path: none !important;
-    filter: none !important;
+[id='screensaver-overlay'][class~='screensaver-overlay'],
+[id='screensaver-overlay'][class~='screensaver-overlay'].screensaver-overlay--active,
+[id='screensaver-overlay'][class~='screensaver-overlay'].screensaver-overlay--gallery {
+  all: unset !important;
+  position: fixed !important;
+  bottom: 80px !important;
+  right: 20px !important;
+  left: auto !important;
+  top: auto !important;
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  z-index: 2147483647 !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  inset: auto auto 80px 20px !important;
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  min-width: auto !important;
+  min-height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  clip-path: none !important;
+  filter: none !important;
 }
 
 /* Hide ALL inner elements by default */
-[id="screensaver-overlay"] > *:not(.screensaver-indicator) {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-    position: absolute !important;
+[id='screensaver-overlay'] > *:not(.screensaver-indicator) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
 }
 
 /* ONLY show indicator - hidden by default, visible when active */
-[id="screensaver-overlay"] .screensaver-indicator {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    padding: 8px 16px !important;
-    background: rgba(0, 0, 0, 0.6) !important;
-    backdrop-filter: blur(4px) !important;
-    border-radius: 20px !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    opacity: 0 !important;
-    transform: translateY(10px) !important;
-    transition: all 0.3s ease !important;
-    pointer-events: none !important;
+[id='screensaver-overlay'] .screensaver-indicator {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 16px !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  opacity: 0 !important;
+  transform: translateY(10px) !important;
+  transition: all 0.3s ease !important;
+  pointer-events: none !important;
 }
 
-[id="screensaver-overlay"].screensaver-overlay--active .screensaver-indicator,
-[id="screensaver-overlay"][class~="screensaver-overlay--active"] .screensaver-indicator {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
+[id='screensaver-overlay'].screensaver-overlay--active .screensaver-indicator,
+[id='screensaver-overlay'][class~='screensaver-overlay--active'] .screensaver-indicator {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
-[id="screensaver-overlay"] .screensaver-indicator__dot {
-    display: block !important;
-    width: 8px !important;
-    height: 8px !important;
-    background: var(--mag-cyan) !important;
-    border-radius: 50% !important;
-    animation: pulse-dot 2s ease-in-out infinite !important;
-    flex-shrink: 0 !important;
+[id='screensaver-overlay'] .screensaver-indicator__dot {
+  display: block !important;
+  width: 8px !important;
+  height: 8px !important;
+  background: var(--mag-cyan) !important;
+  border-radius: 50% !important;
+  animation: pulse-dot 2s ease-in-out infinite !important;
+  flex-shrink: 0 !important;
 }
 
-[id="screensaver-overlay"] .screensaver-indicator__text {
-    display: block !important;
-    font-family: var(--font-body) !important;
-    font-size: 10px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.2em !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-    text-transform: uppercase !important;
-    white-space: nowrap !important;
+[id='screensaver-overlay'] .screensaver-indicator__text {
+  display: block !important;
+  font-family: var(--font-body) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.2em !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
 }
 
 /* ============================================
@@ -921,33 +935,33 @@ html, body {
 .screensaver-overlay,
 body #screensaver-overlay,
 html body #screensaver-overlay.screensaver-overlay {
-    position: fixed !important;
-    bottom: 80px !important;
-    right: 20px !important;
-    left: auto !important;
-    top: auto !important;
-    width: auto !important;
-    height: auto !important;
-    min-width: auto !important;
-    min-height: auto !important;
-    max-width: none !important;
-    max-height: none !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    background-image: none !important;
-    z-index: 100 !important;
-    pointer-events: none !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    inset: auto !important;
-    transform: none !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    border: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: visible !important;
+  position: fixed !important;
+  bottom: 80px !important;
+  right: 20px !important;
+  left: auto !important;
+  top: auto !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: auto !important;
+  min-height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  z-index: 100 !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  inset: auto !important;
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
 }
 
 /* Hide ALL inner elements completely */
@@ -963,62 +977,69 @@ html body #screensaver-overlay.screensaver-overlay {
 .screensaver-overlay__text,
 .screensaver-overlay__image,
 .screensaver-overlay video {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-    position: absolute !important;
-    pointer-events: none !important;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  pointer-events: none !important;
 }
 
 /* ONLY show our indicator */
 #screensaver-overlay.screensaver-overlay .screensaver-indicator,
 .screensaver-indicator {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    padding: 8px 16px !important;
-    background: rgba(0, 0, 0, 0.6) !important;
-    backdrop-filter: blur(4px) !important;
-    border-radius: 20px !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    opacity: 0 !important;
-    transform: translateY(10px) !important;
-    transition: all 0.3s ease !important;
-    pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 16px !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  opacity: 0 !important;
+  transform: translateY(10px) !important;
+  transition: all 0.3s ease !important;
+  pointer-events: none !important;
 }
 
 #screensaver-overlay.screensaver-overlay.screensaver-overlay--active .screensaver-indicator,
 .screensaver-overlay--active .screensaver-indicator {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 .screensaver-indicator__dot {
-    display: block !important;
-    width: 8px !important;
-    height: 8px !important;
-    background: var(--mag-cyan) !important;
-    border-radius: 50% !important;
-    animation: pulse-dot 2s ease-in-out infinite !important;
-    flex-shrink: 0 !important;
+  display: block !important;
+  width: 8px !important;
+  height: 8px !important;
+  background: var(--mag-cyan) !important;
+  border-radius: 50% !important;
+  animation: pulse-dot 2s ease-in-out infinite !important;
+  flex-shrink: 0 !important;
 }
 
 @keyframes pulse-dot {
-    0%, 100% { opacity: 0.4; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.2); }
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
 .screensaver-indicator__text {
-    display: block !important;
-    font-family: var(--font-body) !important;
-    font-size: 10px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.2em !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-    text-transform: uppercase !important;
-    white-space: nowrap !important;
+  display: block !important;
+  font-family: var(--font-body) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.2em !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
 }
 
 /* ============================================
@@ -1026,8 +1047,8 @@ html body #screensaver-overlay.screensaver-overlay {
    ============================================ */
 @media (max-width: 768px) {
   :root {
-    --shadow-hard: 4px 4px 0 rgba(0,0,0,1);
-    --shadow-hard-lg: 6px 6px 0 rgba(0,0,0,1);
+    --shadow-hard: 4px 4px 0 rgba(0, 0, 0, 1);
+    --shadow-hard-lg: 6px 6px 0 rgba(0, 0, 0, 1);
   }
 
   .stage--start .names .event-text {
@@ -1049,7 +1070,7 @@ html body #screensaver-overlay.screensaver-overlay {
     font-size: 0.875rem;
   }
 
-  [data-ui-button="modern"] .button {
+  [data-ui-button='modern'] .button {
     width: 70px;
     height: 70px;
   }
@@ -1064,4 +1085,47 @@ html body #screensaver-overlay.screensaver-overlay {
   .marquee-bar {
     display: none !important;
   }
+}
+
+/* ============================================
+   LOADER MESSAGE OVERRIDE
+   MUST BE LAST - Override general stage-message styles
+   ============================================ */
+.stage--loader.stage--active .stage-message {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  translate: none !important;
+  transform: translate(-50%, -50%) !important;
+  margin: 0 !important;
+  z-index: 20 !important;
+  width: auto !important;
+  max-width: calc(100% - 4rem) !important;
+
+  /* Override general message styling - make readable over transparent preview */
+  font-size: clamp(1.5rem, 5vw, 3rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  color: var(--mag-white) !important;
+
+  /* Transparent background to show preview behind */
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(10px) !important;
+
+  /* Clean styling without rotation */
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 12px !important;
+  padding: var(--space-sm) var(--space-md) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+
+  /* Strong text shadow for readability */
+  text-shadow:
+    0 0 20px rgba(0, 0, 0, 0.9),
+    0 2px 8px rgba(0, 0, 0, 1),
+    2px 2px 0 rgba(0, 0, 0, 0.8) !important;
 }
