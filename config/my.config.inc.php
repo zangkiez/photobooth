@@ -16,6 +16,7 @@ return [
         'path' => 'resources/img/logo/logo-plain-fulltext.png',
     ],
     'picture' => [
+        'cntdwn_time' => 10,
         'frame' => 'resources/img/frames/frame_parque.png',
     ],
     'textonpicture' => [
@@ -67,8 +68,7 @@ return [
         'font' => 'resources/fonts/GreatVibes-Regular.ttf',
     ],
     'login' => [
-        'enabled' => true,
-        'password' => '$2y$12$6PD74H4KTHbaQ6HUiPVlG.RhxaemjxEN9D50e3ZcVcRjkMtfKKmAG',
+        'username' => '',
     ],
     'protect' => [
         'admin' => false,
