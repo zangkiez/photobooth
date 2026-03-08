@@ -66,6 +66,15 @@ return [
         'rotation' => 45,
         'font' => 'resources/fonts/GreatVibes-Regular.ttf',
     ],
+    'login' => [
+        'enabled' => true,
+        'password' => '$2y$12$6PD74H4KTHbaQ6HUiPVlG.RhxaemjxEN9D50e3ZcVcRjkMtfKKmAG',
+    ],
+    'protect' => [
+        'admin' => false,
+        'localhost_admin' => false,
+        'index_redirect' => 'gallery',
+    ],
     'colors' => [
         'primary' => '#106a37',
         'panel' => '#529146',
