@@ -1,0 +1,233 @@
+/**
+ * RESULTS SCREEN - MAGAZINE/STREET STYLE
+ * Photo result display with editorial flair
+ */
+
+/* ============================================
+   RESULT SCREEN BASE
+   ============================================ */
+.stage--result {
+  background: var(--mag-cream);
+  position: relative;
+}
+
+/* Result Image Container */
+.stage--result .stage-image {
+  position: relative;
+  max-width: 80vw;
+  max-height: 70vh;
+  object-fit: contain;
+  border: 6px solid var(--mag-black);
+  box-shadow:
+    12px 12px 0 rgba(0, 0, 0, 1),
+    0 0 40px rgba(0, 0, 0, 0.2);
+  transform: rotate(-1deg);
+  transition: transform 0.3s ease;
+}
+
+.stage--result .stage-image:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+
+/* Result Inner Layout */
+.stage--result .stage-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+/* ============================================
+   RESULT ACTIONS BAR
+   ============================================ */
+.stage--result .buttonbar--bottom {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  background: var(--mag-white);
+  border: 4px solid var(--mag-black);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 1);
+  z-index: 100;
+}
+
+/* Result Action Buttons */
+.stage--result .button {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 1rem 1.5rem;
+  background: var(--mag-white);
+  color: var(--mag-black);
+  border: 3px solid var(--mag-black);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stage--result .button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 1);
+}
+
+.stage--result .button--primary {
+  background: var(--mag-black);
+  color: var(--mag-white);
+}
+
+.stage--result .button--accent {
+  background: var(--mag-cyan);
+}
+
+/* Print Button */
+.stage--result #print-btn,
+.stage--result [data-command='print'] {
+  background: var(--mag-yellow);
+}
+
+/* QR Code Display */
+.stage--result .stage-code {
+  position: absolute;
+  padding: 1rem;
+  background: var(--mag-white);
+  border: 4px solid var(--mag-black);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 1);
+  transform: rotate(2deg);
+}
+
+.stage--result .stage-code.left {
+  left: 2rem;
+}
+
+.stage--result .stage-code.right {
+  right: 2rem;
+}
+
+.stage--result .stage-code__caption {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* ============================================
+   CHROMA SCREEN
+   ============================================ */
+.stage--chroma {
+  background: var(--mag-cream);
+}
+
+.stage--chroma .chroma-canvas {
+  border: 6px solid var(--mag-black);
+  box-shadow: 12px 12px 0 rgba(0, 0, 0, 1);
+}
+
+.stage--chroma .chroma-background-selector {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--mag-white);
+  border: 4px solid var(--mag-black);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 1);
+}
+
+.stage--chroma .chroma-background-selector button {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 0.75rem 1rem;
+  background: var(--mag-cream);
+  border: 3px solid var(--mag-black);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stage--chroma .chroma-background-selector button:hover {
+  background: var(--mag-cyan);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 1);
+}
+
+/* ============================================
+   MESSAGES ON RESULT SCREEN
+   ============================================ */
+.stage--result .stage-message {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mag-black);
+  background: var(--mag-cyan);
+  padding: 1rem 2rem;
+  border: 4px solid var(--mag-black);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 1);
+  transform: rotate(-1deg);
+}
+
+/* Error Message */
+.stage--result .stage-message--error {
+  background: var(--mag-red);
+  color: var(--mag-white);
+  transform: rotate(1deg);
+}
+
+/* Success Message */
+.stage--result .stage-message--success {
+  background: var(--mag-lime);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .stage--result .stage-image {
+    max-width: 90vw;
+    max-height: 60vh;
+    border-width: 4px;
+    box-shadow: 8px 8px 0 rgba(0, 0, 0, 1);
+  }
+
+  .stage--result .buttonbar--bottom {
+    bottom: 1rem;
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stage--result .button {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+  }
+
+  .stage--result .stage-code {
+    position: relative;
+    left: auto;
+    right: auto;
+    margin: 1rem 0;
+  }
+
+  .stage--chroma .chroma-background-selector {
+    bottom: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

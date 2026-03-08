@@ -13,8 +13,8 @@ include PathUtility::getAbsolutePath('template/components/main.defaults.php');
 <html
     lang="<?php echo $config['ui']['language'] ?? 'en'; ?>"
     data-ui-theme="<?php echo $config['ui']['style'] ?? 'default'; ?>"
-    data-ui-button="<?php echo $config['ui']['button'] ?? 'default'; ?>"
->
+    data-ui-button="<?php echo $config['ui']['button'] ?? 'default'; ?>">
+
 <head>
 
     <meta charset="UTF-8" />
@@ -26,32 +26,27 @@ include PathUtility::getAbsolutePath('template/components/main.defaults.php');
     <title><?= $pageTitle ?></title>
 
     <!-- Favicon + Android/iPhone Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="<?=$assetService->getUrl('resources/img/apple-touch-icon.png')?>">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?=$assetService->getUrl('resources/img/favicon-32x32.png')?>">
-    <link rel="icon" type="image/png" sizes="16x16" href="<?=$assetService->getUrl('resources/img/favicon-16x16.png')?>">
-    <link rel="manifest" href="<?=$assetService->getUrl('resources/img/site.webmanifest')?>">
-    <link rel="mask-icon" href="<?=$assetService->getUrl('resources/img/safari-pinned-tab.svg')?>" color="#5bbad5">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= $assetService->getUrl('resources/img/apple-touch-icon.png') ?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= $assetService->getUrl('resources/img/favicon-32x32.png') ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= $assetService->getUrl('resources/img/favicon-16x16.png') ?>">
+    <link rel="manifest" href="<?= $assetService->getUrl('resources/img/site.webmanifest') ?>">
+    <link rel="mask-icon" href="<?= $assetService->getUrl('resources/img/safari-pinned-tab.svg') ?>" color="#5bbad5">
 
     <!-- Fullscreen Mode on old iOS-Devices when starting photobooth from homescreen -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-    <link rel="stylesheet" href="<?=$assetService->getUrl('node_modules/normalize.css/normalize.css')?>" />
-    <link rel="stylesheet" href="<?=$assetService->getUrl('node_modules/@fortawesome/fontawesome-free/css/all.min.css')?>" />
-    <link rel="stylesheet" href="<?=$assetService->getUrl('node_modules/material-icons/iconfont/material-icons.css')?>">
-    <link rel="stylesheet" href="<?=$assetService->getUrl('node_modules/material-icons/css/material-icons.css')?>">
-    <?= $photoswipe ? '<link rel="stylesheet" href="' . $assetService->getUrl('node_modules/photoswipe/dist/photoswipe.css') . '" />' : ''?>
-    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/fonts.css')?>" />
-    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/framework.css')?>" />
+    <link rel="stylesheet" href="<?= $assetService->getUrl('node_modules/normalize.css/normalize.css') ?>" />
+    <link rel="stylesheet" href="<?= $assetService->getUrl('node_modules/@fortawesome/fontawesome-free/css/all.min.css') ?>" />
+    <link rel="stylesheet" href="<?= $assetService->getUrl('node_modules/material-icons/iconfont/material-icons.css') ?>">
+    <link rel="stylesheet" href="<?= $assetService->getUrl('node_modules/material-icons/css/material-icons.css') ?>">
+    <?= $photoswipe ? '<link rel="stylesheet" href="' . $assetService->getUrl('node_modules/photoswipe/dist/photoswipe.css') . '" />' : '' ?>
+    <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/fonts.css') ?>" />
+    <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/framework.css') ?>" />
     <?= $photoswipe && $config['gallery']['bottom_bar'] ? '<link rel="stylesheet" href="' . $assetService->getUrl('resources/css/photoswipe-bottom.css') . '"/>' : '' ?>
     <?= ThemeUtility::renderCustomUserStyle($config); ?>
     <?= is_file(PathUtility::getAbsolutePath('private/overrides.css')) ? '<link rel="stylesheet" href="' . $assetService->getUrl('private/overrides.css') . '"/>' : '' ?>
-    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/fonts-magazine.css')?>" />
-    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/theme-magazine.css')?>" />
-    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/magazine-layout.css')?>" />
-    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/gallery-magazine.css')?>" />
-    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/filter-magazine.css')?>" />
-    <!-- start-magazine.css หลังสุดเพื่อให้สไตล์ stage--start ของคุณไม่ถูกเขียนทับ -->
-    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/start-magazine.css')?>" />
-    <script src="<?=$assetService->getUrl('node_modules/jquery/dist/jquery.min.js')?>"></script>
+    <!-- Magazine/Street Theme - Single Bundle -->
+    <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/magazine-bundle.css') ?>" />
+    <script src="<?= $assetService->getUrl('node_modules/jquery/dist/jquery.min.js') ?>"></script>
 </head>

@@ -296,6 +296,7 @@ var photoBooth = (function () {
         endTime,
         totalTime;
     var setActiveStage = function setActiveStage(stage) {
+        photoboothTools.console.log('setActiveStage: ' + stage);
         startPage.removeClass('stage--active');
         loader.removeClass('stage--active');
         resultPage.removeClass('stage--active');
@@ -309,6 +310,7 @@ var photoBooth = (function () {
     };
     var ensureIdleStage = function ensureIdleStage() {
         if (!api.takingPic && !resultPage.hasClass('stage--active')) {
+            photoboothTools.console.log('ensureIdleStage: forcing start (takingPic=' + api.takingPic + ')');
             setActiveStage('start');
             loader.removeClass('showBackgroundImage');
             loader.css('background-image', '');
