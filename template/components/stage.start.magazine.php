@@ -126,93 +126,33 @@ use Photobooth\Utility\PathUtility;
         </div>
     </div>
 
-    <!-- Screensaver - Subtle Indicator Style -->
-    <div id="screensaver-overlay" class="screensaver-overlay screensaver-overlay--subtle" data-mode="none">
-        <div class="screensaver-indicator">
-            <span class="screensaver-indicator__dot"></span>
-            <span class="screensaver-indicator__text">IDLE</span>
-        </div>
+    <!-- Screensaver -->
+    <?php
+    $screensaverMode = $config['screensaver']['mode'] ?? 'image';
+    $screensaverImageSource = $config['screensaver']['image_source'] ?? '';
+    $screensaverVideoSource = $config['screensaver']['video_source'] ?? '';
+    $screensaverSource = '';
+    if ($screensaverMode === 'image' && $screensaverImageSource) {
+        $screensaverSource = PathUtility::getPublicPath($screensaverImageSource);
+    } elseif ($screensaverMode === 'video' && $screensaverVideoSource) {
+        $screensaverSource = PathUtility::getPublicPath($screensaverVideoSource);
+    }
+    ?>
+    <div
+        id="screensaver-overlay"
+        class="screensaver-overlay"
+        data-mode="<?= $screensaverMode ?>"
+        data-source="<?= $screensaverSource ?>"
+        style="display: none;"
+    >
+        <div id="screensaver-text-top" class="screensaver-overlay__text screensaver-overlay__text--top"></div>
+        <div id="screensaver-text-center" class="screensaver-overlay__text screensaver-overlay__text--center"></div>
+        <img id="screensaver-image" class="screensaver-overlay__image" alt="screensaver">
+        <video id="screensaver-video" loop muted playsinline></video>
+        <div id="screensaver-text-bottom" class="screensaver-overlay__text screensaver-overlay__text--bottom"></div>
     </div>
 
-    <!-- OVERRIDE SCREENSAVER - Force Subtle Style -->
-    <script>
-    (function() {
-        'use strict';
-        
-        const overlay = document.getElementById('screensaver-overlay');
-        if (!overlay) return;
-        
-        let isProcessing = false;
-        
-        // Force styles function
-        function forceSubtleStyles() {
-            if (isProcessing) return;
-            isProcessing = true;
-            
-            // Only reset if needed
-            if (overlay.style.position !== 'fixed') {
-                overlay.style.cssText = '';
-                overlay.style.position = 'fixed';
-                overlay.style.bottom = '80px';
-                overlay.style.right = '20px';
-                overlay.style.left = 'auto';
-                overlay.style.top = 'auto';
-                overlay.style.width = 'auto';
-                overlay.style.height = 'auto';
-                overlay.style.background = 'transparent';
-                overlay.style.zIndex = '9999';
-                overlay.style.pointerEvents = 'none';
-                overlay.style.display = 'flex';
-                overlay.style.alignItems = 'center';
-                overlay.style.justifyContent = 'center';
-                overlay.style.border = 'none';
-                overlay.style.margin = '0';
-                overlay.style.padding = '0';
-                overlay.style.overflow = 'visible';
-                overlay.style.inset = 'auto';
-            }
-            
-            // Hide all children except our indicator
-            Array.from(overlay.children).forEach(child => {
-                if (child.classList.contains('screensaver-indicator')) {
-                    if (child.style.display !== 'flex') {
-                        child.style.display = 'flex';
-                        child.style.visibility = 'visible';
-                    }
-                    const targetOpacity = overlay.classList.contains('screensaver-overlay--active') ? '1' : '0';
-                    if (child.style.opacity !== targetOpacity) {
-                        child.style.opacity = targetOpacity;
-                    }
-                } else if (child.style.display !== 'none') {
-                    child.style.display = 'none';
-                    child.style.visibility = 'hidden';
-                }
-            });
-            
-            isProcessing = false;
-        }
-        
-        // Initial force (once)
-        forceSubtleStyles();
-        
-        // Watch for class changes only
-        const observer = new MutationObserver(function(mutations) {
-            let needsUpdate = false;
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    needsUpdate = true;
-                }
-            });
-            if (needsUpdate) {
-                requestAnimationFrame(forceSubtleStyles);
-            }
-        });
-        
-        observer.observe(overlay, {
-            attributes: true,
-            attributeFilter: ['class']
-        });
-    })();
-    </script>
+    <!-- GitHub Corner -->
+    <?php include PathUtility::getAbsolutePath('template/components/github-corner.php'); ?>
 
 </div>

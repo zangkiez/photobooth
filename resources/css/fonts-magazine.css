@@ -1,0 +1,358 @@
+/**
+ * Magazine / Street Fonts
+ * Bold Geometric Sans-Serif similar to Gotham Ultra
+ * Featuring: Clash Display, Space Grotesk, Monument Extended
+ */
+
+/* ============================================
+   IMPORT FONTS
+   ============================================ */
+
+/* Clash Display - Bold Geometric Display Font */
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&display=swap');
+
+/* Space Grotesk - Modern Geometric */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* Syne - Experimental/Artistic */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
+
+/* Archivo Black - Ultra Bold */
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+/* Kanit - สำหรับภาษาไทย (Geometric Modern) - ALL WEIGHTS */
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+/* Noto Sans Thai - สำรองสำหรับอ่านยาว */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+/* ============================================
+   FONT VARIABLES
+   ============================================ */
+:root {
+  /* Primary Display Font - Ultra Bold (Thai: Kanit 700-900) */
+  --font-display: 'Clash Display', 'Kanit', 'Archivo Black', sans-serif;
+  
+  /* Secondary Font - Geometric Modern (Thai: Kanit 400-600) */
+  --font-body: 'Space Grotesk', 'Kanit', 'Noto Sans Thai', sans-serif;
+  
+  /* Accent Font - Artistic/Experimental (Thai: Kanit 500-700) */
+  --font-accent: 'Syne', 'Kanit', 'Noto Sans Thai', sans-serif;
+  
+  /* Thai Font Support - Kanit is perfect for Geometric Bold style */
+  --font-thai: 'Kanit', 'Noto Sans Thai', sans-serif;
+  
+  /* Font Weights */
+  --font-weight-thin: 200;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+}
+
+/* ============================================
+   TYPOGRAPHY SCALE - MAGAZINE STYLE
+   ============================================ */
+
+/* Hero Title - สำหรับหัวข้อใหญ่ */
+.text-hero {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 10vw, 8rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+/* Mega Title - สำหรับชื่อ Event */
+.text-mega {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(4rem, 15vw, 12rem);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+/* Display Title */
+.text-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* Headline - สำหรับหัวข้อรอง */
+.text-headline {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* Subhead - สำหรับคำบรรยาย */
+.text-subhead {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  line-height: 1.3;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Body Text - อ่านง่าย */
+.text-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+
+/* Caption - ข้อความเล็ก */
+.text-caption {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Label - ป้ายกำกับ */
+.text-label {
+  font-family: var(--font-accent);
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   SPECIAL TEXT EFFECTS
+   ============================================ */
+
+/* Outlined Text - ข้อความขอบเส้น */
+.text-outline {
+  -webkit-text-stroke: 2px currentColor;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-outline-thick {
+  -webkit-text-stroke: 3px currentColor;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Text with Shadow - เงา 3D */
+.text-shadow-3d {
+  text-shadow: 
+    1px 1px 0 rgba(0,0,0,0.1),
+    2px 2px 0 rgba(0,0,0,0.1),
+    3px 3px 0 rgba(0,0,0,0.1),
+    4px 4px 0 rgba(0,0,0,0.1),
+    5px 5px 0 rgba(0,0,0,0.1);
+}
+
+.text-shadow-hard {
+  text-shadow: 4px 4px 0 rgba(0,0,0,1);
+}
+
+/* Glitch Text Effect */
+.text-glitch {
+  position: relative;
+}
+
+.text-glitch::before,
+.text-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.text-glitch::before {
+  left: 2px;
+  text-shadow: -2px 0 #ff00ff;
+  clip: rect(24px, 550px, 90px, 0);
+  animation: glitch-anim-1 3s infinite linear alternate-reverse;
+}
+
+.text-glitch::after {
+  left: -2px;
+  text-shadow: -2px 0 #00ffff;
+  clip: rect(85px, 550px, 140px, 0);
+  animation: glitch-anim-2 2s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+  0% { clip: rect(20px, 9999px, 15px, 0); }
+  20% { clip: rect(60px, 9999px, 70px, 0); }
+  40% { clip: rect(100px, 9999px, 95px, 0); }
+  60% { clip: rect(40px, 9999px, 55px, 0); }
+  80% { clip: rect(80px, 9999px, 75px, 0); }
+  100% { clip: rect(30px, 9999px, 35px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+  0% { clip: rect(90px, 9999px, 85px, 0); }
+  20% { clip: rect(30px, 9999px, 25px, 0); }
+  40% { clip: rect(50px, 9999px, 60px, 0); }
+  60% { clip: rect(10px, 9999px, 5px, 0); }
+  80% { clip: rect(70px, 9999px, 80px, 0); }
+  100% { clip: rect(40px, 9999px, 45px, 0); }
+}
+
+/* Marquee Text */
+.text-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Vertical Text - แบบญี่ปุ่น */
+.text-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Compressed Text - ตัวอักษรบีบ */
+.text-compressed {
+  font-stretch: condensed;
+  letter-spacing: -0.08em;
+}
+
+/* Expanded Text - ตัวอักษรกระจาย */
+.text-expanded {
+  letter-spacing: 0.3em;
+}
+
+/* Italic/Oblique - เอียง */
+.text-oblique {
+  font-style: oblique 10deg;
+}
+
+/* ============================================
+   THAI FONT SUPPORT
+   ============================================ */
+
+/* สำหรับภาษาไทย - ใช้ Kanit */
+:lang(th) .text-hero,
+:lang(th) .text-mega,
+:lang(th) .text-display,
+:lang(th) .text-headline {
+  font-family: var(--font-thai);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+/* ============================================
+   THAI FONT OPTIMIZATIONS
+   ============================================ */
+
+/* ปรับระยะห่างตัวอักษรไทยให้เหมาะกับ Bold Geometric */
+:lang(th) {
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+
+/* Thai Hero Text - ปรับให้ดู Bold แต่อ่านง่าย */
+:lang(th) .text-hero,
+:lang(th) .text-mega {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+/* Thai Display Text */
+:lang(th) .text-display {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+/* Thai Headline */
+:lang(th) .text-headline {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Thai Body - ใช้ Noto Sans Thai อ่านง่ายกว่า */
+:lang(th) .text-body,
+:lang(th) .text-subhead {
+  font-family: 'Kanit', 'Noto Sans Thai', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* Thai Caption & Label */
+:lang(th) .text-caption,
+:lang(th) .text-label {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+/* Sticker text for Thai */
+:lang(th) .sticker {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Event text specific for Thai */
+:lang(th) .event-text--magazine {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+}
+
+/* Start text for Thai */
+:lang(th) .start-text--magazine {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+}
+
+/* Marquee for Thai */
+:lang(th) .marquee-bar__content {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+/* Buttons for Thai */
+:lang(th) .button,
+:lang(th) .sidenav-list-item {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Gallery & Filter specific */
+:lang(th) .gallery-title h1,
+:lang(th) .filter-title {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 700;
+}
+
+:lang(th) .filter-btn {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 500;
+}

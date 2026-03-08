@@ -1,0 +1,52 @@
+/**
+ * DEBUG MODE CSS
+ * เพิ่มเข้าไปใน <head> ชั่วคราวเพื่อตรวจสอบ element
+ * 
+ * ใช้โดย: เปิด DevTools (F12) → Elements → ดูสี outline
+ */
+
+/* Outline ทุก element เพื่อดูขอบเขต */
+* {
+  outline: 1px solid rgba(255, 0, 0, 0.3) !important;
+}
+
+/* Stage Loader - สีแดง */
+.stage--loader {
+  outline: 5px solid red !important;
+}
+
+/* Preview Container - สีเขียว */
+#preview-container,
+#preview-wrapper,
+#preview--video,
+#preview--ipcam {
+  outline: 5px solid lime !important;
+  background: rgba(0, 255, 0, 0.2) !important;
+}
+
+/* Counter - สีฟ้า */
+#counter {
+  outline: 5px solid cyan !important;
+  background: rgba(0, 255, 255, 0.3) !important;
+}
+
+/* Image/Video Elements - สีม่วง */
+img, video {
+  outline: 3px solid magenta !important;
+}
+
+/* White space detector */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99999;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 0, 0, 0.1) 10px,
+    rgba(255, 0, 0, 0.1) 20px
+  );
+}

@@ -11,6 +11,7 @@ include PathUtility::getAbsolutePath('template/components/main.defaults.php');
 ?>
 <!DOCTYPE html>
 <html
+    lang="<?php echo $config['ui']['language'] ?? 'en'; ?>"
     data-ui-theme="<?php echo $config['ui']['style'] ?? 'default'; ?>"
     data-ui-button="<?php echo $config['ui']['button'] ?? 'default'; ?>"
 >
@@ -45,5 +46,10 @@ include PathUtility::getAbsolutePath('template/components/main.defaults.php');
     <?= $photoswipe && $config['gallery']['bottom_bar'] ? '<link rel="stylesheet" href="' . $assetService->getUrl('resources/css/photoswipe-bottom.css') . '"/>' : '' ?>
     <?= ThemeUtility::renderCustomUserStyle($config); ?>
     <?= is_file(PathUtility::getAbsolutePath('private/overrides.css')) ? '<link rel="stylesheet" href="' . $assetService->getUrl('private/overrides.css') . '"/>' : '' ?>
+    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/fonts-magazine.css')?>" />
+    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/theme-magazine.css')?>" />
+    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/magazine-layout.css')?>" />
+    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/gallery-magazine.css')?>" />
+    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/filter-magazine.css')?>" />
     <script src="<?=$assetService->getUrl('node_modules/jquery/dist/jquery.min.js')?>"></script>
 </head>

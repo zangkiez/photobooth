@@ -1,0 +1,480 @@
+/**
+ * MAGAZINE LAYOUT STYLES
+ * Specific layout components for Magazine/Street UI
+ */
+
+/* ============================================
+   MAGAZINE HEADER
+   ============================================ */
+.magazine-header {
+    position: absolute;
+    top: var(--space-md);
+    left: var(--space-md);
+    right: var(--space-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+
+.magazine-header__issue,
+.magazine-header__year {
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--mag-gray);
+    text-transform: uppercase;
+}
+
+/* ============================================
+   SIDE LABELS
+   ============================================ */
+.magazine-side-label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    z-index: 10;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.5em;
+    color: var(--mag-gray);
+    text-transform: uppercase;
+    opacity: 0.5;
+}
+
+.magazine-side-label--left {
+    left: -2rem;
+}
+
+.magazine-side-label--right {
+    right: -2rem;
+}
+
+/* ============================================
+   STAGE INNER - MAGAZINE
+   ============================================ */
+.stage-inner--magazine {
+    padding-top: calc(var(--space-xl) + var(--space-md));
+    padding-bottom: calc(var(--space-xl));
+    position: relative;
+}
+
+/* ============================================
+   NAMES/TITLE SECTION
+   ============================================ */
+.names--magazine {
+    position: relative;
+    text-align: center;
+    max-width: 90vw;
+}
+
+.names-inner--magazine {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+/* ============================================
+   MAGAZINE TAG / STICKER
+   ============================================ */
+.magazine-tag {
+    margin-bottom: var(--space-sm);
+}
+
+/* ============================================
+   EVENT TEXT - MAGAZINE STYLE
+   ============================================ */
+.event-text--magazine {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 10vw, 8rem);
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: var(--mag-black);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+/* Icon wrapper */
+.event-text__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2em;
+    height: 1.2em;
+    background: var(--mag-cyan);
+    border: var(--border-thick);
+    box-shadow: var(--shadow-hard);
+    font-size: 0.6em;
+    transform: rotate(-5deg);
+}
+
+.event-text__icon i {
+    font-size: 0.6em;
+}
+
+/* Text layers for depth */
+.event-text--magazine::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--mag-black);
+    z-index: -1;
+}
+
+/* ============================================
+   DIVIDER
+   ============================================ */
+.magazine-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    max-width: 400px;
+    margin: var(--space-sm) 0;
+}
+
+.magazine-divider__line {
+    flex: 1;
+    height: 4px;
+    background: var(--mag-black);
+}
+
+.magazine-divider__text {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: var(--mag-gray);
+    text-transform: uppercase;
+}
+
+/* ============================================
+   START TEXT - MAGAZINE
+   ============================================ */
+.start-text--magazine {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--mag-black);
+    text-align: center;
+}
+
+.start-text--main {
+    font-weight: 700;
+    font-size: clamp(2rem, 6vw, 4rem);
+    line-height: 1;
+    text-shadow: var(--shadow-hard);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--mag-white);
+    border: var(--border-thick);
+}
+
+/* Subtitle with corner decorations */
+.start-text--subtitle {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    letter-spacing: 0.1em;
+    color: var(--mag-black);
+    padding: var(--space-sm) var(--space-md);
+    margin: 0;
+}
+
+.magazine-subtitle-wrapper {
+    position: relative;
+    display: inline-block;
+    padding: var(--space-sm);
+    background: var(--mag-cream);
+    border: var(--border-thin);
+}
+
+/* Corner accents */
+.magazine-corner {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    border: 3px solid var(--mag-red);
+}
+
+.magazine-corner--tl {
+    top: -3px;
+    left: -3px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.magazine-corner--tr {
+    top: -3px;
+    right: -3px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.magazine-corner--bl {
+    bottom: -3px;
+    left: -3px;
+    border-right: none;
+    border-top: none;
+}
+
+.magazine-corner--br {
+    bottom: -3px;
+    right: -3px;
+    border-left: none;
+    border-top: none;
+}
+
+/* ============================================
+   VISUAL ELEMENT
+   ============================================ */
+.magazine-visual {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+    padding: var(--space-sm);
+    background: var(--mag-white);
+    border: var(--border-thick);
+    box-shadow: var(--shadow-hard);
+    transform: rotate(2deg);
+}
+
+.magazine-visual__box {
+    width: 60px;
+    height: 60px;
+    background: var(--mag-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.magazine-visual__icon {
+    font-size: 2rem;
+}
+
+.magazine-visual__text {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+}
+
+/* ============================================
+   BUTTONBAR - MAGAZINE OVERRIDE
+   ============================================ */
+.stage--magazine .buttonbar {
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: var(--mag-white);
+    border: var(--border-thick);
+    box-shadow: var(--shadow-hard);
+    position: relative;
+}
+
+.stage--magazine .buttonbar::before {
+    content: 'ACTIONS';
+    position: absolute;
+    top: -12px;
+    left: var(--space-md);
+    background: var(--mag-cyan);
+    padding: 2px 8px;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: var(--border-thin);
+}
+
+/* ============================================
+   DECORATION PATTERNS
+   ============================================ */
+.names--decoration::before {
+    content: '';
+    position: absolute;
+    top: -var(--space-lg);
+    right: -var(--space-md);
+    width: 150px;
+    height: 150px;
+    background: repeating-linear-gradient(
+        45deg,
+        var(--mag-black),
+        var(--mag-black) 2px,
+        transparent 2px,
+        transparent 10px
+    );
+    opacity: 0.1;
+    z-index: -1;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes magazine-slide-up {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes magazine-reveal {
+    from {
+        clip-path: inset(0 100% 0 0);
+    }
+    to {
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+/* Apply animations */
+.names--magazine .event-text--magazine {
+    animation: magazine-slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.names--magazine .magazine-tag {
+    animation: magazine-slide-up 0.6s 0.2s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.names--magazine .magazine-divider {
+    animation: magazine-reveal 0.8s 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.names--magazine .start-text--magazine {
+    animation: magazine-slide-up 0.6s 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.names--magazine .magazine-subtitle-wrapper {
+    animation: magazine-slide-up 0.6s 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.names--magazine .magazine-visual {
+    animation: magazine-slide-up 0.6s 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.stage--magazine .buttonbar {
+    animation: magazine-slide-up 0.6s 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .magazine-header {
+        padding: var(--space-sm);
+    }
+    
+    .magazine-header__issue,
+    .magazine-header__year {
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+    }
+    
+    .magazine-side-label {
+        display: none;
+    }
+    
+    .stage-inner--magazine {
+        padding-top: calc(var(--space-lg) + var(--space-md));
+    }
+    
+    .event-text--magazine {
+        font-size: clamp(1.75rem, 8vw, 4rem);
+        gap: var(--space-xs);
+    }
+    
+    .event-text__icon {
+        width: 1em;
+        height: 1em;
+        font-size: 0.5em;
+    }
+    
+    .magazine-divider {
+        max-width: 250px;
+    }
+    
+    .magazine-divider__text {
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+    }
+    
+    .start-text--magazine {
+        font-size: clamp(1.25rem, 3.5vw, 2rem);
+    }
+    
+    .start-text--main {
+        font-size: clamp(1.5rem, 5vw, 2.5rem);
+    }
+    
+    .magazine-subtitle-wrapper {
+        padding: var(--space-xs);
+    }
+    
+    .magazine-visual {
+        transform: rotate(0);
+        padding: var(--space-xs);
+    }
+    
+    .magazine-visual__box {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .magazine-visual__icon {
+        font-size: 1.5rem;
+    }
+    
+    .stage--magazine .buttonbar {
+        margin-top: var(--space-md);
+        padding: var(--space-sm);
+    }
+    
+    .stage--magazine .buttonbar::before {
+        font-size: 0.625rem;
+    }
+    
+    /* Corner decorations smaller */
+    .corner-decoration {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* ============================================
+   ORIENTATION SPECIFIC
+   ============================================ */
+@media (orientation: landscape) and (max-height: 600px) {
+    .stage-inner--magazine {
+        padding-top: calc(var(--space-lg));
+        padding-bottom: var(--space-lg);
+    }
+    
+    .names-inner--magazine {
+        gap: var(--space-sm);
+    }
+    
+    .event-text--magazine {
+        font-size: clamp(1.5rem, 6vh, 3rem);
+    }
+    
+    .magazine-visual {
+        display: none;
+    }
+}
