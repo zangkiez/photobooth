@@ -390,7 +390,8 @@ html, body {
    COUNTDOWN SCREEN
    ============================================ */
 .stage--loader {
-  background: var(--mag-black);
+  /* Default to transparent to show preview, unless explicitly set by JS */
+  background: var(--stage-background, transparent);
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -399,6 +400,32 @@ html, body {
   height: 100dvh;
   overflow: hidden;
   z-index: 1;
+}
+
+/* Keep loader fully hidden unless core marks it active */
+.stage--loader:not(.stage--active) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Ensure active loader is centered and interactive */
+.stage--loader.stage--active {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.stage--loader.stage--active .stage-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 /* Preview/Video - MUST BE BEHIND EVERYTHING */
@@ -445,6 +472,33 @@ html, body {
   letter-spacing: 0.5em;
   color: var(--mag-gray);
   text-transform: uppercase;
+}
+
+/* Keep loader message truly centered during countdown/processing. */
+.stage--loader .stage-message {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  translate: none !important;
+  transform: translate(-50%, -50%) !important;
+  margin: 0 !important;
+  z-index: 20 !important;
+  width: auto !important;
+  max-width: calc(100% - 4rem) !important;
+  
+  /* Make text readable over preview/transparent background */
+  text-shadow: 
+    0 0 20px rgba(0, 0, 0, 0.8),
+    0 2px 4px rgba(0, 0, 0, 0.9),
+    2px 2px 0 var(--mag-black) !important;
+  color: var(--mag-white) !important;
+  font-weight: 700 !important;
+  padding: var(--space-sm) var(--space-md) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-radius: 8px !important;
+  backdrop-filter: blur(10px) !important;
 }
 
 /* Countdown Number */

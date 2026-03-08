@@ -51,5 +51,7 @@ include PathUtility::getAbsolutePath('template/components/main.defaults.php');
     <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/magazine-layout.css')?>" />
     <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/gallery-magazine.css')?>" />
     <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/filter-magazine.css')?>" />
+    <!-- start-magazine.css หลังสุดเพื่อให้สไตล์ stage--start ของคุณไม่ถูกเขียนทับ -->
+    <link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/start-magazine.css')?>" />
     <script src="<?=$assetService->getUrl('node_modules/jquery/dist/jquery.min.js')?>"></script>
 </head>

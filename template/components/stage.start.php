@@ -33,77 +33,52 @@ use Photobooth\Utility\PathUtility;
     <!-- Main Content -->
     <div class="stage-inner stage-inner--magazine">
 
-        <?php if ($config['event']['enabled'] || $config['start_screen']['title_visible']): ?>
-            <div class="names names--magazine<?= ($config['ui']['decore_lines']) ? ' names--decoration' : '' ?>">
-                <div class="names-inner names-inner--magazine">
+        <!-- MAGAZINE TITLE SECTION - Always Show -->
+        <div class="names names--magazine names--decoration">
+            <div class="names-inner names-inner--magazine">
 
-                    <!-- Category Tag -->
-                    <div class="magazine-tag">
-                        <span class="sticker sticker--lime">EXCLUSIVE</span>
-                    </div>
-
-                    <?php if ($config['event']['enabled']): ?>
-                        <!-- Main Event Title -->
-                        <h1 class="event-text event-text--magazine">
-                            <?= $config['event']['textLeft'] ?>
-                            <span class="event-text__icon">
-                                <i class="fa <?= $config['event']['symbol'] ?>" aria-hidden="true"></i>
-                            </span>
-                            <?= $config['event']['textRight'] ?>
-                        </h1>
-
-                        <?php if ($config['start_screen']['title_visible']): ?>
-                            <div class="magazine-divider">
-                                <span class="magazine-divider__line"></span>
-                                <span class="magazine-divider__text">PRESENTS</span>
-                                <span class="magazine-divider__line"></span>
-                            </div>
-                            <h2 class="start-text start-text--magazine"><?= $config['start_screen']['title'] ?></h2>
-                        <?php endif; ?>
-
-                        <?php if ($config['start_screen']['subtitle_visible']): ?>
-                            <div class="magazine-subtitle-wrapper">
-                                <span class="magazine-corner magazine-corner--tl"></span>
-                                <span class="magazine-corner magazine-corner--tr"></span>
-                                <span class="magazine-corner magazine-corner--bl"></span>
-                                <span class="magazine-corner magazine-corner--br"></span>
-                                <h3 class="start-text start-text--subtitle"><?= $config['start_screen']['subtitle'] ?></h3>
-                            </div>
-                        <?php endif; ?>
-
-                    <?php else: ?>
-                        <!-- No Event Mode - Show Title Only -->
-                        <div class="magazine-tag">
-                            <span class="sticker">WELCOME</span>
-                        </div>
-
-                        <?php if ($config['start_screen']['title_visible']): ?>
-                            <h1 class="start-text start-text--magazine start-text--main"><?= $config['start_screen']['title'] ?></h1>
-                        <?php endif; ?>
-
-                        <?php if ($config['start_screen']['subtitle_visible']): ?>
-                            <div class="magazine-divider">
-                                <span class="magazine-divider__line"></span>
-                                <span class="magazine-divider__text">GET READY</span>
-                                <span class="magazine-divider__line"></span>
-                            </div>
-                            <h2 class="start-text start-text--subtitle"><?= $config['start_screen']['subtitle'] ?></h2>
-                        <?php endif; ?>
-                    <?php endif; ?>
-
-                    <!-- Extra Visual Element -->
-                    <div class="magazine-visual">
-                        <div class="magazine-visual__box">
-                            <span class="magazine-visual__icon">📸</span>
-                        </div>
-                        <div class="magazine-visual__text">
-                            <span class="text-caption">CAPTURE THE MOMENT</span>
-                        </div>
-                    </div>
-
+                <!-- Category Tag -->
+                <div class="magazine-tag">
+                    <span class="sticker sticker--lime">PHOTOBOOTH</span>
                 </div>
+
+                <?php if ($config['event']['enabled']): ?>
+                    <!-- Event Mode -->
+                    <h1 class="event-text event-text--magazine">
+                        <?= $config['event']['textLeft'] ?>
+                        <span class="event-text__icon">
+                            <i class="fa <?= $config['event']['symbol'] ?>" aria-hidden="true"></i>
+                        </span>
+                        <?= $config['event']['textRight'] ?>
+                    </h1>
+                <?php else: ?>
+                    <!-- Default Title -->
+                    <h1 class="start-text start-text--magazine start-text--main">
+                        <?= $config['start_screen']['title_visible'] ? $config['start_screen']['title'] : 'SNAP\nSHOT' ?>
+                    </h1>
+                <?php endif; ?>
+
+                <!-- Divider -->
+                <div class="magazine-divider">
+                    <span class="magazine-divider__line"></span>
+                    <span class="magazine-divider__text">
+                        <?= $config['start_screen']['subtitle_visible'] ? $config['start_screen']['subtitle'] : 'CREATE MEMORIES' ?>
+                    </span>
+                    <span class="magazine-divider__line"></span>
+                </div>
+
+                <!-- Visual Element -->
+                <div class="magazine-visual">
+                    <div class="magazine-visual__box">
+                        <span class="magazine-visual__icon">📸</span>
+                    </div>
+                    <div class="magazine-visual__text">
+                        <span class="text-caption">TAP TO START</span>
+                    </div>
+                </div>
+
             </div>
-        <?php endif; ?>
+        </div>
 
         <!-- Action Buttons -->
         <?php
@@ -133,86 +108,5 @@ use Photobooth\Utility\PathUtility;
             <span class="screensaver-indicator__text">IDLE</span>
         </div>
     </div>
-
-    <!-- OVERRIDE SCREENSAVER - Force Subtle Style -->
-    <script>
-    (function() {
-        'use strict';
-        
-        const overlay = document.getElementById('screensaver-overlay');
-        if (!overlay) return;
-        
-        let isProcessing = false;
-        
-        // Force styles function
-        function forceSubtleStyles() {
-            if (isProcessing) return;
-            isProcessing = true;
-            
-            // Only reset if needed
-            if (overlay.style.position !== 'fixed') {
-                overlay.style.cssText = '';
-                overlay.style.position = 'fixed';
-                overlay.style.bottom = '80px';
-                overlay.style.right = '20px';
-                overlay.style.left = 'auto';
-                overlay.style.top = 'auto';
-                overlay.style.width = 'auto';
-                overlay.style.height = 'auto';
-                overlay.style.background = 'transparent';
-                overlay.style.zIndex = '9999';
-                overlay.style.pointerEvents = 'none';
-                overlay.style.display = 'flex';
-                overlay.style.alignItems = 'center';
-                overlay.style.justifyContent = 'center';
-                overlay.style.border = 'none';
-                overlay.style.margin = '0';
-                overlay.style.padding = '0';
-                overlay.style.overflow = 'visible';
-                overlay.style.inset = 'auto';
-            }
-            
-            // Hide all children except our indicator
-            Array.from(overlay.children).forEach(child => {
-                if (child.classList.contains('screensaver-indicator')) {
-                    if (child.style.display !== 'flex') {
-                        child.style.display = 'flex';
-                        child.style.visibility = 'visible';
-                    }
-                    const targetOpacity = overlay.classList.contains('screensaver-overlay--active') ? '1' : '0';
-                    if (child.style.opacity !== targetOpacity) {
-                        child.style.opacity = targetOpacity;
-                    }
-                } else if (child.style.display !== 'none') {
-                    child.style.display = 'none';
-                    child.style.visibility = 'hidden';
-                }
-            });
-            
-            isProcessing = false;
-        }
-        
-        // Initial force (once)
-        forceSubtleStyles();
-        
-        // Watch for class changes only
-        const observer = new MutationObserver(function(mutations) {
-            let needsUpdate = false;
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    needsUpdate = true;
-                }
-            });
-            if (needsUpdate) {
-                requestAnimationFrame(forceSubtleStyles);
-            }
-        });
-        
-        observer.observe(overlay, {
-            attributes: true,
-            attributeFilter: ['class']
-        });
-    })();
-    </script>
 
 </div>

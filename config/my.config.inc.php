@@ -82,10 +82,6 @@ return [
     'fonts' => [
         'gallery_title_color' => '#000000',
     ],
-    'background' => [
-        'defaults' => 'resources/img/background.png',
-        'chroma' => 'resources/img/background.png',
-    ],
     'preview' => [
         'mode' => 'device_cam',
         'camTakesPic' => true,

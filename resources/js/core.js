@@ -87,10 +87,30 @@ var photoBooth = function () {
     currentCollageFile = '',
     imgFilter = config.filters.defaults,
     isProcessingEffects = false,
+    stageGuardObserver,
     command,
     startTime,
     endTime,
     totalTime;
+  var setActiveStage = function setActiveStage(stage) {
+    startPage.removeClass('stage--active');
+    loader.removeClass('stage--active');
+    resultPage.removeClass('stage--active');
+    if (stage === 'start') {
+      startPage.addClass('stage--active');
+    } else if (stage === 'loader') {
+      loader.addClass('stage--active');
+    } else if (stage === 'result') {
+      resultPage.addClass('stage--active');
+    }
+  };
+  var ensureIdleStage = function ensureIdleStage() {
+    if (!api.takingPic && !resultPage.hasClass('stage--active')) {
+      setActiveStage('start');
+      loader.removeClass('showBackgroundImage');
+      loader.css('background-image', '');
+    }
+  };
   api.takingPic = false;
   api.nextCollageNumber = 0;
   api.chromaimage = '';
@@ -135,7 +155,7 @@ var photoBooth = function () {
   };
   api.init = function () {
     api.reset();
-    startPage.addClass('stage--active');
+    setActiveStage('start');
     if (usesBackgroundPreview) {
       photoboothPreview.startVideo(CameraDisplayMode.BACKGROUND);
       photoboothTools.console.logDev('Preview: core: start video (BACKGROUND) from api.init.');
@@ -151,6 +171,22 @@ var photoBooth = function () {
     if (params.has('screensaverPreview')) {
       api.screensaver.show(true);
     }
+
+    if (!stageGuardObserver && loader.length) {
+      stageGuardObserver = new MutationObserver(function () {
+        if (loader.hasClass('stage--active') && !api.takingPic && !resultPage.hasClass('stage--active')) {
+          ensureIdleStage();
+        }
+      });
+      stageGuardObserver.observe(loader.get(0), {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    }
+
+    // Guard against late async/class side effects that can reactivate loader on idle start.
+    setTimeout(ensureIdleStage, 0);
+    setTimeout(ensureIdleStage, 500);
   };
   api.screensaver = createScreensaver({
     config: config,
@@ -519,8 +555,7 @@ var photoBooth = function () {
               }
             }
             videoBackground.hide();
-            startPage.removeClass('stage--active');
-            loader.addClass('stage--active');
+            setActiveStage('loader');
             api.screensaver.hide();
             if (!config.get_request.countdown) {
               _context.n = 13;
@@ -892,9 +927,7 @@ var photoBooth = function () {
   };
   api.processPic = function (result) {
     startTime = new Date().getTime();
-    loader.addClass('stage--active');
-    startPage.removeClass('stage--active');
-    resultPage.removeClass('stage--active');
+    setActiveStage('loader');
     setFiltersEnabled(false);
     loaderMessage.html('<i class="' + config.icons.spinner + '"></i><br>' + (api.photoStyle === PhotoStyle.COLLAGE ? photoboothTools.getTranslation('busyCollage') : photoboothTools.getTranslation('busy')));
     if ((api.photoStyle === PhotoStyle.PHOTO || api.photoStyle === PhotoStyle.CUSTOM) && config.picture.preview_before_processing) {
@@ -1004,9 +1037,7 @@ var photoBooth = function () {
     if (config.keying.show_all) {
       api.addImage(filename);
     }
-    startPage.removeClass('stage--active');
-    loader.removeClass('stage--active');
-    resultPage.addClass('stage--active');
+    setActiveStage('result');
     var chromaimage = environment.publicFolders.keying + '/' + filename;
     processChromaImage(chromaimage, true, filename);
     rotaryController.focusSet(resultPage);
@@ -1231,13 +1262,12 @@ var photoBooth = function () {
     var imageUrl = photoboothTools.isVideoFile(filename) ? environment.publicFolders.api + '/qrcode.php?filename=' + filename : environment.publicFolders.images + '/' + filename;
     var preloadImage = new Image();
     preloadImage.onload = function () {
-      startPage.removeClass('stage--active');
       resultPage.css({
         '--stage-background-image': "url(".concat(imageUrl, "?filter=").concat(imgFilter, ")")
       });
       resultPage.attr('data-img', filename);
-      resultPage.addClass('stage--active');
-      loader.removeClass('stage--active showBackgroundImage');
+      setActiveStage('result');
+      loader.removeClass('showBackgroundImage');
       loader.css('background-image', '');
       if (config.qr.enabled && config.qr.result != 'hidden') {
         if (document.getElementById('resultQR')) {

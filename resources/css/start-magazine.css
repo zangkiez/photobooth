@@ -1,0 +1,494 @@
+/**
+ * START SCREEN - MAGAZINE/STREET STYLE
+ * Complete styling for stage--start only
+ */
+
+/* ============================================
+   START SCREEN BASE
+   ============================================ */
+.stage--start {
+  background: var(--mag-cream);
+  position: relative;
+  z-index: 100;
+}
+
+/* Ensure start screen is above loader */
+.stage--start.stage--active {
+  z-index: 200;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Loader should be below start and hidden by default */
+.stage--loader {
+  z-index: 0;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Only show loader when explicitly active */
+.stage--loader.stage--active {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 100;
+}
+
+/* Grid Background Pattern */
+.stage--start::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+}
+
+/* ============================================
+   CORNER DECORATIONS
+   ============================================ */
+.stage--start .corner-decoration {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border: 4px solid var(--mag-black);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.stage--start .corner-decoration--tl {
+  top: 2rem;
+  left: 2rem;
+  border-right: none;
+  border-bottom: none;
+}
+
+.stage--start .corner-decoration--tr {
+  top: 2rem;
+  right: 2rem;
+  border-left: none;
+  border-bottom: none;
+}
+
+.stage--start .corner-decoration--bl {
+  bottom: 2rem;
+  left: 2rem;
+  border-right: none;
+  border-top: none;
+}
+
+.stage--start .corner-decoration--br {
+  bottom: 2rem;
+  right: 2rem;
+  border-left: none;
+  border-top: none;
+}
+
+/* ============================================
+   MAGAZINE HEADER
+   ============================================ */
+.stage--start .magazine-header {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  right: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+.stage--start .magazine-header__issue,
+.stage--start .magazine-header__year {
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--mag-gray);
+  text-transform: uppercase;
+}
+
+/* ============================================
+   SIDE LABELS
+   ============================================ */
+.stage--start .magazine-side-label {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  z-index: 10;
+  font-family: 'Kanit', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  color: var(--mag-gray);
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.stage--start .magazine-side-label--left {
+  left: -2rem;
+}
+
+.stage--start .magazine-side-label--right {
+  right: -2rem;
+}
+
+/* ============================================
+   MAIN CONTENT AREA
+   ============================================ */
+.stage--start .stage-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 6rem 2rem 4rem;
+  gap: 2rem;
+  position: relative;
+}
+
+/* ============================================
+   NAMES / TITLE SECTION - FORCE DISPLAY
+   ============================================ */
+.stage--start .names--magazine {
+  display: flex !important;
+  text-align: center;
+  max-width: 90vw;
+  margin-bottom: 2rem;
+}
+
+.stage--start .names-inner--magazine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Magazine Tag / Sticker */
+.stage--start .magazine-tag {
+  margin-bottom: 0.5rem;
+}
+
+.stage--start .sticker {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: var(--mag-lime);
+  color: var(--mag-black);
+  font-family: 'Kanit', sans-serif;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 3px solid var(--mag-black);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
+  transform: rotate(-3deg);
+}
+
+.stage--start .sticker--lime {
+  background: var(--mag-lime);
+}
+
+/* ============================================
+   EVENT TEXT (Main Title)
+   ============================================ */
+.stage--start .event-text--magazine {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 10vw, 8rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--mag-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+.stage--start .event-text__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2em;
+  height: 1.2em;
+  background: var(--mag-cyan);
+  border: 3px solid var(--mag-black);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
+  font-size: 0.5em;
+}
+
+.stage--start .event-text__icon i {
+  font-size: 0.6em;
+}
+
+/* ============================================
+   DIVIDER
+   ============================================ */
+.stage--start .magazine-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 400px;
+  margin: 1rem 0;
+}
+
+.stage--start .magazine-divider__line {
+  flex: 1;
+  height: 4px;
+  background: var(--mag-black);
+}
+
+.stage--start .magazine-divider__text {
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: var(--mag-gray);
+  text-transform: uppercase;
+}
+
+/* ============================================
+   START TEXT (Subtitle)
+   ============================================ */
+.stage--start .start-text--magazine {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--mag-black);
+  text-align: center;
+}
+
+.stage--start .start-text--main {
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1;
+  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
+  background: var(--mag-white);
+  border: 4px solid var(--mag-black);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 1);
+}
+
+.stage--start .start-text--subtitle {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 500;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  letter-spacing: 0.1em;
+  color: var(--mag-black);
+  padding: 1rem;
+  margin: 0;
+}
+
+/* Subtitle with corners */
+.stage--start .magazine-subtitle-wrapper {
+  position: relative;
+  display: inline-block;
+  padding: 1rem;
+  background: var(--mag-cream);
+  border: 2px solid var(--mag-black);
+}
+
+.stage--start .magazine-corner {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border: 3px solid var(--mag-red);
+}
+
+.stage--start .magazine-corner--tl {
+  top: -3px;
+  left: -3px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.stage--start .magazine-corner--tr {
+  top: -3px;
+  right: -3px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.stage--start .magazine-corner--bl {
+  bottom: -3px;
+  left: -3px;
+  border-right: none;
+  border-top: none;
+}
+
+.stage--start .magazine-corner--br {
+  bottom: -3px;
+  right: -3px;
+  border-left: none;
+  border-top: none;
+}
+
+/* ============================================
+   VISUAL ELEMENT
+   ============================================ */
+.stage--start .magazine-visual {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: var(--mag-white);
+  border: 4px solid var(--mag-black);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 1);
+  transform: rotate(2deg);
+}
+
+.stage--start .magazine-visual__box {
+  width: 60px;
+  height: 60px;
+  background: var(--mag-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage--start .magazine-visual__icon {
+  font-size: 2rem;
+}
+
+.stage--start .magazine-visual__text {
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   BUTTONS - MAGAZINE STYLE
+   ============================================ */
+.stage--start .buttonbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.stage--start .button {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  background: var(--mag-white);
+  color: var(--mag-black);
+  border: 4px solid var(--mag-black);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 1);
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.stage--start .button:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 rgba(0, 0, 0, 1);
+}
+
+.stage--start .button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 1);
+}
+
+/* Special buttons */
+.stage--start #takePic,
+.stage--start [data-command='takePic'] {
+  background: var(--mag-red);
+  color: var(--mag-white);
+  font-size: 1.25rem;
+  padding: 1.5rem 3rem;
+}
+
+.stage--start #takeCollage,
+.stage--start [data-command='takeCollage'] {
+  background: var(--mag-cyan);
+}
+
+.stage--start #gallery-button,
+.stage--start [data-command='gallery'] {
+  background: var(--mag-yellow);
+}
+
+/* ============================================
+   MARQUEE BAR
+   ============================================ */
+.stage--start .marquee-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--mag-black);
+  color: var(--mag-white);
+  padding: 0.75rem 0;
+  border-top: 4px solid var(--mag-black);
+  overflow: hidden;
+  z-index: 100;
+}
+
+.stage--start .marquee-bar__content {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  animation: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .stage--start .corner-decoration {
+    width: 40px;
+    height: 40px;
+  }
+
+  .stage--start .magazine-side-label {
+    display: none;
+  }
+
+  .stage--start .stage-inner {
+    padding: 5rem 1.5rem 3rem;
+  }
+
+  .stage--start .event-text--magazine {
+    font-size: clamp(1.75rem, 8vw, 4rem);
+  }
+
+  .stage--start .button {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .stage--start #takePic,
+  .stage--start [data-command='takePic'] {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+}
