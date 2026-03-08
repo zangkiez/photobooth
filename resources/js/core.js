@@ -342,6 +342,8 @@ var photoBooth = (function () {
     api.reset = function () {
         loader.css('--stage-background', 'var(--background-countdown-color)');
         loader.removeClass('stage--active');
+        loader.removeClass('showBackgroundImage');
+        loader.css('background-image', '');
         loaderButtonBar.empty();
         loaderMessage.empty();
         loaderMessage.removeClass('stage-message--error');
@@ -357,6 +359,14 @@ var photoBooth = (function () {
         previewIpcam.hide();
         photoboothTools.overlay.close();
         photoboothTools.modal.close();
+        /* Clear canvas so next countdown doesn't show previous captured frame */
+        var canvas = videoSensor.get(0);
+        if (canvas && canvas.getContext) {
+            var ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
     };
     api.init = function () {
         api.reset();
