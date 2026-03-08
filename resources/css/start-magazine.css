@@ -29,31 +29,26 @@
 /* ============================================
    START SCREEN BASE - FUN BACKGROUND
    ============================================ */
-.stage--start {
-  background: var(--mag-cream);
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  font-family: var(--font-main);
+/* 
+   NOTE: These styles override framework.css
+   framework.css sets .stage { display: none; }
+   and .stage--active { display: flex; }
+   
+   We need to ensure our magazine styles take precedence
+   by loading this CSS after framework.css
+*/
+
+/* Default: hidden (no active class) */
+.stage--start,
+.stage--loader,
+.stage--result {
+  /* Reset framework.css display */
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
 }
 
-/* Fun Gradient Background */
-.stage--start::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 20% 80%, rgba(255, 0, 110, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(0, 245, 255, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(57, 255, 20, 0.05) 0%, transparent 40%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Only show start screen when active */
+/* Active states - override the hidden state */
 .stage--start.stage--active {
   display: flex !important;
   flex-direction: column;
@@ -62,19 +57,13 @@
   visibility: visible !important;
   opacity: 1 !important;
   z-index: 200;
-}
-
-/* Loader should be below start and hidden by default */
-.stage--loader {
+  background: var(--mag-cream);
   position: fixed;
   inset: 0;
-  z-index: 0;
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
+  font-family: var(--font-main);
 }
 
-/* Only show loader when explicitly active */
+/* Loader - แสดงเฉพาะตอนนับถอยหลัง */
 .stage--loader.stage--active {
   display: flex !important;
   flex-direction: column;
@@ -82,7 +71,36 @@
   align-items: center;
   visibility: visible !important;
   opacity: 1 !important;
+  z-index: 50; /* ต่ำกว่า start (200) และกล้อง */
+  background: var(--mag-black);
+  position: fixed;
+  inset: 0;
+}
+
+/* Loader ที่ยังไม่มีการนับ (counter ว่าง) - โปร่งใสและไม่บัง click */
+.stage--loader.stage--active:has(.loader-counter:empty) {
+  background: transparent !important;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ซ่อน elements ใน loader ที่ไม่จำเป็น */
+.stage--loader .stage-image,
+.stage--loader #video--sensor {
+  display: none !important;
+}
+
+.stage--result.stage--active {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  visibility: visible !important;
+  opacity: 1 !important;
   z-index: 100;
+  background: var(--mag-cream);
+  position: fixed;
+  inset: 0;
 }
 
 /* Grid Background Pattern */

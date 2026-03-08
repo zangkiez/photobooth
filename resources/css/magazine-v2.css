@@ -201,24 +201,13 @@
 /* ============================================
    STEP 4: LOADER (Countdown) - FUN STYLE
    ============================================ */
-.stage--loader {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-}
+/* 
+   Base stage styles are defined in start-magazine.css
+   This section only contains loader-specific styling
+*/
 
-/* Only show loader when active */
+/* Loader background when active */
 .stage--loader.stage--active {
-  display: flex !important;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  visibility: visible !important;
-  opacity: 1 !important;
-  z-index: 100;
   background: var(--mag-black);
   overflow: hidden;
 }

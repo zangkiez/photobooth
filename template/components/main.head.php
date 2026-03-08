@@ -46,15 +46,21 @@ include PathUtility::getAbsolutePath('template/components/main.defaults.php');
     <?= $photoswipe && $config['gallery']['bottom_bar'] ? '<link rel="stylesheet" href="' . $assetService->getUrl('resources/css/photoswipe-bottom.css') . '"/>' : '' ?>
     <?= ThemeUtility::renderCustomUserStyle($config); ?>
     <?= is_file(PathUtility::getAbsolutePath('private/overrides.css')) ? '<link rel="stylesheet" href="' . $assetService->getUrl('private/overrides.css') . '"/>' : '' ?>
-    <!-- Magazine Theme CSS -->
+    <!-- Magazine Theme CSS - Load AFTER framework.css -->
+    <!-- 1. Fonts -->
     <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/fonts-magazine.css') ?>" />
+    <!-- 2. Variables & Base -->
     <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/magazine-fun.css') ?>" />
-    <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/magazine-v2.css') ?>" />
-    <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/magazine-layout.css') ?>" />
+    <!-- 3. Stage Base Styles (must override framework.css) -->
     <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/start-magazine.css') ?>" />
+    <!-- 4. Layout Components -->
+    <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/magazine-layout.css') ?>" />
+    <!-- 5. Animations -->
+    <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/animations-magazine.css') ?>" />
+    <!-- 6. Specific Screens -->
+    <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/magazine-v2.css') ?>" />
     <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/results-magazine.css') ?>" />
     <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/filter-magazine.css') ?>" />
     <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/gallery-magazine.css') ?>" />
-    <link rel="stylesheet" href="<?= $assetService->getUrl('resources/css/animations-magazine.css') ?>" />
     <script src="<?= $assetService->getUrl('node_modules/jquery/dist/jquery.min.js') ?>"></script>
 </head>

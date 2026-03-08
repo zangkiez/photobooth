@@ -27,24 +27,13 @@
 /* ============================================
    RESULT SCREEN BASE
    ============================================ */
-.stage--result {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-}
+/* 
+   Base stage styles are defined in start-magazine.css
+   This file only contains result-specific styling
+*/
 
-/* Only show result screen when active */
+/* Result background when active */
 .stage--result.stage--active {
-  display: flex !important;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  visibility: visible !important;
-  opacity: 1 !important;
-  z-index: 100;
   background: var(--mag-cream);
   background-image:
     radial-gradient(ellipse at 10% 90%, rgba(255, 0, 110, 0.08) 0%, transparent 40%),
