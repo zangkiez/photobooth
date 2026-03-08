@@ -1095,37 +1095,29 @@ html body #screensaver-overlay.screensaver-overlay {
   position: absolute !important;
   top: 50% !important;
   left: 50% !important;
-  right: auto !important;
-  bottom: auto !important;
-  translate: none !important;
   transform: translate(-50%, -50%) !important;
-  margin: 0 !important;
   z-index: 20 !important;
+  
+  /* Width to fit content naturally */
   width: auto !important;
-  max-width: calc(100% - 4rem) !important;
+  max-width: 90vw !important;
+  white-space: normal !important;
+  display: block !important;
 
-  /* Override general message styling - make readable over transparent preview */
+  /* Simple text styling */
   font-size: clamp(1.5rem, 5vw, 3rem) !important;
   font-weight: 700 !important;
-  line-height: 1.2 !important;
-  letter-spacing: 0.05em !important;
-  text-transform: uppercase !important;
-  text-align: center !important;
   color: var(--mag-white) !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.9) !important;
+  line-height: 1.2 !important;
 
-  /* Transparent background to show preview behind */
-  background: rgba(0, 0, 0, 0.6) !important;
-  backdrop-filter: blur(10px) !important;
-
-  /* Clean styling without rotation */
-  border: 2px solid rgba(255, 255, 255, 0.3) !important;
-  border-radius: 12px !important;
-  padding: var(--space-sm) var(--space-md) !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
-
-  /* Strong text shadow for readability */
-  text-shadow:
-    0 0 20px rgba(0, 0, 0, 0.9),
-    0 2px 8px rgba(0, 0, 0, 1),
-    2px 2px 0 rgba(0, 0, 0, 0.8) !important;
+  /* No background, border, padding - just text */
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
 }
