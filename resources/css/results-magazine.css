@@ -102,17 +102,17 @@
 }
 
 /* ============================================
-   FUN RESULT ACTIONS BAR
+   FUN RESULT ACTIONS BAR - STREET STYLE
    ============================================ */
 .stage--result .buttonbar--bottom {
   position: fixed;
   bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(10rem, 100%), 1fr));
-  gap: 0.75rem 1rem;
-  padding: 1rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem 1.5rem;
+  padding: 1.25rem 1.75rem;
   background: var(--mag-white);
   border: 5px solid var(--mag-black);
   box-shadow:
@@ -121,24 +121,12 @@
   z-index: 500;
   border-radius: 0;
   animation: slideUpBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.3s backwards;
-  max-width: min(95vw, 56rem);
+  max-width: min(95vw, 58rem);
   width: max-content;
   max-height: 70vh;
   overflow-y: auto;
-  justify-items: center;
-  align-content: center;
-}
-
-/* Ensure buttons are clickable and don't overlap */
-.stage--result .buttonbar--bottom .button {
-  pointer-events: auto;
-  cursor: pointer;
-  position: relative;
-  z-index: 501;
-  min-width: 0;
-  width: 100%;
-  max-width: 12rem;
-  justify-self: center;
+  justify-content: center;
+  align-items: center;
 }
 
 @keyframes slideUpBounce {
@@ -155,6 +143,16 @@
   }
 }
 
+/* Space for shadow so buttons don't overlap visually */
+.stage--result .buttonbar--bottom .button {
+  pointer-events: auto;
+  cursor: pointer;
+  position: relative;
+  z-index: 501;
+  flex-shrink: 0;
+  margin: 2px;
+}
+
 /* Fun Action Buttons */
 .stage--result .button {
   font-family: var(--font-fun);
@@ -166,7 +164,7 @@
   background: var(--mag-white);
   color: var(--mag-black);
   border: 4px solid var(--mag-black);
-  box-shadow: 4px 4px 0 var(--mag-black);
+  box-shadow: 3px 3px 0 var(--mag-black);
   transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   display: inline-flex;
   align-items: center;
@@ -174,23 +172,32 @@
   gap: 0.5rem;
   border-radius: 0;
   white-space: nowrap;
+  transform: rotate(var(--btn-r, 0deg));
 }
 
+/* Hover: keep street rotation via var, add lift */
+.stage--result .buttonbar--bottom .button:nth-child(6n+1) { --btn-r: -3deg; }
+.stage--result .buttonbar--bottom .button:nth-child(6n+2) { --btn-r: 2deg; }
+.stage--result .buttonbar--bottom .button:nth-child(6n+3) { --btn-r: -2deg; }
+.stage--result .buttonbar--bottom .button:nth-child(6n+4) { --btn-r: 1deg; }
+.stage--result .buttonbar--bottom .button:nth-child(6n+5) { --btn-r: -1.5deg; }
+.stage--result .buttonbar--bottom .button:nth-child(6n+6) { --btn-r: 2.5deg; }
+
 .stage--result .button:hover {
-  transform: translate(-2px, -2px) rotate(-1deg);
-  box-shadow: 6px 6px 0 var(--mag-black);
+  transform: translate(-2px, -2px) rotate(var(--btn-r, 0deg));
+  box-shadow: 5px 5px 0 var(--mag-black);
   animation: buttonWiggle 0.4s ease-in-out;
 }
 
 @keyframes buttonWiggle {
-  0%, 100% { transform: translate(-2px, -2px) rotate(-1deg); }
-  25% { transform: translate(-2px, -2px) rotate(1deg); }
-  50% { transform: translate(-2px, -2px) rotate(-0.5deg); }
-  75% { transform: translate(-2px, -2px) rotate(0.5deg); }
+  0%, 100% { transform: translate(-2px, -2px) rotate(var(--btn-r, 0deg)); }
+  25% { transform: translate(-2px, -2px) rotate(calc(var(--btn-r, 0deg) + 2deg)); }
+  50% { transform: translate(-2px, -2px) rotate(calc(var(--btn-r, 0deg) - 1deg)); }
+  75% { transform: translate(-2px, -2px) rotate(calc(var(--btn-r, 0deg) + 1deg)); }
 }
 
 .stage--result .button:active {
-  transform: translate(2px, 2px) rotate(0deg);
+  transform: translate(2px, 2px) rotate(var(--btn-r, 0deg));
   box-shadow: 2px 2px 0 var(--mag-black);
 }
 
@@ -365,9 +372,8 @@
 
   .stage--result .buttonbar--bottom {
     bottom: 1rem;
-    padding: 0.75rem 1rem;
-    gap: 0.5rem 0.75rem;
-    grid-template-columns: repeat(auto-fill, minmax(min(8rem, 100%), 1fr));
+    padding: 0.85rem 1rem;
+    gap: 1rem 1.25rem;
     max-width: 95vw;
     box-shadow:
       4px 4px 0 var(--fun-acid-green),
@@ -375,7 +381,7 @@
   }
 
   .stage--result .buttonbar--bottom .button {
-    max-width: 10rem;
+    margin: 2px;
   }
 
   .stage--result .button {
@@ -408,13 +414,8 @@
 
 @media (max-width: 480px) {
   .stage--result .buttonbar--bottom {
-    gap: 0.5rem 0.6rem;
+    gap: 0.75rem 1rem;
     padding: 0.6rem 0.75rem;
-    grid-template-columns: repeat(auto-fill, minmax(min(7rem, 100%), 1fr));
-  }
-
-  .stage--result .buttonbar--bottom .button {
-    max-width: none;
   }
 
   .stage--result .button {
