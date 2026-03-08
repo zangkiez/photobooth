@@ -185,12 +185,6 @@
    This section only contains loader-specific styling
 */
 
-/* Loader background when active */
-.stage--loader.stage--active {
-  background: var(--mag-black);
-  overflow: hidden;
-}
-
 /* Loader Inner - Center Content with full coverage */
 .stage--loader .stage-inner--loader {
   display: flex;
@@ -204,6 +198,23 @@
   background: var(--mag-black);
   min-height: 100vh;
   min-width: 100vw;
+}
+
+/* Force show video sensor and stage image in loader */
+.stage--loader .stage-inner--loader #video--sensor,
+.stage--loader .stage-inner--loader .stage-image {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  width: 100% !important;
+  position: absolute !important;
+  z-index: 1 !important;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100%;
+  max-height: 100%;
 }
 
 /* Hide unnecessary elements during countdown */
