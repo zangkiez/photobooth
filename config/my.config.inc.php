@@ -27,6 +27,9 @@ return [
     'event' => [
         'symbol' => 'fa-gift',
     ],
+    'button' => [
+        'show_cups' => true,
+    ],
     'filters' => [
         'disabled' => [
             'antique',
@@ -82,6 +85,10 @@ return [
     'fonts' => [
         'gallery_title_color' => '#000000',
     ],
+    'background' => [
+        'defaults' => 'resources/img/background.png',
+        'chroma' => 'resources/img/background.png',
+    ],
     'preview' => [
         'mode' => 'device_cam',
         'camTakesPic' => true,
@@ -93,6 +100,8 @@ return [
         'url' => 'view.php?image=',
     ],
     'print' => [
+        'from_result' => true,
+        'from_gallery' => true,
         'frame' => 'resources/img/frames/frame.png',
     ],
 ];

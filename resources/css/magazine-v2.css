@@ -191,7 +191,7 @@
   overflow: hidden;
 }
 
-/* Loader Inner - Center Content */
+/* Loader Inner - Center Content with full coverage */
 .stage--loader .stage-inner--loader {
   display: flex;
   flex-direction: column;
@@ -201,6 +201,9 @@
   height: 100%;
   position: relative;
   z-index: 10;
+  background: var(--mag-black);
+  min-height: 100vh;
+  min-width: 100vw;
 }
 
 /* Hide unnecessary elements during countdown */
