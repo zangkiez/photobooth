@@ -49,6 +49,10 @@
   visibility: hidden !important;
   opacity: 0 !important;
   z-index: -9999 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
 }
 
 /* 2. Force show active stages */
@@ -61,21 +65,22 @@
   inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
+  background-color: var(--mag-cream) !important; /* Default background to cover previous stage */
 }
 
 /* 3. Specific Stage Styling (Backgrounds & Layers) */
 .stage--start.stage--active {
-  background: var(--mag-cream);
+  background: var(--mag-cream) !important;
   z-index: 200 !important;
 }
 
 .stage--loader.stage--active {
-  background: var(--mag-black);
+  background: var(--mag-black) !important;
   z-index: 300 !important;
 }
 
 .stage--result.stage--active {
-  background: var(--mag-cream);
+  background: var(--mag-cream) !important;
   z-index: 400 !important;
 }
 
