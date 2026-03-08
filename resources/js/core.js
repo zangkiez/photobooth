@@ -1943,13 +1943,16 @@ var photoBooth = (function () {
         api.processPic(result);
         rotaryController.focusSet(filternav);
     });
-    $('.takePic, .newpic').on('click', function (e) {
+    /* Use delegation so result-page buttons (e.g. .newpic) work when stage is shown */
+    $(document).on('click', '.takePic, .newpic', function (e) {
         e.preventDefault();
+        e.stopPropagation();
         api.thrill(PhotoStyle.PHOTO);
         $(this).trigger('blur');
     });
-    $('.takeCollage, .newcollage').on('click', function (e) {
+    $(document).on('click', '.takeCollage, .newcollage', function (e) {
         e.preventDefault();
+        e.stopPropagation();
         if (config.collage.enabled && config.collage.allow_selection && $('#collageSelectorModal').length) {
             $('#collageSelectorModal').data('pending-start', true);
             $('#collageSelectorModal').removeClass('hidden').attr('aria-hidden', 'false');
@@ -1959,13 +1962,16 @@ var photoBooth = (function () {
         api.thrill(PhotoStyle.COLLAGE);
         $(this).trigger('blur');
     });
-    $('.takeCustom, .newcustom').on('click', function (e) {
+    $(document).on('click', '.takeCustom, .newcustom', function (e) {
         e.preventDefault();
+        e.stopPropagation();
         api.thrill(PhotoStyle.CUSTOM);
         $(this).trigger('blur');
     });
-    $('.takeVideo, .newVideo').on('click', function (e) {
+    /* .newvideo = result page (PHP), .newVideo = start page */
+    $(document).on('click', '.takeVideo, .newVideo, .newvideo', function (e) {
         e.preventDefault();
+        e.stopPropagation();
         api.thrill(PhotoStyle.VIDEO);
         $(this).trigger('blur');
     });

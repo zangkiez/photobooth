@@ -368,6 +368,67 @@
   }
 }
 
+/* Dynamic Cheese Overlay (.cheese + .cheese-label from JS) - same fun magazine style */
+.cheese {
+  color: var(--mag-black);
+  background: transparent;
+  pointer-events: none;
+}
+.cheese .cheese-label {
+  font-family: var(--font-street);
+  font-weight: 400;
+  font-size: clamp(3rem, 12vw, 7rem);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  background: var(--fun-acid-green);
+  color: var(--mag-black);
+  padding: 1.25rem 3.5rem;
+  border: 6px solid var(--mag-white);
+  box-shadow:
+    8px 8px 0 var(--fun-hot-pink),
+    16px 16px 0 var(--fun-electric-blue);
+  transform: rotate(-5deg);
+  animation: cheeseStreetPop 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  text-align: center;
+  line-height: 1.2;
+  display: inline-block;
+}
+.cheese .cheese-label::before {
+  content: '★';
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  font-size: 1.75rem;
+  color: var(--fun-hot-pink);
+  background: var(--mag-white);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid var(--mag-black);
+  box-shadow: 3px 3px 0 var(--mag-black);
+  transform: rotate(-15deg);
+}
+.cheese .cheese-label::after {
+  content: '♦';
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  font-size: 1.25rem;
+  color: var(--fun-electric-blue);
+  background: var(--mag-white);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--mag-black);
+  box-shadow: 2px 2px 0 var(--mag-black);
+  transform: rotate(10deg);
+}
+
 /* ============================================
    STEP 5: RESULT SCREEN - FUN STYLE
    ============================================ */

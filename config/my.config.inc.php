@@ -4,6 +4,7 @@ return [
     'ui' => [
         'language' => 'th',
         'local_timezone' => 'Asia/Bangkok',
+        'show_fork' => false,
     ],
     'adminpanel' => [
         'view' => 'expert',
@@ -13,11 +14,16 @@ return [
         'text' => 'daaad',
     ],
     'logo' => [
+        'enabled' => false,
         'path' => 'resources/img/logo/logo-plain-fulltext.png',
     ],
     'picture' => [
         'cntdwn_time' => 10,
+        'cheese_time' => 4000,
+        'take_frame' => false,
         'frame' => 'resources/img/frames/frame_parque.png',
+        'extend_by_frame' => false,
+        'keep_original' => false,
     ],
     'textonpicture' => [
         'rotation' => -100,
@@ -25,12 +31,14 @@ return [
         'font_color' => '#fffafa',
     ],
     'event' => [
+        'enabled' => true,
         'symbol' => 'fa-gift',
     ],
     'button' => [
         'show_cups' => true,
     ],
     'filters' => [
+        'enabled' => false,
         'disabled' => [
             'antique',
         ],

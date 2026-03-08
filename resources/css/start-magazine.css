@@ -118,6 +118,28 @@ html body .stage--loader #cheese {
 /* ============================================
    BACKGROUND PULSE ANIMATION - ALL STAGES
    ============================================ */
+/* Apply background pulse to the preview container */
+#preview-container {
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(255, 0, 110, 0.1) 0%, rgba(0, 0, 0, 0) 50%),
+    radial-gradient(circle at 80% 20%, rgba(0, 245, 255, 0.1) 0%, rgba(0, 0, 0, 0) 50%),
+    radial-gradient(circle, rgba(57, 255, 20, 0.05) 0%, rgba(0, 0, 0, 0) 30%);
+  background-size: 100% 100%;
+  animation: backgroundPulse 8s ease-in-out infinite;
+  /* Ensure it fills the space if video aspect ratio leaves gaps */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--mag-black); /* Fallback color */
+}
+
+/* Ensure preview wrapper is centered */
+#preview-wrapper {
+  position: relative;
+  z-index: 1;
+}
 /* Apply to all active stages */
 .stage--start.stage--active,
 .stage--loader.stage--active:has(.loader-counter:not(:empty)),
