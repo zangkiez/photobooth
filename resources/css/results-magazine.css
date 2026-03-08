@@ -28,19 +28,11 @@
    RESULT SCREEN BASE
    ============================================ */
 /* 
-   Base stage styles are defined in start-magazine.css
+   Base stage styles and background animation are defined in start-magazine.css
    This file only contains result-specific styling
 */
 
-/* Result background when active */
-.stage--result.stage--active {
-  background: var(--mag-cream);
-  background-image:
-    radial-gradient(ellipse at 10% 90%, rgba(255, 0, 110, 0.08) 0%, transparent 40%),
-    radial-gradient(ellipse at 90% 10%, rgba(0, 245, 255, 0.08) 0%, transparent 40%);
-}
-
-/* Fun Grid Pattern */
+/* Fun Grid Pattern on result screen */
 .stage--result::before {
   content: '';
   position: absolute;
