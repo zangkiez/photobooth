@@ -2,7 +2,7 @@
  * MAGAZINE / STREET UI THEME
  * Neo-Brutalism meets Editorial Design
  * Bold, Geometric, Unapologetically Modern
- * 
+ *
  * For Photobooth v4
  */
 
@@ -19,7 +19,7 @@
   --mag-cream: #f5f5f0;
   --mag-gray: #8a8a8a;
   --mag-gray-light: #e5e5e5;
-  
+
   /* Accent Colors - Vibrant */
   --mag-red: #ff2a00;
   --mag-orange: #ff6b00;
@@ -29,7 +29,7 @@
   --mag-blue: #0066ff;
   --mag-purple: #9900ff;
   --mag-pink: #ff00aa;
-  
+
   /* Override Photobooth Variables */
   --primary-color: var(--mag-black);
   --primary-light-color: var(--mag-cream);
@@ -46,18 +46,18 @@
   --gallery-button-color: var(--mag-black);
   --font-color: var(--mag-black);
   --font-family: 'Space Grotesk', 'Kanit', sans-serif;
-  
+
   /* Shadows - Hard Edge (Neo-Brutalism) */
   --shadow-hard: 6px 6px 0 rgba(0,0,0,1);
   --shadow-hard-sm: 3px 3px 0 rgba(0,0,0,1);
   --shadow-hard-lg: 10px 10px 0 rgba(0,0,0,1);
   --shadow-color: 8px 8px 0 var(--mag-cyan);
   --shadow-hover: 12px 12px 0 rgba(0,0,0,1);
-  
+
   /* Borders */
   --border-thick: 4px solid var(--mag-black);
   --border-thin: 2px solid var(--mag-black);
-  
+
   /* Spacing */
   --space-xs: 0.5rem;
   --space-sm: 1rem;
@@ -151,7 +151,7 @@ html, body {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
   background-size: 50px 50px;
@@ -487,9 +487,9 @@ html, body {
   z-index: 20 !important;
   width: auto !important;
   max-width: calc(100% - 4rem) !important;
-  
+
   /* Make text readable over preview/transparent background */
-  text-shadow: 
+  text-shadow:
     0 0 20px rgba(0, 0, 0, 0.8),
     0 2px 4px rgba(0, 0, 0, 0.9),
     2px 2px 0 var(--mag-black) !important;
@@ -508,7 +508,7 @@ html, body {
   font-size: clamp(10rem, 30vw, 25rem);
   line-height: 0.8;
   color: var(--mag-white);
-  text-shadow: 
+  text-shadow:
     4px 4px 0 var(--mag-red),
     8px 8px 0 var(--mag-cyan);
   animation: scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -743,7 +743,7 @@ html, body {
 .grid-overlay {
   position: fixed;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
   background-size: 100px 100px;
@@ -1029,26 +1029,26 @@ html body #screensaver-overlay.screensaver-overlay {
     --shadow-hard: 4px 4px 0 rgba(0,0,0,1);
     --shadow-hard-lg: 6px 6px 0 rgba(0,0,0,1);
   }
-  
+
   .stage--start .names .event-text {
     font-size: clamp(2rem, 10vw, 5rem);
   }
-  
+
   #counter {
     font-size: clamp(6rem, 25vw, 12rem);
   }
-  
+
   #cheese {
     font-size: clamp(2rem, 8vw, 4rem);
     padding: var(--space-sm) var(--space-md);
     transform: rotate(-1deg);
   }
-  
+
   .button {
     padding: var(--space-sm);
     font-size: 0.875rem;
   }
-  
+
   [data-ui-button="modern"] .button {
     width: 70px;
     height: 70px;
