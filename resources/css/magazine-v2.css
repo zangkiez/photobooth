@@ -455,27 +455,12 @@
     32px 32px 0 var(--fun-electric-blue);
 }
 
-/* Fun Button Bar */
-.stage--result .buttonbar--bottom {
-  background: var(--mag-white);
-  border: 6px solid var(--mag-black);
-  box-shadow: 8px 8px 0 var(--fun-acid-green);
-  padding: 1.5rem;
-  border-radius: 0;
-}
-
-/* Result Buttons */
+/* Fun Button Bar + Result Buttons: layout/gap/transform in results-magazine.css to avoid overlap */
 .stage--result .buttonbar--bottom .button {
   font-family: var(--font-fun);
   font-weight: 700;
   border: 4px solid var(--mag-black);
-  box-shadow: 4px 4px 0 var(--mag-black);
   transition: all 0.15s ease;
-}
-
-.stage--result .buttonbar--bottom .button:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0 var(--mag-black);
 }
 
 /* ============================================

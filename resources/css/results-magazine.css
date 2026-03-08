@@ -104,6 +104,17 @@
 /* ============================================
    FUN RESULT ACTIONS BAR - STREET STYLE
    ============================================ */
+/* Override framework: keep ALL buttons in flex flow (framework sets position:fixed on homebtn/gallerybtn) */
+html body .stage--result .buttonbar--bottom .button,
+html body .stage--result .buttonbar--bottom button[data-command=homebtn],
+html body .stage--result .buttonbar--bottom button[data-command=gallerybtn] {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+}
+
 .stage--result .buttonbar--bottom {
   position: fixed;
   bottom: 2rem;
@@ -111,7 +122,7 @@
   transform: translateX(-50%);
   display: flex;
   flex-wrap: wrap;
-  gap: 1.25rem 1.5rem;
+  gap: 1.75rem 2rem;
   padding: 1.25rem 1.75rem;
   background: var(--mag-white);
   border: 5px solid var(--mag-black);
@@ -143,18 +154,14 @@
   }
 }
 
-/* Space for shadow so buttons don't overlap visually */
+/* Space for shadow + rotation so buttons don't overlap */
 .stage--result .buttonbar--bottom .button {
   pointer-events: auto;
   cursor: pointer;
   position: relative;
   z-index: 501;
   flex-shrink: 0;
-  margin: 2px;
-}
-
-/* Fun Action Buttons */
-.stage--result .button {
+  margin: 8px;
   font-family: var(--font-fun);
   font-weight: 700;
   font-size: 0.875rem;
@@ -176,12 +183,12 @@
 }
 
 /* Hover: keep street rotation via var, add lift */
-.stage--result .buttonbar--bottom .button:nth-child(6n+1) { --btn-r: -3deg; }
-.stage--result .buttonbar--bottom .button:nth-child(6n+2) { --btn-r: 2deg; }
-.stage--result .buttonbar--bottom .button:nth-child(6n+3) { --btn-r: -2deg; }
+.stage--result .buttonbar--bottom .button:nth-child(6n+1) { --btn-r: -2deg; }
+.stage--result .buttonbar--bottom .button:nth-child(6n+2) { --btn-r: 1.5deg; }
+.stage--result .buttonbar--bottom .button:nth-child(6n+3) { --btn-r: -1.5deg; }
 .stage--result .buttonbar--bottom .button:nth-child(6n+4) { --btn-r: 1deg; }
-.stage--result .buttonbar--bottom .button:nth-child(6n+5) { --btn-r: -1.5deg; }
-.stage--result .buttonbar--bottom .button:nth-child(6n+6) { --btn-r: 2.5deg; }
+.stage--result .buttonbar--bottom .button:nth-child(6n+5) { --btn-r: -1deg; }
+.stage--result .buttonbar--bottom .button:nth-child(6n+6) { --btn-r: 2deg; }
 
 .stage--result .button:hover {
   transform: translate(-2px, -2px) rotate(var(--btn-r, 0deg));
