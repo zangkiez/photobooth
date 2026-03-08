@@ -1097,7 +1097,7 @@ html body #screensaver-overlay.screensaver-overlay {
   left: 50% !important;
   transform: translate(-50%, -50%) !important;
   z-index: 20 !important;
-  
+
   /* Width to fit content naturally */
   width: auto !important;
   max-width: 90vw !important;
