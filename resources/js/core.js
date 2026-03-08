@@ -1990,17 +1990,20 @@ var photoBooth = (function () {
         api.navbar.close();
         rotaryController.focusSet(resultPage);
     });
-    $('.gallery-button, .gallerybtn').on('click', function (e) {
+    $(document).on('click', '.gallery-button, .gallerybtn', function (e) {
         e.preventDefault();
+        e.stopPropagation();
         api.navbar.close();
         api.openGallery($(this));
     });
-    $('[data-command="gallery__refresh"]').on('click', function (e) {
+    $(document).on('click', '[data-command="gallery__refresh"]', function (e) {
         e.preventDefault();
+        e.stopPropagation();
         photoboothTools.reloadPage();
     });
-    $('[data-command="gallery__close"]').on('click', function (e) {
+    $(document).on('click', '[data-command="gallery__close"]', function (e) {
         e.preventDefault();
+        e.stopPropagation();
         api.closeGallery();
     });
     $('.mailbtn').on('click touchstart', function (e) {

@@ -47,6 +47,11 @@
     0 0 40px rgba(255, 0, 110, 0.2);
 }
 
+/* Gallery must sit above all stages (start 1000, loader 2000, result 3000) */
+#gallery.gallery--open {
+  z-index: 5000 !important;
+}
+
 /* ============================================
    FUN GALLERY HEADER
    ============================================ */
