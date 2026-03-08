@@ -20,7 +20,7 @@ $galleryTitle = 'slideshow';
 include PathUtility::getAbsolutePath('template/components/main.head.php');
 
 ?>
-<body class="gallery-mode--overlay">
+<body class="gallery-mode--overlay slideshow-view">
     <?php include PathUtility::getAbsolutePath('template/components/gallery.php'); ?>
     <script>
         document.getElementById('gallery').classList.add('gallery--open');

@@ -53,6 +53,32 @@
 }
 
 /* ============================================
+   SLIDESHOW VIEW - Gallery as main content (no overlay)
+   ============================================ */
+body.slideshow-view #gallery {
+  translate: none !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.slideshow-view #gallery .gallery-body {
+  flex: 1 !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow-y: auto !important;
+  padding: var(--space-md) !important;
+}
+
+body.slideshow-view #gallery .gallery-images {
+  min-height: 200px;
+}
+
+/* ============================================
    FUN GALLERY HEADER
    ============================================ */
 .gallery-header {
@@ -166,7 +192,8 @@
 /* ============================================
    FUN GALLERY IMAGES GRID
    ============================================ */
-.gallery-images {
+.gallery-images,
+#galimages {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: var(--space-md);
@@ -174,7 +201,38 @@
   z-index: 1;
 }
 
-/* Fun Individual Image Item */
+/* When JS injects <a class="gallery-list-item"> (e.g. main app gallery open) - same fun style */
+#galimages > a.gallery-list-item,
+.gallery-images > a.gallery-list-item {
+  display: block;
+  position: relative;
+  background: var(--mag-white);
+  border: 5px solid var(--mag-black);
+  box-shadow: var(--shadow-hard-sm);
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  overflow: hidden;
+}
+
+#galimages > a.gallery-list-item:hover,
+.gallery-images > a.gallery-list-item:hover {
+  transform: translate(-6px, -6px) rotate(-2deg);
+  box-shadow:
+    10px 10px 0 var(--mag-black),
+    0 0 30px rgba(255, 0, 110, 0.3);
+  z-index: 2;
+}
+
+#galimages > a.gallery-list-item img,
+.gallery-images > a.gallery-list-item img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  border-bottom: 4px solid var(--mag-black);
+  vertical-align: middle;
+}
+
+/* Fun Individual Image Item (.gallery-item from PHP) */
 .gallery-item {
   position: relative;
   background: var(--mag-white);
@@ -529,7 +587,8 @@
     max-height: calc(100vh - 100px);
   }
 
-  .gallery-images {
+  .gallery-images,
+  #galimages {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: var(--space-sm);
   }
@@ -557,7 +616,8 @@
 }
 
 @media (max-width: 480px) {
-  .gallery-images {
+  .gallery-images,
+  #galimages {
     grid-template-columns: repeat(2, 1fr);
   }
 
