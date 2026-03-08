@@ -442,6 +442,8 @@ body.slideshow-view #gallery .gallery-images {
    ============================================ */
 .pswp {
   --pswp-bg: var(--mag-cream);
+  /* Override framework's transparent so button icons are visible */
+  --gallery-button-color: var(--mag-black);
 }
 
 .pswp__bg {
@@ -464,9 +466,10 @@ body.slideshow-view #gallery .gallery-images {
   text-shadow: 1px 1px 0 var(--fun-electric-blue);
 }
 
-/* Fun Buttons */
+/* Fun Buttons - base */
 .pswp__button {
   background: var(--mag-white) !important;
+  color: var(--mag-black) !important;
   border: 3px solid var(--mag-black) !important;
   box-shadow: 3px 3px 0 var(--mag-black) !important;
   margin: var(--space-xs);
@@ -477,19 +480,92 @@ body.slideshow-view #gallery .gallery-images {
 
 .pswp__button:hover {
   background: var(--fun-electric-blue) !important;
+  color: var(--mag-black) !important;
   transform: translate(-2px, -2px);
   box-shadow: 5px 5px 0 var(--mag-black) !important;
 }
 
-/* Close button */
+/* All modifier buttons: keep background visible (override framework's transparent) */
+.pswp__button--close,
+.pswp__button--qrcode,
+.pswp__button--print,
+.pswp__button--print-chroma-keying,
+.pswp__button--download,
+.pswp__button--custom-download,
+.pswp__button--mail,
+.pswp__button--playpause,
+.pswp__button--share,
+.pswp__button--zoom,
+.pswp__button--fs,
+.pswp__button--delete,
+.pswp__button--reload {
+  background: var(--mag-white) !important;
+  color: var(--mag-black) !important;
+}
+
+.pswp__button--close:hover,
+.pswp__button--qrcode:hover,
+.pswp__button--print:hover,
+.pswp__button--print-chroma-keying:hover,
+.pswp__button--download:hover,
+.pswp__button--custom-download:hover,
+.pswp__button--mail:hover,
+.pswp__button--playpause:hover,
+.pswp__button--share:hover,
+.pswp__button--zoom:hover,
+.pswp__button--fs:hover,
+.pswp__button--delete:hover,
+.pswp__button--reload:hover {
+  opacity: 1;
+}
+
+/* Icon/center inside buttons - ensure visible */
+.pswp__button--close > i,
+.pswp__button--qrcode > i,
+.pswp__button--print > i,
+.pswp__button--print-chroma-keying > i,
+.pswp__button--download > i,
+.pswp__button--custom-download > i,
+.pswp__button--mail > i,
+.pswp__button--playpause > i,
+.pswp__button--share > i,
+.pswp__button--zoom > i,
+.pswp__button--fs > i,
+.pswp__button--delete > i,
+.pswp__button--reload > i,
+.pswp__button--close .center,
+.pswp__button--qrcode .center,
+.pswp__button--print .center,
+.pswp__button--print-chroma-keying .center,
+.pswp__button--download .center,
+.pswp__button--custom-download .center,
+.pswp__button--mail .center,
+.pswp__button--playpause .center,
+.pswp__button--share .center,
+.pswp__button--zoom .center,
+.pswp__button--fs .center,
+.pswp__button--delete .center,
+.pswp__button--reload .center {
+  color: inherit;
+  position: relative;
+  z-index: 1;
+}
+
+/* Close button - accent */
 .pswp__button--close {
   background: var(--fun-hot-pink) !important;
+  color: var(--mag-white) !important;
 }
 
 .pswp__button--close:hover {
   background: var(--mag-black) !important;
   color: var(--mag-white);
   border-color: var(--fun-hot-pink) !important;
+}
+
+.pswp__button--close > i,
+.pswp__button--close .center {
+  color: inherit;
 }
 
 /* Image container */
