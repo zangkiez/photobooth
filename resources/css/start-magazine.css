@@ -115,6 +115,16 @@ html body .stage--loader #cheese {
   position: relative !important;
 }
 
+/* Shutter (flash + aperture) must be above all stages so the white flash is visible */
+.shutter {
+  z-index: 9999 !important;
+  pointer-events: none;
+}
+.shutter-flash,
+.shutter-aperture {
+  pointer-events: none;
+}
+
 /* ============================================
    BACKGROUND PULSE ANIMATION - ALL STAGES
    ============================================ */
