@@ -1,0 +1,549 @@
+/**
+ * MAGAZINE THEME v2 - FUN EDITION
+ * Step by Step with Street/Pop Art Style
+ * Bold Geometric Fonts + Fun Colors + Playful Effects
+ */
+
+/* ============================================
+   STEP 1: FONTS & FUN COLORS
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&family=Comfortaa:wght@400;500;600;700&family=Bungee&display=swap');
+
+:root {
+  /* Fun Magazine Colors */
+  --mag-cream: #f5f5f0;
+  --mag-black: #0a0a0a;
+  --mag-white: #ffffff;
+  --mag-gray: #666666;
+
+  /* Vibrant Street Colors */
+  --fun-hot-pink: #FF006E;
+  --fun-electric-blue: #00F5FF;
+  --fun-acid-green: #39FF14;
+  --fun-sunshine: #FFD700;
+  --fun-vivid-purple: #BF00FF;
+  --fun-coral: #FF6B35;
+  --fun-turquoise: #00D4AA;
+
+  /* Font Families */
+  --font-fun: 'Fredoka', 'Kanit', sans-serif;
+  --font-street: 'Bungee', 'Kanit', sans-serif;
+  --font-main: 'Kanit', 'Comfortaa', sans-serif;
+}
+
+/* ============================================
+   STEP 2: START SCREEN - FUN MAGAZINE STYLE
+   ============================================ */
+.stage--start {
+  background: var(--mag-cream);
+  font-family: var(--font-main);
+  background-image:
+    radial-gradient(circle at 20% 80%, var(--fun-hot-pink) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, var(--fun-electric-blue) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, var(--fun-acid-green) 0%, transparent 30%);
+  background-size: 100% 100%;
+  animation: backgroundPulse 8s ease-in-out infinite;
+}
+
+@keyframes backgroundPulse {
+  0%, 100% {
+    background-image:
+      radial-gradient(circle at 20% 80%, rgba(255, 0, 110, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(57, 255, 20, 0.05) 0%, transparent 30%);
+  }
+  50% {
+    background-image:
+      radial-gradient(circle at 25% 75%, rgba(255, 0, 110, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 75% 25%, rgba(0, 245, 255, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 55% 45%, rgba(57, 255, 20, 0.08) 0%, transparent 30%);
+  }
+}
+
+/* Grid Pattern Overlay */
+.stage--start::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Fun Event Title */
+.stage--start .names .event-text {
+  font-family: var(--font-street);
+  font-weight: 400;
+  font-size: clamp(2rem, 8vw, 6rem);
+  text-transform: uppercase;
+  color: var(--mag-black);
+  letter-spacing: 0.05em;
+  line-height: 0.95;
+  text-shadow:
+    3px 3px 0 var(--fun-hot-pink),
+    6px 6px 0 var(--fun-electric-blue);
+  animation: titleBounce 1s ease-out;
+}
+
+@keyframes titleBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-50px);
+  }
+  60% {
+    transform: scale(1.05) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Fun Start Text */
+.stage--start .names .start-text {
+  font-family: var(--font-fun);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--mag-black);
+  letter-spacing: 0.02em;
+}
+
+/* ============================================
+   STEP 3: FUN BUTTONS
+   ============================================ */
+.stage--start .buttonbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  position: relative;
+  z-index: 10;
+}
+
+.stage--start .button {
+  font-family: var(--font-fun);
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 1.25rem 2.5rem;
+  background: var(--mag-white);
+  color: var(--mag-black);
+  border: 4px solid var(--mag-black);
+  box-shadow: 6px 6px 0 var(--mag-black);
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+}
+
+/* Button Hover - Fun Bounce Effect */
+.stage--start .button:hover {
+  transform: translate(-4px, -4px) rotate(-2deg);
+  box-shadow: 10px 10px 0 var(--mag-black);
+  animation: buttonWiggle 0.5s ease-in-out;
+}
+
+@keyframes buttonWiggle {
+  0%, 100% { transform: translate(-4px, -4px) rotate(-2deg); }
+  25% { transform: translate(-4px, -4px) rotate(2deg); }
+  50% { transform: translate(-4px, -4px) rotate(-1deg); }
+  75% { transform: translate(-4px, -4px) rotate(1deg); }
+}
+
+.stage--start .button:active {
+  transform: translate(2px, 2px) rotate(0deg);
+  box-shadow: 2px 2px 0 var(--mag-black);
+}
+
+/* Special Button Styles */
+.stage--start #takePic,
+.stage--start [data-command='takePic'] {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+  font-size: 1.5rem;
+  padding: 1.5rem 3rem;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 6px 6px 0 var(--mag-black), 0 0 0 0 rgba(255, 0, 110, 0.4);
+  }
+  50% {
+    box-shadow: 6px 6px 0 var(--mag-black), 0 0 20px 10px rgba(255, 0, 110, 0.2);
+  }
+}
+
+.stage--start #takeCollage,
+.stage--start [data-command='takeCollage'] {
+  background: var(--fun-electric-blue);
+  color: var(--mag-black);
+}
+
+.stage--start #gallery-button,
+.stage--start [data-command='gallery'] {
+  background: var(--fun-sunshine);
+  color: var(--mag-black);
+}
+
+.stage--start #takeCustom,
+.stage--start [data-command='takeCustom'] {
+  background: var(--fun-vivid-purple);
+  color: var(--mag-white);
+}
+
+/* ============================================
+   STEP 4: LOADER (Countdown) - FUN STYLE
+   ============================================ */
+.stage--loader {
+  background: var(--mag-black);
+  position: relative;
+  overflow: hidden;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Loader Inner - Center Content */
+.stage--loader .stage-inner--loader {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+/* Hide unnecessary elements during countdown */
+.stage--loader .stage-message,
+.stage--loader .buttonbar,
+.stage--loader .buttonbar--bottom {
+  display: none !important;
+}
+
+/* Speed Lines Background */
+.stage--loader::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    transparent 10deg,
+    rgba(255, 255, 255, 0.03) 10deg,
+    rgba(255, 255, 255, 0.03) 12deg
+  );
+  transform: translate(-50%, -50%);
+  animation: speedLines 0.5s linear infinite;
+  z-index: 1;
+}
+
+@keyframes speedLines {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Fun Counter - Centered */
+.stage--loader #counter,
+.stage--loader .loader-counter {
+  font-family: var(--font-street);
+  font-weight: 400;
+  font-size: clamp(10rem, 30vw, 25rem);
+  color: var(--mag-white);
+  text-shadow:
+    4px 4px 0 var(--fun-hot-pink),
+    8px 8px 0 var(--fun-electric-blue),
+    12px 12px 0 var(--fun-acid-green);
+  animation: counterPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes counterPop {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-180deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Fun Cheese Text - Centered */
+.stage--loader #cheese,
+.stage--loader .loader-cheese {
+  font-family: var(--font-fun);
+  font-weight: 700;
+  font-size: clamp(3rem, 12vw, 7rem);
+  background: var(--fun-acid-green);
+  color: var(--mag-black);
+  padding: 1rem 3rem;
+  border: 6px solid var(--mag-white);
+  box-shadow:
+    8px 8px 0 var(--fun-hot-pink),
+    16px 16px 0 var(--fun-electric-blue);
+  transform: rotate(-5deg);
+  animation: cheeseBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.stage--loader #cheese.hidden,
+.stage--loader .loader-cheese.hidden {
+  display: none !important;
+}
+
+@keyframes cheeseBounce {
+  0% {
+    opacity: 0;
+    transform: rotate(-15deg) scale(0.5) translateY(100px);
+  }
+  60% {
+    transform: rotate(-2deg) scale(1.1) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-5deg) scale(1) translateY(0);
+  }
+}
+
+/* ============================================
+   STEP 5: RESULT SCREEN - FUN STYLE
+   ============================================ */
+.stage--result {
+  background: var(--mag-cream);
+  background-image:
+    radial-gradient(circle at 10% 90%, rgba(255, 0, 110, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 90% 10%, rgba(0, 245, 255, 0.1) 0%, transparent 40%);
+}
+
+.stage--result .stage-image {
+  border: 8px solid var(--mag-black);
+  box-shadow:
+    12px 12px 0 var(--fun-hot-pink),
+    24px 24px 0 var(--fun-electric-blue);
+  transform: rotate(-2deg);
+  transition: all 0.3s ease;
+}
+
+.stage--result .stage-image:hover {
+  transform: rotate(0deg) scale(1.02);
+  box-shadow:
+    16px 16px 0 var(--fun-hot-pink),
+    32px 32px 0 var(--fun-electric-blue);
+}
+
+/* Fun Button Bar */
+.stage--result .buttonbar--bottom {
+  background: var(--mag-white);
+  border: 6px solid var(--mag-black);
+  box-shadow: 8px 8px 0 var(--fun-acid-green);
+  padding: 1.5rem;
+  border-radius: 0;
+}
+
+/* Result Buttons */
+.stage--result .buttonbar--bottom .button {
+  font-family: var(--font-fun);
+  font-weight: 700;
+  border: 4px solid var(--mag-black);
+  box-shadow: 4px 4px 0 var(--mag-black);
+  transition: all 0.15s ease;
+}
+
+.stage--result .buttonbar--bottom .button:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0 var(--mag-black);
+}
+
+/* ============================================
+   STEP 6: FUN DECORATIONS
+   ============================================ */
+
+/* Corner Fun Decorations */
+.corner-fun {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  z-index: 5;
+}
+
+.corner-fun--tl {
+  top: 1rem;
+  left: 1rem;
+  border-top: 8px solid var(--fun-hot-pink);
+  border-left: 8px solid var(--fun-hot-pink);
+}
+
+.corner-fun--tr {
+  top: 1rem;
+  right: 1rem;
+  border-top: 8px solid var(--fun-electric-blue);
+  border-right: 8px solid var(--fun-electric-blue);
+}
+
+.corner-fun--bl {
+  bottom: 1rem;
+  left: 1rem;
+  border-bottom: 8px solid var(--fun-acid-green);
+  border-left: 8px solid var(--fun-acid-green);
+}
+
+.corner-fun--br {
+  bottom: 1rem;
+  right: 1rem;
+  border-bottom: 8px solid var(--fun-sunshine);
+  border-right: 8px solid var(--fun-sunshine);
+}
+
+/* Fun Stickers */
+.sticker-fun {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-fun);
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 4px solid var(--mag-black);
+  box-shadow: 4px 4px 0 var(--mag-black);
+  transform: rotate(-3deg);
+  transition: all 0.2s ease;
+}
+
+.sticker-fun:hover {
+  transform: rotate(3deg) scale(1.05);
+}
+
+.sticker-fun--new {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+}
+
+.sticker-fun--hot {
+  background: var(--fun-coral);
+  color: var(--mag-white);
+}
+
+.sticker-fun--cool {
+  background: var(--fun-electric-blue);
+  color: var(--mag-black);
+}
+
+/* ============================================
+   STEP 7: MARQUEE - FUN STYLE
+   ============================================ */
+.marquee-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--mag-black);
+  color: var(--mag-white);
+  padding: 1rem 0;
+  border-top: 6px solid var(--fun-hot-pink);
+  overflow: hidden;
+  z-index: 100;
+}
+
+.marquee-bar__content {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: var(--font-fun);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  animation: marqueeFun 15s linear infinite;
+  text-shadow: 2px 2px 0 var(--fun-electric-blue);
+}
+
+@keyframes marqueeFun {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ============================================
+   STEP 8: RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .stage--start .names .event-text {
+    font-size: clamp(1.75rem, 10vw, 4rem);
+    text-shadow:
+      2px 2px 0 var(--fun-hot-pink),
+      4px 4px 0 var(--fun-electric-blue);
+  }
+
+  .stage--start .button {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    box-shadow: 4px 4px 0 var(--mag-black);
+  }
+
+  .stage--start #takePic,
+  .stage--start [data-command='takePic'] {
+    padding: 1.25rem 2.5rem;
+    font-size: 1.25rem;
+  }
+
+  .stage--loader #counter {
+    font-size: clamp(6rem, 30vw, 12rem);
+    text-shadow:
+      2px 2px 0 var(--fun-hot-pink),
+      4px 4px 0 var(--fun-electric-blue),
+      6px 6px 0 var(--fun-acid-green);
+  }
+
+  .stage--loader #cheese {
+    font-size: clamp(2rem, 8vw, 4rem);
+    padding: 0.75rem 2rem;
+    box-shadow:
+      4px 4px 0 var(--fun-hot-pink),
+      8px 8px 0 var(--fun-electric-blue);
+  }
+
+  .stage--result .stage-image {
+    border-width: 6px;
+    box-shadow:
+      6px 6px 0 var(--fun-hot-pink),
+      12px 12px 0 var(--fun-electric-blue);
+  }
+
+  .corner-fun {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* ============================================
+   SELECTION STYLING
+   ============================================ */
+::selection {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+}
+
+::-moz-selection {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+}

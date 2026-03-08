@@ -9,9 +9,13 @@ $languageService = LanguageService::getInstance();
 $metadataCache = ImageMetadataCacheService::getInstance();
 
 if (empty($imagelist)) {
-    echo '<h1>' . $languageService->translate('gallery_no_image') . '</h1>';
+    echo '<div class="gallery-empty">';
+    echo '<div class="gallery-empty__icon">📷</div>';
+    echo '<h2 class="gallery-empty__title">' . $languageService->translate('gallery_no_image') . '</h2>';
+    echo '<p class="gallery-empty__text">Take your first photo!</p>';
+    echo '</div>';
 } else {
-    echo '<div class="gallery-list" id="galimages">';
+    echo '<div class="gallery-images" id="galimages">';
     foreach ($imagelist as $image) {
         try {
             $date = 'Gallery';
@@ -83,20 +87,23 @@ if (empty($imagelist)) {
                     $pswpWidth  = $imageinfo['width'];
                     $pswpHeight = $imageinfo['height'];
                 }
-                echo '<a href="' . PathUtility::getPublicPath($filename_photo) . '" class="gallery-list-item rotaryfocus" data-size="' . $imageinfo['width'] . 'x' . $imageinfo['height'] . '"';
+                echo '<div class="gallery-item rotaryfocus">';
+                echo '<a href="' . PathUtility::getPublicPath($filename_photo) . '" data-size="' . $imageinfo['width'] . 'x' . $imageinfo['height'] . '"';
                 echo ' data-pswp-width="' . $pswpWidth . '" data-pswp-height="' . $pswpHeight . '"';
                 echo ' data-med="' . PathUtility::getPublicPath($thumbPath) . '" data-med-size="' . $imageinfoThumb['width'] . 'x' . $imageinfoThumb['height'] . '">';
-                echo '<figure>';
-                echo '<img src="' . PathUtility::getPublicPath($thumbPath) . '" alt="' . $image . '" loading="lazy"';
+                echo '<img class="gallery-item__image" src="' . PathUtility::getPublicPath($thumbPath) . '" alt="' . $image . '" loading="lazy"';
                 if ($imageinfo['height'] > $imageinfo['width']) {
                     echo 'style="padding-left: 25%;padding-right: 25%;"';
                 }
                 echo ' />';
-                if ($config['gallery']['figcaption']) {
-                    echo '<figcaption>' . $date . '</figcaption>';
-                }
-                echo '</figure>';
                 echo '</a>';
+                echo '<div class="gallery-item__info">';
+                if ($config['gallery']['figcaption']) {
+                    echo '<div class="gallery-item__date">' . $date . '</div>';
+                }
+                echo '<div class="gallery-item__filename">' . $image . '</div>';
+                echo '</div>';
+                echo '</div>';
             }
         } catch (\Exception $e) {
             // Empty catch block

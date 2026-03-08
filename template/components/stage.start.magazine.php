@@ -1,25 +1,22 @@
 <?php
 use Photobooth\Utility\PathUtility;
 ?>
-<!-- Start Page - Magazine/Street Style -->
+<!-- Start Page - Magazine/Street Style (Fun Edition) -->
 <div class="stage stage--start stage--magazine rotarygroup" data-stage="start">
 
-    <!-- Grid Overlay -->
-    <div class="grid-overlay"></div>
-
-    <!-- Corner Decorations -->
+    <!-- Fun Corner Decorations with Colors -->
     <div class="corner-decoration corner-decoration--tl"></div>
     <div class="corner-decoration corner-decoration--tr"></div>
     <div class="corner-decoration corner-decoration--bl"></div>
     <div class="corner-decoration corner-decoration--br"></div>
 
-    <!-- Top Bar -->
+    <!-- Magazine Header -->
     <div class="magazine-header">
         <div class="magazine-header__issue">ISSUE 01</div>
         <div class="magazine-header__year"><?php echo date('Y'); ?></div>
     </div>
 
-    <!-- Side Labels -->
+    <!-- Fun Side Labels -->
     <div class="magazine-side-label magazine-side-label--left">
         <span>PHOTO</span>
     </div>

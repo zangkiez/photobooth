@@ -1,15 +1,58 @@
 /**
- * START SCREEN - MAGAZINE/STREET STYLE
- * Complete styling for stage--start only
+ * START SCREEN - FUN MAGAZINE/STREET STYLE
+ * Complete styling for stage--start with vibrant colors & playful effects
  */
 
 /* ============================================
-   START SCREEN BASE
+   FUN COLOR VARIABLES
+   ============================================ */
+:root {
+  --fun-hot-pink: #FF006E;
+  --fun-electric-blue: #00F5FF;
+  --fun-acid-green: #39FF14;
+  --fun-sunshine: #FFD700;
+  --fun-vivid-purple: #BF00FF;
+  --fun-coral: #FF6B35;
+  --fun-turquoise: #00D4AA;
+  --fun-lime: #CCFF00;
+
+  --mag-cream: #f5f5f0;
+  --mag-black: #0a0a0a;
+  --mag-white: #ffffff;
+  --mag-gray: #666666;
+
+  --font-fun: 'Fredoka', 'Kanit', sans-serif;
+  --font-street: 'Bungee', 'Kanit', sans-serif;
+  --font-main: 'Kanit', 'Comfortaa', sans-serif;
+}
+
+/* ============================================
+   START SCREEN BASE - FUN BACKGROUND
    ============================================ */
 .stage--start {
   background: var(--mag-cream);
   position: relative;
   z-index: 100;
+  font-family: var(--font-main);
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Fun Gradient Background */
+.stage--start::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(255, 0, 110, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 245, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(57, 255, 20, 0.05) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Ensure start screen is above loader */
@@ -46,10 +89,11 @@
     linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
   pointer-events: none;
+  z-index: 1;
 }
 
 /* ============================================
-   CORNER DECORATIONS
+   FUN CORNER DECORATIONS
    ============================================ */
 .stage--start .corner-decoration {
   position: absolute;
@@ -65,6 +109,8 @@
   left: 2rem;
   border-right: none;
   border-bottom: none;
+  border-color: var(--fun-hot-pink);
+  border-width: 6px;
 }
 
 .stage--start .corner-decoration--tr {
@@ -72,6 +118,8 @@
   right: 2rem;
   border-left: none;
   border-bottom: none;
+  border-color: var(--fun-electric-blue);
+  border-width: 6px;
 }
 
 .stage--start .corner-decoration--bl {
@@ -79,6 +127,8 @@
   left: 2rem;
   border-right: none;
   border-top: none;
+  border-color: var(--fun-acid-green);
+  border-width: 6px;
 }
 
 .stage--start .corner-decoration--br {
@@ -86,10 +136,12 @@
   right: 2rem;
   border-left: none;
   border-top: none;
+  border-color: var(--fun-sunshine);
+  border-width: 6px;
 }
 
 /* ============================================
-   MAGAZINE HEADER
+   MAGAZINE HEADER - FUN STYLE
    ============================================ */
 .stage--start .magazine-header {
   position: absolute;
@@ -104,37 +156,42 @@
 
 .stage--start .magazine-header__issue,
 .stage--start .magazine-header__year {
-  font-family: 'Kanit', sans-serif;
+  font-family: var(--font-street);
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: 0.2em;
   color: var(--mag-gray);
   text-transform: uppercase;
 }
 
 /* ============================================
-   SIDE LABELS
+   SIDE LABELS - FUN COLORS
    ============================================ */
 .stage--start .magazine-side-label {
   position: absolute;
   top: 50%;
   transform: translateY(-50%) rotate(-90deg);
   z-index: 10;
-  font-family: 'Kanit', sans-serif;
+  font-family: var(--font-street);
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.5em;
-  color: var(--mag-gray);
   text-transform: uppercase;
-  opacity: 0.5;
+  opacity: 0.6;
+  padding: 0.5rem 1rem;
+  border: 3px solid var(--mag-black);
+  background: var(--mag-white);
+  box-shadow: 3px 3px 0 var(--mag-black);
 }
 
 .stage--start .magazine-side-label--left {
   left: -2rem;
+  color: var(--fun-hot-pink);
 }
 
 .stage--start .magazine-side-label--right {
   right: -2rem;
+  color: var(--fun-electric-blue);
 }
 
 /* ============================================
@@ -149,10 +206,11 @@
   padding: 6rem 2rem 4rem;
   gap: 2rem;
   position: relative;
+  z-index: 5;
 }
 
 /* ============================================
-   NAMES / TITLE SECTION - FORCE DISPLAY
+   NAMES / TITLE SECTION - FUN MAGAZINE
    ============================================ */
 .stage--start .names--magazine {
   display: flex !important;
@@ -168,39 +226,72 @@
   gap: 1.5rem;
 }
 
-/* Magazine Tag / Sticker */
+/* Fun Magazine Tag / Sticker */
 .stage--start .magazine-tag {
   margin-bottom: 0.5rem;
+  animation: stickerPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s backwards;
 }
 
 .stage--start .sticker {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: var(--mag-lime);
+  background: var(--fun-acid-green);
   color: var(--mag-black);
-  font-family: 'Kanit', sans-serif;
+  font-family: var(--font-fun);
   font-weight: 700;
   font-size: 0.875rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   border: 3px solid var(--mag-black);
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
+  box-shadow: 4px 4px 0 var(--mag-black);
   transform: rotate(-3deg);
+  transition: all 0.2s ease;
+}
+
+.stage--start .sticker:hover {
+  transform: rotate(3deg) scale(1.05);
 }
 
 .stage--start .sticker--lime {
-  background: var(--mag-lime);
+  background: var(--fun-acid-green);
+}
+
+.stage--start .sticker--pink {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+}
+
+.stage--start .sticker--blue {
+  background: var(--fun-electric-blue);
+}
+
+.stage--start .sticker--yellow {
+  background: var(--fun-sunshine);
+}
+
+@keyframes stickerPop {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-10deg);
+  }
+  70% {
+    transform: scale(1.1) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-3deg);
+  }
 }
 
 /* ============================================
-   EVENT TEXT (Main Title)
+   EVENT TEXT (Main Title) - FUN STYLE
    ============================================ */
 .stage--start .event-text--magazine {
-  font-family: 'Kanit', sans-serif;
-  font-weight: 800;
+  font-family: var(--font-street);
+  font-weight: 400;
   font-size: clamp(2.5rem, 10vw, 8rem);
   line-height: 0.9;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--mag-black);
   display: flex;
@@ -208,7 +299,24 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 1rem;
-  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+  text-shadow:
+    3px 3px 0 var(--fun-hot-pink),
+    6px 6px 0 var(--fun-electric-blue);
+  animation: titleBounceIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s backwards;
+}
+
+@keyframes titleBounceIn {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+  }
+  60% {
+    transform: translateY(-10px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .stage--start .event-text__icon {
@@ -217,10 +325,17 @@
   justify-content: center;
   width: 1.2em;
   height: 1.2em;
-  background: var(--mag-cyan);
+  background: var(--fun-acid-green);
   border: 3px solid var(--mag-black);
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
+  box-shadow: 4px 4px 0 var(--mag-black);
   font-size: 0.5em;
+  animation: iconWiggle 2s ease-in-out infinite;
+}
+
+@keyframes iconWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
 }
 
 .stage--start .event-text__icon i {
@@ -228,7 +343,7 @@
 }
 
 /* ============================================
-   DIVIDER
+   FUN DIVIDER
    ============================================ */
 .stage--start .magazine-divider {
   display: flex;
@@ -237,50 +352,97 @@
   width: 100%;
   max-width: 400px;
   margin: 1rem 0;
+  animation: dividerReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s backwards;
+}
+
+@keyframes dividerReveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 .stage--start .magazine-divider__line {
   flex: 1;
   height: 4px;
   background: var(--mag-black);
+  position: relative;
+}
+
+.stage--start .magazine-divider__line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--fun-hot-pink) 0px,
+    var(--fun-hot-pink) 10px,
+    transparent 10px,
+    transparent 20px,
+    var(--fun-electric-blue) 20px,
+    var(--fun-electric-blue) 30px,
+    transparent 30px,
+    transparent 40px
+  );
+  opacity: 0.3;
 }
 
 .stage--start .magazine-divider__text {
-  font-family: 'Kanit', sans-serif;
+  font-family: var(--font-fun);
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.3em;
-  color: var(--mag-gray);
+  color: var(--fun-hot-pink);
   text-transform: uppercase;
+  background: var(--mag-cream);
+  padding: 0 1rem;
 }
 
 /* ============================================
-   START TEXT (Subtitle)
+   START TEXT (Subtitle) - FUN STYLE
    ============================================ */
 .stage--start .start-text--magazine {
-  font-family: 'Kanit', sans-serif;
+  font-family: var(--font-fun);
   font-weight: 600;
   font-size: clamp(1.5rem, 4vw, 3rem);
   line-height: 1.1;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--mag-black);
   text-align: center;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s backwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .stage--start .start-text--main {
   font-weight: 700;
   font-size: clamp(2rem, 6vw, 4rem);
   line-height: 1;
-  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+  text-shadow: 4px 4px 0 var(--fun-acid-green);
   padding: 1rem 2rem;
   background: var(--mag-white);
   border: 4px solid var(--mag-black);
-  box-shadow: 6px 6px 0 rgba(0, 0, 0, 1);
+  box-shadow: 6px 6px 0 var(--mag-black);
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.6s backwards;
 }
 
 .stage--start .start-text--subtitle {
-  font-family: 'Kanit', sans-serif;
+  font-family: var(--font-fun);
   font-weight: 500;
   font-size: clamp(1rem, 2.5vw, 1.5rem);
   letter-spacing: 0.1em;
@@ -289,52 +451,57 @@
   margin: 0;
 }
 
-/* Subtitle with corners */
+/* Fun Subtitle with Corners */
 .stage--start .magazine-subtitle-wrapper {
   position: relative;
   display: inline-block;
   padding: 1rem;
   background: var(--mag-cream);
-  border: 2px solid var(--mag-black);
+  border: 3px solid var(--mag-black);
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.7s backwards;
 }
 
 .stage--start .magazine-corner {
   position: absolute;
   width: 15px;
   height: 15px;
-  border: 3px solid var(--mag-red);
+  border: 4px solid;
 }
 
 .stage--start .magazine-corner--tl {
-  top: -3px;
-  left: -3px;
+  top: -4px;
+  left: -4px;
+  border-color: var(--fun-hot-pink);
   border-right: none;
   border-bottom: none;
 }
 
 .stage--start .magazine-corner--tr {
-  top: -3px;
-  right: -3px;
+  top: -4px;
+  right: -4px;
+  border-color: var(--fun-electric-blue);
   border-left: none;
   border-bottom: none;
 }
 
 .stage--start .magazine-corner--bl {
-  bottom: -3px;
-  left: -3px;
+  bottom: -4px;
+  left: -4px;
+  border-color: var(--fun-acid-green);
   border-right: none;
   border-top: none;
 }
 
 .stage--start .magazine-corner--br {
-  bottom: -3px;
-  right: -3px;
+  bottom: -4px;
+  right: -4px;
+  border-color: var(--fun-sunshine);
   border-left: none;
   border-top: none;
 }
 
 /* ============================================
-   VISUAL ELEMENT
+   FUN VISUAL ELEMENT
    ============================================ */
 .stage--start .magazine-visual {
   display: flex;
@@ -344,17 +511,30 @@
   padding: 1rem;
   background: var(--mag-white);
   border: 4px solid var(--mag-black);
-  box-shadow: 6px 6px 0 rgba(0, 0, 0, 1);
+  box-shadow: 6px 6px 0 var(--mag-black);
   transform: rotate(2deg);
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.8s backwards;
+  transition: all 0.2s ease;
+}
+
+.stage--start .magazine-visual:hover {
+  transform: rotate(-2deg) scale(1.02);
+  box-shadow: 8px 8px 0 var(--fun-hot-pink);
 }
 
 .stage--start .magazine-visual__box {
   width: 60px;
   height: 60px;
-  background: var(--mag-black);
+  background: var(--fun-hot-pink);
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .stage--start .magazine-visual__icon {
@@ -362,15 +542,16 @@
 }
 
 .stage--start .magazine-visual__text {
-  font-family: 'Kanit', sans-serif;
+  font-family: var(--font-fun);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
+  color: var(--mag-black);
 }
 
 /* ============================================
-   BUTTONS - MAGAZINE STYLE
+   FUN BUTTONS - MAGAZINE STYLE
    ============================================ */
 .stage--start .buttonbar {
   display: flex;
@@ -378,54 +559,84 @@
   justify-content: center;
   gap: 1.5rem;
   margin-top: 2rem;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s backwards;
 }
 
 .stage--start .button {
-  font-family: 'Kanit', sans-serif;
-  font-weight: 600;
-  font-size: 1rem;
-  letter-spacing: 0.05em;
+  font-family: var(--font-fun);
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
-  padding: 1rem 2rem;
+  padding: 1.25rem 2.5rem;
   background: var(--mag-white);
   color: var(--mag-black);
   border: 4px solid var(--mag-black);
-  box-shadow: 6px 6px 0 rgba(0, 0, 0, 1);
-  transition: all 0.15s ease;
+  box-shadow: 6px 6px 0 var(--mag-black);
+  transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
+/* Button Fun Hover Effect */
 .stage--start .button:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 9px 9px 0 rgba(0, 0, 0, 1);
+  transform: translate(-4px, -4px) rotate(-2deg);
+  box-shadow: 10px 10px 0 var(--mag-black);
+  animation: buttonWiggle 0.5s ease-in-out;
+}
+
+@keyframes buttonWiggle {
+  0%, 100% { transform: translate(-4px, -4px) rotate(-2deg); }
+  25% { transform: translate(-4px, -4px) rotate(2deg); }
+  50% { transform: translate(-4px, -4px) rotate(-1deg); }
+  75% { transform: translate(-4px, -4px) rotate(1deg); }
 }
 
 .stage--start .button:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 1);
+  transform: translate(2px, 2px) rotate(0deg);
+  box-shadow: 2px 2px 0 var(--mag-black);
 }
 
-/* Special buttons */
+/* Special Fun Buttons */
 .stage--start #takePic,
 .stage--start [data-command='takePic'] {
-  background: var(--mag-red);
+  background: var(--fun-hot-pink);
   color: var(--mag-white);
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   padding: 1.5rem 3rem;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 6px 6px 0 var(--mag-black), 0 0 0 0 rgba(255, 0, 110, 0.4);
+  }
+  50% {
+    box-shadow: 6px 6px 0 var(--mag-black), 0 0 20px 10px rgba(255, 0, 110, 0.2);
+  }
 }
 
 .stage--start #takeCollage,
 .stage--start [data-command='takeCollage'] {
-  background: var(--mag-cyan);
+  background: var(--fun-electric-blue);
+  color: var(--mag-black);
 }
 
 .stage--start #gallery-button,
 .stage--start [data-command='gallery'] {
-  background: var(--mag-yellow);
+  background: var(--fun-sunshine);
+  color: var(--mag-black);
+}
+
+.stage--start #takeCustom,
+.stage--start [data-command='takeCustom'] {
+  background: var(--fun-vivid-purple);
+  color: var(--mag-white);
 }
 
 /* ============================================
-   MARQUEE BAR
+   FUN MARQUEE BAR
    ============================================ */
 .stage--start .marquee-bar {
   position: fixed;
@@ -435,7 +646,7 @@
   background: var(--mag-black);
   color: var(--mag-white);
   padding: 0.75rem 0;
-  border-top: 4px solid var(--mag-black);
+  border-top: 6px solid var(--fun-hot-pink);
   overflow: hidden;
   z-index: 100;
 }
@@ -443,12 +654,13 @@
 .stage--start .marquee-bar__content {
   display: inline-block;
   white-space: nowrap;
-  font-family: 'Kanit', sans-serif;
+  font-family: var(--font-fun);
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   animation: marquee 20s linear infinite;
+  text-shadow: 2px 2px 0 var(--fun-electric-blue);
 }
 
 @keyframes marquee {
@@ -461,12 +673,13 @@
 }
 
 /* ============================================
-   RESPONSIVE
+   FUN RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
   .stage--start .corner-decoration {
     width: 40px;
     height: 40px;
+    border-width: 4px;
   }
 
   .stage--start .magazine-side-label {
@@ -479,16 +692,147 @@
 
   .stage--start .event-text--magazine {
     font-size: clamp(1.75rem, 8vw, 4rem);
+    text-shadow:
+      2px 2px 0 var(--fun-hot-pink),
+      4px 4px 0 var(--fun-electric-blue);
+  }
+
+  .stage--start .event-text__icon {
+    width: 1em;
+    height: 1em;
+    font-size: 0.5em;
   }
 
   .stage--start .button {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.875rem;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    box-shadow: 4px 4px 0 var(--mag-black);
   }
 
   .stage--start #takePic,
   .stage--start [data-command='takePic'] {
-    padding: 1rem 2rem;
-    font-size: 1rem;
+    padding: 1.25rem 2.5rem;
+    font-size: 1.25rem;
   }
+
+  .stage--start .magazine-divider {
+    max-width: 250px;
+  }
+
+  .stage--start .magazine-divider__text {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+  }
+
+  .stage--start .start-text--main {
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    padding: 0.75rem 1.5rem;
+    box-shadow: 4px 4px 0 var(--mag-black);
+  }
+
+  .stage--start .magazine-visual {
+    transform: rotate(0);
+    padding: 0.75rem;
+  }
+
+  .stage--start .magazine-visual__box {
+    width: 45px;
+    height: 45px;
+  }
+
+  .stage--start .magazine-visual__icon {
+    font-size: 1.5rem;
+  }
+
+  .stage--start .marquee-bar__content {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* ============================================
+   BUTTON ICON & LABEL (Selfie Mode)
+   ============================================ */
+.stage--start .button--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
+}
+
+.stage--start .button--label {
+  display: inline;
+}
+
+/* ============================================
+   BUZZER MESSAGE
+   ============================================ */
+.stage--start .buzzer-message {
+  font-family: var(--font-street);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--mag-black);
+  background: var(--fun-sunshine);
+  padding: 1.5rem 3rem;
+  border: 5px solid var(--mag-black);
+  box-shadow: 8px 8px 0 var(--mag-black);
+  transform: rotate(-2deg);
+  animation: buzzerPulse 1.5s ease-in-out infinite;
+  text-align: center;
+}
+
+@keyframes buzzerPulse {
+  0%, 100% {
+    box-shadow: 8px 8px 0 var(--mag-black), 0 0 0 0 rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 8px 8px 0 var(--mag-black), 0 0 30px 15px rgba(255, 215, 0, 0.2);
+  }
+}
+
+/* ============================================
+   SELFIE FORM CONTAINER
+   ============================================ */
+.stage--start #form-container {
+  display: inline-block;
+}
+
+.stage--start #selfieForm {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.stage--start .take-selfie-btn {
+  cursor: pointer;
+}
+
+/* ============================================
+   GRID OVERLAY (ถ้ามี)
+   ============================================ */
+.stage--start .grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 0, 110, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 245, 255, 0.03) 1px, transparent 1px);
+  background-size: 100px 100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================
+   SELECTION COLORS
+   ============================================ */
+::selection {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+}
+
+::-moz-selection {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
 }

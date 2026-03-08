@@ -1,442 +1,355 @@
 /**
- * FILTER NAV - MAGAZINE / STREET STYLE
- * Neo-Brutalism Filter Selection
+ * FILTER NAV - FUN MAGAZINE / STREET STYLE
+ * Vibrant Pop Art Filter Selection
  */
 
 /* ============================================
-   FILTER SIDENAV CONTAINER
+   FUN COLOR VARIABLES
+   ============================================ */
+:root {
+  --fun-hot-pink: #FF006E;
+  --fun-electric-blue: #00F5FF;
+  --fun-acid-green: #39FF14;
+  --fun-sunshine: #FFD700;
+  --fun-vivid-purple: #BF00FF;
+  --fun-coral: #FF6B35;
+
+  --mag-cream: #f5f5f0;
+  --mag-black: #0a0a0a;
+  --mag-white: #ffffff;
+  --mag-gray: #666666;
+  --mag-gray-light: #cccccc;
+
+  --font-fun: 'Fredoka', 'Kanit', sans-serif;
+  --font-street: 'Bungee', 'Kanit', sans-serif;
+  --font-display: 'Bungee', 'Kanit', sans-serif;
+  --font-body: 'Kanit', sans-serif;
+
+  --border-thick: 4px solid var(--mag-black);
+  --border-thin: 2px solid var(--mag-black);
+  --shadow-hard: 6px 6px 0 var(--mag-black);
+  --shadow-hard-sm: 4px 4px 0 var(--mag-black);
+
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+}
+
+/* ============================================
+   FILTER SIDENAV CONTAINER - FUN STYLE
    ============================================ */
 #filternav {
-    background: var(--mag-cream);
-    border-left: var(--border-thick);
-    box-shadow: -10px 0 0 rgba(0,0,0,0.1);
-    width: 320px;
+  background: var(--mag-cream);
+  border-left: 6px solid var(--mag-black);
+  box-shadow:
+    -10px 0 0 rgba(0,0,0,0.1),
+    -20px 0 0 var(--fun-hot-pink);
+  width: 320px;
 }
 
 @media (min-width: 576px) {
-    #filternav {
-        width: 380px;
-    }
+  #filternav {
+    width: 380px;
+  }
 }
 
 /* ============================================
-   FILTER HEADER
+   FUN FILTER HEADER
    ============================================ */
 #filternav::before {
-    content: 'FILTERS';
-    display: block;
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--mag-black);
-    padding: var(--space-md);
-    background: var(--mag-white);
-    border-bottom: var(--border-thick);
-    position: relative;
+  content: 'FILTERS';
+  display: block;
+  font-family: var(--font-street);
+  font-size: 1.75rem;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--mag-white);
+  padding: var(--space-md);
+  background: var(--mag-black);
+  border-bottom: 6px solid var(--fun-hot-pink);
+  position: relative;
+  text-shadow: 2px 2px 0 var(--fun-electric-blue);
 }
 
 #filternav::after {
-    content: '';
-    position: absolute;
-    top: calc(var(--space-md) + 3rem);
-    left: var(--space-md);
-    right: var(--space-md);
-    height: 4px;
-    background: repeating-linear-gradient(
-        90deg,
-        var(--mag-black),
-        var(--mag-black) 10px,
-        transparent 10px,
-        transparent 15px
-    );
+  content: '';
+  position: absolute;
+  top: calc(var(--space-md) + 3.5rem);
+  left: var(--space-md);
+  right: var(--space-md);
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--fun-hot-pink),
+    var(--fun-hot-pink) 15px,
+    var(--fun-electric-blue) 15px,
+    var(--fun-electric-blue) 30px,
+    var(--fun-acid-green) 30px,
+    var(--fun-acid-green) 45px
+  );
 }
 
 /* ============================================
-   CLOSE BUTTON
+   FUN CLOSE BUTTON
    ============================================ */
 #filternav .sidenav-close {
-    position: absolute;
-    top: var(--space-md);
-    right: var(--space-md);
-    width: 44px;
-    height: 44px;
-    background: var(--mag-black);
-    color: var(--mag-white);
-    border: var(--border-thick);
-    box-shadow: 4px 4px 0 rgba(0,0,0,1);
-    font-size: 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    transition: all 0.15s;
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  width: 48px;
+  height: 48px;
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+  border: 4px solid var(--mag-black);
+  box-shadow: 4px 4px 0 var(--mag-black);
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  cursor: pointer;
 }
 
 #filternav .sidenav-close:hover {
-    background: var(--mag-red);
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 rgba(0,0,0,1);
+  background: var(--fun-coral);
+  transform: translate(-2px, -2px) rotate(-10deg);
+  box-shadow: 6px 6px 0 var(--mag-black);
+}
+
+#filternav .sidenav-close:active {
+  transform: translate(2px, 2px) rotate(0deg);
+  box-shadow: 2px 2px 0 var(--mag-black);
 }
 
 /* ============================================
    FILTER LIST CONTAINER
    ============================================ */
 #filternav .sidenav-list {
-    display: grid;
-    gap: var(--space-sm);
-    padding: var(--space-md);
-    padding-top: calc(var(--space-md) + var(--space-sm));
-    margin-top: var(--space-md);
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  padding-top: calc(var(--space-md) + var(--space-sm) + 10px);
+  margin-top: var(--space-md);
 }
 
 /* ============================================
-   FILTER BUTTON / ITEM
+   FUN FILTER BUTTON / ITEM
    ============================================ */
 #filternav .sidenav-list-item {
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    color: var(--mag-black);
-    background: var(--mag-white);
-    border: var(--border-thick);
-    box-shadow: var(--shadow-hard-sm);
-    padding: var(--space-sm) var(--space-md);
-    text-align: left;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-sm);
-    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
-    overflow: hidden;
+  font-family: var(--font-fun);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--mag-black);
+  background: var(--mag-white);
+  border: 4px solid var(--mag-black);
+  box-shadow: var(--shadow-hard-sm);
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 /* Filter Preview Thumbnail */
 #filternav .sidenav-list-item::before {
-    content: '';
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #ccc, #999);
-    border: 2px solid var(--mag-black);
-    margin-right: var(--space-sm);
-    flex-shrink: 0;
+  content: '';
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #ccc, #999);
+  border: 3px solid var(--mag-black);
+  margin-right: var(--space-sm);
+  flex-shrink: 0;
+  order: 1;
 }
 
 /* Filter-specific colors for preview */
 #filternav .sidenav-list-item[data-filter="plain"]::before {
-    background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+  background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
 }
 
 #filternav .sidenav-list-item[data-filter="black_white"]::before {
-    background: linear-gradient(135deg, #333, #999);
+  background: linear-gradient(135deg, #333, #999);
 }
 
 #filternav .sidenav-list-item[data-filter="sepia"]::before {
-    background: linear-gradient(135deg, #c4a35a, #8b7355);
+  background: linear-gradient(135deg, #c4a35a, #8b7355);
 }
 
 #filternav .sidenav-list-item[data-filter="vintage"]::before {
-    background: linear-gradient(135deg, #d4a574, #8b6f47);
+  background: linear-gradient(135deg, #d4a574, #8b6f47);
 }
 
 #filternav .sidenav-list-item[data-filter="contrast"]::before {
-    background: linear-gradient(135deg, #000, #fff);
+  background: linear-gradient(135deg, #000, #fff);
 }
 
 #filternav .sidenav-list-item[data-filter="blur"]::before {
-    background: #ccc;
-    filter: blur(2px);
+  background: #ccc;
+  filter: blur(2px);
 }
 
 #filternav .sidenav-list-item[data-filter="polaroid"]::before {
-    background: linear-gradient(135deg, #f0f0f0, #fff);
-    border: 3px solid #fff;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  background: linear-gradient(135deg, #f0f0f0, #fff);
+  border: 3px solid #fff;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
 }
 
 /* LUT Badge */
 #filternav .sidenav-list-item-badge {
-    font-family: var(--font-body);
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    background: var(--mag-cyan);
-    color: var(--mag-black);
-    padding: 2px 6px;
-    border: 2px solid var(--mag-black);
-    margin-left: auto;
+  font-family: var(--font-fun);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--fun-electric-blue);
+  color: var(--mag-black);
+  padding: 2px 6px;
+  border: 2px solid var(--mag-black);
+  margin-left: auto;
+  order: 2;
 }
 
-/* Hover State */
+/* Fun Hover State */
 #filternav .sidenav-list-item:hover {
-    background: var(--mag-cyan);
-    transform: translateX(-4px);
-    box-shadow: 6px 6px 0 rgba(0,0,0,1);
+  background: var(--fun-acid-green);
+  transform: translateX(-6px) rotate(-1deg);
+  box-shadow: 8px 8px 0 var(--mag-black);
 }
 
 /* Active/Selected State */
 #filternav .sidenav-list-item--active {
-    background: var(--mag-black) !important;
-    color: var(--mag-white) !important;
-    box-shadow: 6px 6px 0 var(--mag-cyan) !important;
+  background: var(--mag-black) !important;
+  color: var(--mag-white) !important;
+  box-shadow:
+    6px 6px 0 var(--fun-hot-pink),
+    12px 12px 0 var(--fun-electric-blue) !important;
+  transform: translateX(-4px) rotate(-2deg);
 }
 
 #filternav .sidenav-list-item--active::before {
-    border-color: var(--mag-white);
+  border-color: var(--mag-white);
 }
 
 #filternav .sidenav-list-item--active .sidenav-list-item-badge {
-    background: var(--mag-white);
-    color: var(--mag-black);
-    border-color: var(--mag-white);
+  background: var(--fun-sunshine);
+  color: var(--mag-black);
+  border-color: var(--mag-white);
 }
 
 /* Active Indicator - Checkmark style */
 #filternav .sidenav-list-item--active::after {
-    content: '✓';
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-left: auto;
-    padding-left: var(--space-sm);
-    order: 3;
+  content: '✓';
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-left: auto;
+  padding-left: var(--space-sm);
+  order: 4;
+  color: var(--fun-acid-green);
 }
 
 /* Ensure proper flex layout for items */
 #filternav .sidenav-list-item {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: var(--space-sm);
-    position: relative;
-}
-
-/* Filter Preview Thumbnail - order 1 */
-#filternav .sidenav-list-item::before {
-    order: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-sm);
+  position: relative;
 }
 
 /* Filter name - order 2 */
 #filternav .sidenav-list-item {
-    text-align: left;
+  text-align: left;
 }
 
 /* Badge - order 3, but before checkmark */
 #filternav .sidenav-list-item-badge {
-    order: 2;
-    margin-left: auto;
+  order: 2;
+  margin-left: auto;
 }
 
 /* When active, checkmark comes after badge */
 #filternav .sidenav-list-item--active .sidenav-list-item-badge {
-    order: 2;
-    margin-left: 0;
+  order: 2;
+  margin-left: 0;
 }
 
 /* Checkmark always last */
 #filternav .sidenav-list-item--active::after {
-    order: 4;
+  order: 4;
 }
 
 /* ============================================
-   FILTER PREVIEW AREA (if exists)
-   ============================================ */
-.filter-preview {
-    margin: var(--space-md);
-    padding: var(--space-sm);
-    background: var(--mag-white);
-    border: var(--border-thick);
-    box-shadow: var(--shadow-hard-sm);
-}
-
-.filter-preview__image {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border: 2px solid var(--mag-black);
-}
-
-.filter-preview__label {
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-align: center;
-    padding: var(--space-xs);
-    background: var(--mag-black);
-    color: var(--mag-white);
-    margin-top: var(--space-xs);
-}
-
-/* ============================================
-   FILTER GRID (Alternative layout)
-   ============================================ */
-.filter-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-sm);
-    padding: var(--space-md);
-}
-
-.filter-grid-item {
-    background: var(--mag-white);
-    border: var(--border-thick);
-    box-shadow: var(--shadow-hard-sm);
-    padding: var(--space-xs);
-    cursor: pointer;
-    transition: all 0.15s;
-}
-
-.filter-grid-item:hover {
-    transform: translate(-3px, -3px);
-    box-shadow: 6px 6px 0 rgba(0,0,0,1);
-}
-
-.filter-grid-item--active {
-    background: var(--mag-black);
-    color: var(--mag-white);
-    box-shadow: 6px 6px 0 var(--mag-cyan);
-}
-
-.filter-grid-item__preview {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border: 2px solid var(--mag-black);
-    margin-bottom: var(--space-xs);
-}
-
-.filter-grid-item--active .filter-grid-item__preview {
-    border-color: var(--mag-white);
-}
-
-.filter-grid-item__name {
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* ============================================
-   FILTER INFO / DESCRIPTION
-   ============================================ */
-.filter-info {
-    margin: var(--space-md);
-    padding: var(--space-sm);
-    background: var(--mag-white);
-    border: var(--border-thick);
-    border-left: 6px solid var(--mag-cyan);
-}
-
-.filter-info__title {
-    font-family: var(--font-display);
-    font-size: 0.875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-bottom: var(--space-xs);
-}
-
-.filter-info__desc {
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    color: var(--mag-gray);
-    line-height: 1.5;
-}
-
-/* ============================================
-   FILTER ACTIONS
-   ============================================ */
-.filter-actions {
-    display: flex;
-    gap: var(--space-sm);
-    padding: var(--space-md);
-    padding-top: 0;
-    border-top: 2px solid var(--mag-gray-light);
-    margin-top: var(--space-sm);
-}
-
-.filter-actions .button {
-    flex: 1;
-    justify-content: center;
-}
-
-.filter-actions .button--primary {
-    background: var(--mag-black);
-    color: var(--mag-white);
-}
-
-.filter-actions .button--secondary {
-    background: var(--mag-white);
-    color: var(--mag-black);
-}
-
-/* ============================================
-   SCROLLBAR - FILTER NAV
+   SCROLLBAR - FILTER NAV FUN STYLE
    ============================================ */
 #filternav::-webkit-scrollbar {
-    width: 12px;
+  width: 16px;
 }
 
 #filternav::-webkit-scrollbar-track {
-    background: var(--mag-cream);
-    border-left: 2px solid var(--mag-black);
+  background: var(--mag-cream);
+  border-left: 4px solid var(--mag-black);
 }
 
 #filternav::-webkit-scrollbar-thumb {
-    background: var(--mag-black);
-    border: 2px solid var(--mag-cream);
+  background: var(--mag-black);
+  border: 3px solid var(--mag-cream);
 }
 
 #filternav::-webkit-scrollbar-thumb:hover {
-    background: var(--mag-red);
+  background: var(--fun-hot-pink);
 }
 
 /* ============================================
    OPEN/CLOSE ANIMATION
    ============================================ */
 @keyframes filternav-slide-in {
-    from {
-        transform: translateX(100%);
-    }
-    to {
-        transform: translateX(0);
-    }
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 @keyframes filternav-slide-out {
-    from {
-        transform: translateX(0);
-    }
-    to {
-        transform: translateX(100%);
-    }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 
 #filternav.sidenav--open {
-    animation: filternav-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: filternav-slide-in 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 /* ============================================
-   FILTER ITEMS ENTRANCE ANIMATION
+   FUN FILTER ITEMS ENTRANCE ANIMATION
    ============================================ */
 @keyframes filter-item-enter {
-    from {
-        opacity: 0;
-        transform: translateX(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateX(30px) rotate(5deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg);
+  }
 }
 
 #filternav .sidenav-list-item {
-    animation: filter-item-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation: filter-item-enter 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) backwards;
 }
 
 #filternav .sidenav-list-item:nth-child(1) { animation-delay: 0.05s; }
@@ -454,64 +367,71 @@
    RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
-    #filternav {
-        width: 100%;
-        max-width: 320px;
-    }
-    
-    #filternav::before {
-        font-size: 1.25rem;
-        padding: var(--space-sm);
-    }
-    
-    #filternav .sidenav-close {
-        width: 38px;
-        height: 38px;
-        top: var(--space-sm);
-        right: var(--space-sm);
-    }
-    
-    #filternav .sidenav-list {
-        padding: var(--space-sm);
-        padding-top: calc(var(--space-sm) + var(--space-xs));
-    }
-    
-    #filternav .sidenav-list-item {
-        font-size: 0.875rem;
-        padding: var(--space-xs) var(--space-sm);
-    }
-    
-    #filternav .sidenav-list-item::before {
-        width: 32px;
-        height: 32px;
-    }
-    
-    .filter-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-xs);
-        padding: var(--space-sm);
-    }
+  #filternav {
+    width: 100%;
+    max-width: 320px;
+    box-shadow:
+      -8px 0 0 rgba(0,0,0,0.1),
+      -16px 0 0 var(--fun-hot-pink);
+  }
+
+  #filternav::before {
+    font-size: 1.5rem;
+    padding: var(--space-sm);
+  }
+
+  #filternav .sidenav-close {
+    width: 42px;
+    height: 42px;
+    top: var(--space-sm);
+    right: var(--space-sm);
+  }
+
+  #filternav .sidenav-list {
+    padding: var(--space-sm);
+    padding-top: calc(var(--space-sm) + var(--space-xs) + 10px);
+  }
+
+  #filternav .sidenav-list-item {
+    font-size: 0.875rem;
+    padding: var(--space-xs) var(--space-sm);
+    border-width: 3px;
+  }
+
+  #filternav .sidenav-list-item::before {
+    width: 32px;
+    height: 32px;
+    border-width: 2px;
+  }
 }
 
 @media (max-width: 480px) {
-    #filternav {
-        max-width: 280px;
-    }
-    
-    #filternav .sidenav-list-item-badge {
-        display: none;
-    }
+  #filternav {
+    max-width: 280px;
+  }
+
+  #filternav .sidenav-list-item-badge {
+    display: none;
+  }
 }
 
 /* ============================================
    FOCUS STATES (Accessibility)
    ============================================ */
 #filternav .sidenav-list-item:focus-visible {
-    outline: 3px solid var(--mag-cyan);
-    outline-offset: 2px;
+  outline: 4px solid var(--fun-electric-blue);
+  outline-offset: 2px;
 }
 
 #filternav .sidenav-close:focus-visible {
-    outline: 3px solid var(--mag-white);
-    outline-offset: 2px;
+  outline: 4px solid var(--fun-sunshine);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   SELECTION
+   ============================================ */
+#filternav ::selection {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
 }

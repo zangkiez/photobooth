@@ -1,7 +1,9 @@
 /**
- * Magazine / Street Fonts
+ * Magazine / Street Fonts - FUN EDITION
  * Bold Geometric Sans-Serif similar to Gotham Ultra
- * Featuring: Clash Display, Space Grotesk, Monument Extended
+ * + Playful Display Fonts for Japanese/Korean Magazine Vibe
+ * Featuring: Clash Display, Space Grotesk, Syne, Archivo Black
+ * + Playful: Fredoka One, Comfortaa, Bungee, Righteous
  */
 
 /* ============================================
@@ -20,6 +22,28 @@
 /* Archivo Black - Ultra Bold */
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
 
+/* ============================================
+   PLAYFUL DISPLAY FONTS - For Fun Magazine Vibe
+   ============================================ */
+
+/* Fredoka One - Rounded, playful, bold */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap');
+
+/* Comfortaa - Rounded geometric, friendly */
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
+
+/* Bungee - Urban, condensed, impactful */
+@import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
+
+/* Righteous - Modern display with character */
+@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+
+/* Bebas Neue - Tall, condensed, magazine headlines */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+/* Black Ops One - Heavy stencil military style */
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap');
+
 /* Kanit - สำหรับภาษาไทย (Geometric Modern) - ALL WEIGHTS */
 @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
@@ -32,16 +56,34 @@
 :root {
   /* Primary Display Font - Ultra Bold (Thai: Kanit 700-900) */
   --font-display: 'Clash Display', 'Kanit', 'Archivo Black', sans-serif;
-  
+
   /* Secondary Font - Geometric Modern (Thai: Kanit 400-600) */
   --font-body: 'Space Grotesk', 'Kanit', 'Noto Sans Thai', sans-serif;
-  
+
   /* Accent Font - Artistic/Experimental (Thai: Kanit 500-700) */
   --font-accent: 'Syne', 'Kanit', 'Noto Sans Thai', sans-serif;
-  
+
+  /* ============================================
+     FUN MAGAZINE FONTS - Playful & Street
+     ============================================ */
+  /* Playful Display - Rounded, fun, bold */
+  --font-playful: 'Fredoka', 'Kanit', 'Comfortaa', sans-serif;
+
+  /* Street/Urban - Condensed, impactful */
+  --font-street: 'Bungee', 'Kanit', 'Bebas Neue', sans-serif;
+
+  /* Magazine Headlines - Tall, condensed */
+  --font-magazine: 'Bebas Neue', 'Bungee', 'Kanit', sans-serif;
+
+  /* Bold Character - Modern display */
+  --font-character: 'Righteous', 'Fredoka', 'Kanit', sans-serif;
+
+  /* Stencil/Military - For edge */
+  --font-stencil: 'Black Ops One', 'Bungee', 'Kanit', sans-serif;
+
   /* Thai Font Support - Kanit is perfect for Geometric Bold style */
   --font-thai: 'Kanit', 'Noto Sans Thai', sans-serif;
-  
+
   /* Font Weights */
   --font-weight-thin: 200;
   --font-weight-light: 300;
@@ -137,6 +179,82 @@
 }
 
 /* ============================================
+   FUN MAGAZINE TYPOGRAPHY - Street/Pop Style
+   ============================================ */
+
+/* Playful Text - Rounded, fun, bouncy */
+.text-playful {
+  font-family: var(--font-playful);
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 5rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Street Text - Urban, condensed, impactful */
+.text-street {
+  font-family: var(--font-street);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Magazine Headline - Tall, condensed, editorial */
+.text-magazine {
+  font-family: var(--font-magazine);
+  font-weight: 400;
+  font-size: clamp(3rem, 12vw, 10rem);
+  line-height: 0.85;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Character Text - Bold with personality */
+.text-character {
+  font-family: var(--font-character);
+  font-weight: 400;
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+/* Stencil Text - Edgy, military, street art */
+.text-stencil {
+  font-family: var(--font-stencil);
+  font-weight: 400;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Fun Caption - Playful small text */
+.text-fun-caption {
+  font-family: var(--font-playful);
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Bouncy Text - With fun animation */
+.text-bouncy {
+  font-family: var(--font-playful);
+  font-weight: 700;
+  animation: textBounce 2s ease-in-out infinite;
+}
+
+@keyframes textBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* ============================================
    SPECIAL TEXT EFFECTS
    ============================================ */
 
@@ -163,6 +281,59 @@
 
 .text-shadow-hard {
   text-shadow: 4px 4px 0 rgba(0,0,0,1);
+}
+
+/* Pop Art Shadow - Multi-color layers */
+.text-shadow-pop {
+  text-shadow:
+    3px 3px 0 #FF006E,
+    6px 6px 0 #00F5FF;
+}
+
+/* Neon Glow Effect */
+.text-shadow-neon {
+  text-shadow:
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+}
+
+/* Sticker Shadow - Hard offset with glow */
+.text-shadow-sticker {
+  text-shadow:
+    2px 2px 0 #000,
+    4px 4px 0 #FF006E;
+}
+
+/* Wavy Text Effect */
+.text-wavy {
+  animation: textWave 2s ease-in-out infinite;
+}
+
+@keyframes textWave {
+  0%, 100% { transform: skewY(0deg); }
+  25% { transform: skewY(-2deg); }
+  75% { transform: skewY(2deg); }
+}
+
+/* Pulse Text Effect */
+.text-pulse {
+  animation: textPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes textPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Rotate Text on Hover */
+.text-rotate-hover {
+  transition: transform 0.3s ease;
+}
+
+.text-rotate-hover:hover {
+  transform: rotate(-3deg) scale(1.05);
 }
 
 /* Glitch Text Effect */

@@ -1,0 +1,584 @@
+/**
+ * MAGAZINE THEME - FUN EDITION
+ * Vibrant Street/Pop Art Colors & Effects
+ * Inspired by Japanese & Korean Fashion Magazines
+ */
+
+/* ============================================
+   FUN COLOR PALETTE - Street/Pop Art
+   ============================================ */
+:root {
+  /* Core Magazine Colors */
+  --mag-cream: #f5f5f0;
+  --mag-black: #0a0a0a;
+  --mag-white: #ffffff;
+  --mag-gray: #666666;
+  --mag-gray-light: #cccccc;
+
+  /* Vibrant Street Colors - Hot & Electric */
+  --fun-hot-pink: #FF006E;
+  --fun-electric-blue: #00F5FF;
+  --fun-acid-green: #39FF14;
+  --fun-sunshine: #FFD700;
+  --fun-vivid-purple: #BF00FF;
+  --fun-coral: #FF6B35;
+  --fun-turquoise: #00D4AA;
+  --fun-lime: #CCFF00;
+
+  /* Japanese Magazine Colors */
+  --jp-sakura: #FFB7C5;
+  --jp-mint: #98FF98;
+  --jp-sky: #87CEEB;
+  --jp-lemon: #FFF44F;
+
+  /* Korean Street Colors */
+  --kr-neon-pink: #FF1493;
+  --kr-bubblegum: #FF69B4;
+  --kr-electric: #00FFFF;
+  --kr-tangerine: #FF7F50;
+
+  /* Shadows & Borders */
+  --shadow-hard: 6px 6px 0 rgba(0, 0, 0, 1);
+  --shadow-soft: 4px 4px 0 rgba(0, 0, 0, 0.2);
+  --shadow-pop: 4px 4px 0 var(--fun-hot-pink), 8px 8px 0 var(--fun-electric-blue);
+  --shadow-lime: 4px 4px 0 var(--fun-acid-green);
+  --shadow-pink: 4px 4px 0 var(--fun-hot-pink);
+
+  --border-thick: 4px solid var(--mag-black);
+  --border-thin: 2px solid var(--mag-black);
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+}
+
+/* ============================================
+   FUN BACKGROUNDS
+   ============================================ */
+
+/* Halftone Pattern - Pop Art Style */
+.bg-halftone {
+  background-color: var(--mag-cream);
+  background-image: radial-gradient(circle, var(--mag-black) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Diagonal Stripes */
+.bg-stripes {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--fun-hot-pink),
+    var(--fun-hot-pink) 10px,
+    var(--fun-electric-blue) 10px,
+    var(--fun-electric-blue) 20px
+  );
+}
+
+/* Checkerboard Pattern */
+.bg-checker {
+  background-image:
+    linear-gradient(45deg, var(--mag-black) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--mag-black) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--mag-black) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--mag-black) 75%);
+  background-size: 40px 40px;
+  background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+  background-color: var(--mag-white);
+}
+
+/* Gradient Burst */
+.bg-burst {
+  background: radial-gradient(
+    ellipse at center,
+    var(--fun-sunshine) 0%,
+    var(--fun-coral) 50%,
+    var(--fun-hot-pink) 100%
+  );
+}
+
+/* Wave Pattern */
+.bg-wave {
+  background-color: var(--mag-cream);
+  background-image: repeating-radial-gradient(
+    circle at 0 0,
+    transparent 0,
+    transparent 10px,
+    var(--fun-electric-blue) 10px,
+    var(--fun-electric-blue) 20px
+  );
+  background-size: 40px 40px;
+}
+
+/* ============================================
+   FUN BUTTONS
+   ============================================ */
+
+/* Fun Button Base */
+.button-fun {
+  font-family: var(--font-playful);
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1.25rem 2.5rem;
+  background: var(--mag-white);
+  color: var(--mag-black);
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.button-fun:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 10px 10px 0 var(--mag-black);
+}
+
+.button-fun:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--mag-black);
+}
+
+/* Fun Button Variants */
+.button-fun--pink {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+  box-shadow: var(--shadow-hard);
+}
+
+.button-fun--blue {
+  background: var(--fun-electric-blue);
+  color: var(--mag-black);
+}
+
+.button-fun--green {
+  background: var(--fun-acid-green);
+  color: var(--mag-black);
+}
+
+.button-fun--yellow {
+  background: var(--fun-sunshine);
+  color: var(--mag-black);
+}
+
+.button-fun--purple {
+  background: var(--fun-vivid-purple);
+  color: var(--mag-white);
+}
+
+/* Wiggle Animation on Hover */
+.button-fun:hover {
+  animation: buttonWiggle 0.5s ease-in-out;
+}
+
+@keyframes buttonWiggle {
+  0%, 100% { transform: translate(-4px, -4px) rotate(0deg); }
+  25% { transform: translate(-4px, -4px) rotate(-2deg); }
+  75% { transform: translate(-4px, -4px) rotate(2deg); }
+}
+
+/* ============================================
+   FUN STICKERS
+   ============================================ */
+
+/* Sticker Base */
+.sticker-fun {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-playful);
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  transform: rotate(-3deg);
+  transition: all 0.2s ease;
+}
+
+.sticker-fun:hover {
+  transform: rotate(3deg) scale(1.05);
+}
+
+/* Sticker Variants */
+.sticker-fun--pink {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+}
+
+.sticker-fun--blue {
+  background: var(--fun-electric-blue);
+  color: var(--mag-black);
+}
+
+.sticker-fun--green {
+  background: var(--fun-acid-green);
+  color: var(--mag-black);
+}
+
+.sticker-fun--yellow {
+  background: var(--fun-sunshine);
+  color: var(--mag-black);
+}
+
+.sticker-fun--outline {
+  background: transparent;
+  border: 4px solid var(--fun-hot-pink);
+  color: var(--fun-hot-pink);
+  box-shadow: 4px 4px 0 var(--fun-hot-pink);
+}
+
+/* Circular Sticker */
+.sticker-fun--circle {
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.2;
+  transform: rotate(15deg);
+}
+
+/* ============================================
+   FUN FRAMES & BORDERS
+   ============================================ */
+
+/* Pop Frame */
+.frame-pop {
+  border: var(--border-thick);
+  box-shadow: var(--shadow-pop);
+  padding: var(--space-md);
+  background: var(--mag-white);
+}
+
+/* Sticker Frame */
+.frame-sticker {
+  border: 6px solid var(--fun-hot-pink);
+  box-shadow: 8px 8px 0 var(--fun-electric-blue);
+  padding: var(--space-md);
+  background: var(--mag-white);
+  transform: rotate(-2deg);
+}
+
+/* Dashed Frame */
+.frame-dashed {
+  border: 4px dashed var(--mag-black);
+  padding: var(--space-md);
+  background: var(--jp-mint);
+}
+
+/* Double Frame */
+.frame-double {
+  border: 4px solid var(--mag-black);
+  outline: 4px solid var(--fun-hot-pink);
+  outline-offset: -12px;
+  padding: var(--space-lg);
+  background: var(--mag-white);
+}
+
+/* ============================================
+   FUN ANIMATIONS
+   ============================================ */
+
+/* Bounce In */
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pop In */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-10deg);
+  }
+  70% {
+    transform: scale(1.1) rotate(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Slide In Bounce */
+@keyframes slideInBounce {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  60% {
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Shake */
+@keyframes funShake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  10% { transform: translateX(-5px) rotate(-2deg); }
+  20% { transform: translateX(5px) rotate(2deg); }
+  30% { transform: translateX(-5px) rotate(-2deg); }
+  40% { transform: translateX(5px) rotate(2deg); }
+  50% { transform: translateX(-3px) rotate(-1deg); }
+  60% { transform: translateX(3px) rotate(1deg); }
+  70% { transform: translateX(-2px) rotate(0deg); }
+  80% { transform: translateX(2px) rotate(0deg); }
+  90% { transform: translateX(-1px) rotate(0deg); }
+}
+
+/* Pulse Scale */
+@keyframes pulseScale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Floating */
+@keyframes floating {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(-2deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(-5px) rotate(2deg); }
+}
+
+/* Jello Effect */
+@keyframes jello {
+  0%, 100% { transform: scale(1, 1); }
+  25% { transform: scale(0.9, 1.1); }
+  50% { transform: scale(1.1, 0.9); }
+  75% { transform: scale(0.95, 1.05); }
+}
+
+/* Apply Animations */
+.animate-bounce-in {
+  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-pop-in {
+  animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-bounce {
+  animation: slideInBounce 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-shake {
+  animation: funShake 0.5s ease-in-out;
+}
+
+.animate-pulse-scale {
+  animation: pulseScale 1s ease-in-out infinite;
+}
+
+.animate-floating {
+  animation: floating 3s ease-in-out infinite;
+}
+
+.animate-jello {
+  animation: jello 0.5s ease-in-out;
+}
+
+/* Hover Animations */
+.hover-bounce:hover {
+  animation: bounceIn 0.5s ease;
+}
+
+.hover-shake:hover {
+  animation: funShake 0.5s ease-in-out;
+}
+
+.hover-jello:hover {
+  animation: jello 0.5s ease-in-out;
+}
+
+/* ============================================
+   FUN DECORATIONS
+   ============================================ */
+
+/* Starburst Badge */
+.badge-starburst {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+  font-family: var(--font-playful);
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-align: center;
+  clip-path: polygon(
+    50% 0%, 61% 35%, 98% 35%,
+    68% 57%, 79% 91%, 50% 70%,
+    21% 91%, 32% 57%, 2% 35%,
+    39% 35%
+  );
+  animation: rotate-slow 10s linear infinite;
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Speed Lines - Manga Style */
+.speed-lines {
+  position: relative;
+}
+
+.speed-lines::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    transparent 10deg,
+    rgba(0, 0, 0, 0.1) 10deg,
+    rgba(0, 0, 0, 0.1) 12deg
+  );
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Dots Pattern */
+.dots-pattern {
+  background-image: radial-gradient(var(--fun-hot-pink) 2px, transparent 2px);
+  background-size: 16px 16px;
+}
+
+/* Zig Zag Border */
+.zigzag-border {
+  position: relative;
+}
+
+.zigzag-border::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(135deg, var(--fun-hot-pink) 25%, transparent 25%) -10px 0,
+              linear-gradient(225deg, var(--fun-hot-pink) 25%, transparent 25%) -10px 0;
+  background-size: 20px 20px;
+}
+
+/* ============================================
+   TEXT GRADIENTS
+   ============================================ */
+
+/* Hot Gradient Text */
+.text-gradient-hot {
+  background: linear-gradient(135deg, var(--fun-hot-pink), var(--fun-coral));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Cool Gradient Text */
+.text-gradient-cool {
+  background: linear-gradient(135deg, var(--fun-electric-blue), var(--fun-turquoise));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Sunset Gradient Text */
+.text-gradient-sunset {
+  background: linear-gradient(135deg, var(--fun-sunshine), var(--fun-hot-pink), var(--fun-vivid-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   CONFETTI EFFECT
+   ============================================ */
+
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  animation: confetti-fall 3s ease-out forwards;
+}
+
+.confetti--pink { background: var(--fun-hot-pink); }
+.confetti--blue { background: var(--fun-electric-blue); }
+.confetti--green { background: var(--fun-acid-green); }
+.confetti--yellow { background: var(--fun-sunshine); }
+.confetti--purple { background: var(--fun-vivid-purple); }
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(-100px) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100vh) rotate(720deg);
+  }
+}
+
+/* ============================================
+   CURSOR EFFECTS
+   ============================================ */
+
+/* Fun Cursor Areas */
+.cursor-fun {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF006E' stroke='%23000' stroke-width='2' d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E") 16 16, auto;
+}
+
+/* ============================================
+   SELECTION COLORS
+   ============================================ */
+
+::selection {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+}
+
+::-moz-selection {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+}

@@ -1,7 +1,28 @@
 /**
- * RESULTS SCREEN - MAGAZINE/STREET STYLE
- * Photo result display with editorial flair
+ * RESULTS SCREEN - FUN MAGAZINE/STREET STYLE
+ * Photo result display with vibrant Pop Art flair
  */
+
+/* ============================================
+   FUN COLOR VARIABLES
+   ============================================ */
+:root {
+  --fun-hot-pink: #FF006E;
+  --fun-electric-blue: #00F5FF;
+  --fun-acid-green: #39FF14;
+  --fun-sunshine: #FFD700;
+  --fun-vivid-purple: #BF00FF;
+  --fun-coral: #FF6B35;
+
+  --mag-cream: #f5f5f0;
+  --mag-black: #0a0a0a;
+  --mag-white: #ffffff;
+  --mag-gray: #666666;
+
+  --font-fun: 'Fredoka', 'Kanit', sans-serif;
+  --font-street: 'Bungee', 'Kanit', sans-serif;
+  --font-main: 'Kanit', sans-serif;
+}
 
 /* ============================================
    RESULT SCREEN BASE
@@ -9,24 +30,64 @@
 .stage--result {
   background: var(--mag-cream);
   position: relative;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background-image:
+    radial-gradient(ellipse at 10% 90%, rgba(255, 0, 110, 0.08) 0%, transparent 40%),
+    radial-gradient(ellipse at 90% 10%, rgba(0, 245, 255, 0.08) 0%, transparent 40%);
+}
+
+/* Fun Grid Pattern */
+.stage--result::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Result Image Container */
 .stage--result .stage-image {
   position: relative;
-  max-width: 80vw;
-  max-height: 70vh;
+  max-width: 75vw;
+  max-height: 65vh;
   object-fit: contain;
-  border: 6px solid var(--mag-black);
+  border: 8px solid var(--mag-black);
   box-shadow:
-    12px 12px 0 rgba(0, 0, 0, 1),
-    0 0 40px rgba(0, 0, 0, 0.2);
-  transform: rotate(-1deg);
-  transition: transform 0.3s ease;
+    12px 12px 0 var(--fun-hot-pink),
+    24px 24px 0 var(--fun-electric-blue);
+  transform: rotate(-2deg);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 10;
+  animation: resultPopIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes resultPopIn {
+  0% {
+    opacity: 0;
+    transform: rotate(-10deg) scale(0.8) translateY(50px);
+  }
+  70% {
+    transform: rotate(0deg) scale(1.02) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-2deg) scale(1) translateY(0);
+  }
 }
 
 .stage--result .stage-image:hover {
   transform: rotate(0deg) scale(1.02);
+  box-shadow:
+    16px 16px 0 var(--fun-hot-pink),
+    32px 32px 0 var(--fun-electric-blue);
 }
 
 /* Result Inner Layout */
@@ -37,10 +98,14 @@
   justify-content: center;
   gap: 2rem;
   padding: 2rem;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 5;
 }
 
 /* ============================================
-   RESULT ACTIONS BAR
+   FUN RESULT ACTIONS BAR
    ============================================ */
 .stage--result .buttonbar--bottom {
   position: fixed;
@@ -51,159 +116,233 @@
   gap: 1rem;
   padding: 1rem 2rem;
   background: var(--mag-white);
-  border: 4px solid var(--mag-black);
-  box-shadow: 8px 8px 0 rgba(0, 0, 0, 1);
+  border: 5px solid var(--mag-black);
+  box-shadow:
+    8px 8px 0 var(--fun-acid-green),
+    0 0 30px rgba(57, 255, 20, 0.3);
   z-index: 100;
+  border-radius: 0;
+  animation: slideUpBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.3s backwards;
 }
 
-/* Result Action Buttons */
+@keyframes slideUpBounce {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(100px);
+  }
+  60% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Fun Action Buttons */
 .stage--result .button {
-  font-family: 'Kanit', sans-serif;
-  font-weight: 600;
+  font-family: var(--font-fun);
+  font-weight: 700;
   font-size: 0.875rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 1rem 1.5rem;
   background: var(--mag-white);
   color: var(--mag-black);
-  border: 3px solid var(--mag-black);
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
-  transition: all 0.15s ease;
+  border: 4px solid var(--mag-black);
+  box-shadow: 4px 4px 0 var(--mag-black);
+  transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  border-radius: 0;
 }
 
 .stage--result .button:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 rgba(0, 0, 0, 1);
+  transform: translate(-3px, -3px) rotate(-2deg);
+  box-shadow: 7px 7px 0 var(--mag-black);
+  animation: buttonWiggle 0.4s ease-in-out;
 }
 
-.stage--result .button--primary {
+@keyframes buttonWiggle {
+  0%, 100% { transform: translate(-3px, -3px) rotate(-2deg); }
+  25% { transform: translate(-3px, -3px) rotate(2deg); }
+  50% { transform: translate(-3px, -3px) rotate(-1deg); }
+  75% { transform: translate(-3px, -3px) rotate(1deg); }
+}
+
+.stage--result .button:active {
+  transform: translate(2px, 2px) rotate(0deg);
+  box-shadow: 2px 2px 0 var(--mag-black);
+}
+
+/* Fun Button Variants */
+.stage--result .button--primary,
+.stage--result #homebtn {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
+}
+
+.stage--result #newpic,
+.stage--result [data-command='newpic'] {
+  background: var(--fun-acid-green);
+  color: var(--mag-black);
+}
+
+.stage--result #printbtn,
+.stage--result [data-command='print'] {
+  background: var(--fun-sunshine);
+  color: var(--mag-black);
+}
+
+.stage--result #qrbtn,
+.stage--result [data-command='qr'] {
+  background: var(--fun-electric-blue);
+  color: var(--mag-black);
+}
+
+.stage--result #gallerybtn,
+.stage--result [data-command='gallery'] {
+  background: var(--fun-vivid-purple);
+  color: var(--mag-white);
+}
+
+.stage--result #deletebtn,
+.stage--result [data-command='delete'] {
   background: var(--mag-black);
   color: var(--mag-white);
 }
 
-.stage--result .button--accent {
-  background: var(--mag-cyan);
+.stage--result #deletebtn:hover,
+.stage--result [data-command='delete']:hover {
+  background: var(--fun-hot-pink);
 }
 
-/* Print Button */
-.stage--result #print-btn,
-.stage--result [data-command='print'] {
-  background: var(--mag-yellow);
+.stage--result #mailbtn,
+.stage--result [data-command='mail'] {
+  background: var(--fun-coral);
+  color: var(--mag-white);
 }
 
-/* QR Code Display */
+.stage--result #imageFilter,
+.stage--result [data-command='filter'] {
+  background: var(--mag-white);
+  border: 4px dashed var(--mag-black);
+}
+
+/* ============================================
+   QR CODE DISPLAY - FUN STYLE
+   ============================================ */
 .stage--result .stage-code {
   position: absolute;
-  padding: 1rem;
+  padding: 1.5rem;
   background: var(--mag-white);
-  border: 4px solid var(--mag-black);
-  box-shadow: 8px 8px 0 rgba(0, 0, 0, 1);
-  transform: rotate(2deg);
+  border: 5px solid var(--mag-black);
+  box-shadow:
+    8px 8px 0 var(--fun-electric-blue),
+    16px 16px 0 var(--fun-hot-pink);
+  transform: rotate(3deg);
+  animation: qrPopIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.4s backwards;
+  z-index: 20;
+}
+
+@keyframes qrPopIn {
+  0% {
+    opacity: 0;
+    transform: rotate(10deg) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(3deg) scale(1);
+  }
 }
 
 .stage--result .stage-code.left {
   left: 2rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(3deg);
 }
 
 .stage--result .stage-code.right {
   right: 2rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(-3deg);
 }
 
 .stage--result .stage-code__caption {
-  font-family: 'Kanit', sans-serif;
-  font-weight: 600;
+  font-family: var(--font-fun);
+  font-weight: 700;
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: center;
   margin-top: 0.5rem;
+  color: var(--mag-black);
 }
 
 /* ============================================
-   CHROMA SCREEN
-   ============================================ */
-.stage--chroma {
-  background: var(--mag-cream);
-}
-
-.stage--chroma .chroma-canvas {
-  border: 6px solid var(--mag-black);
-  box-shadow: 12px 12px 0 rgba(0, 0, 0, 1);
-}
-
-.stage--chroma .chroma-background-selector {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--mag-white);
-  border: 4px solid var(--mag-black);
-  box-shadow: 8px 8px 0 rgba(0, 0, 0, 1);
-}
-
-.stage--chroma .chroma-background-selector button {
-  font-family: 'Kanit', sans-serif;
-  font-weight: 600;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  padding: 0.75rem 1rem;
-  background: var(--mag-cream);
-  border: 3px solid var(--mag-black);
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.stage--chroma .chroma-background-selector button:hover {
-  background: var(--mag-cyan);
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 rgba(0, 0, 0, 1);
-}
-
-/* ============================================
-   MESSAGES ON RESULT SCREEN
+   FUN MESSAGES ON RESULT SCREEN
    ============================================ */
 .stage--result .stage-message {
-  font-family: 'Kanit', sans-serif;
-  font-weight: 800;
+  font-family: var(--font-street);
+  font-weight: 400;
   font-size: clamp(1.5rem, 5vw, 3rem);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--mag-black);
-  background: var(--mag-cyan);
+  background: var(--fun-electric-blue);
   padding: 1rem 2rem;
-  border: 4px solid var(--mag-black);
-  box-shadow: 8px 8px 0 rgba(0, 0, 0, 1);
-  transform: rotate(-1deg);
+  border: 5px solid var(--mag-black);
+  box-shadow:
+    8px 8px 0 var(--mag-black),
+    0 0 30px rgba(0, 245, 255, 0.4);
+  transform: rotate(-2deg);
+  animation: messagePop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 50;
+}
+
+@keyframes messagePop {
+  0% {
+    opacity: 0;
+    transform: rotate(-10deg) scale(0.8) translateY(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-2deg) scale(1) translateY(0);
+  }
 }
 
 /* Error Message */
 .stage--result .stage-message--error {
-  background: var(--mag-red);
+  background: var(--fun-hot-pink);
   color: var(--mag-white);
-  transform: rotate(1deg);
+  transform: rotate(2deg);
+  box-shadow:
+    8px 8px 0 var(--mag-black),
+    0 0 30px rgba(255, 0, 110, 0.4);
 }
 
 /* Success Message */
 .stage--result .stage-message--success {
-  background: var(--mag-lime);
+  background: var(--fun-acid-green);
+  color: var(--mag-black);
+  transform: rotate(-1deg);
+  box-shadow:
+    8px 8px 0 var(--mag-black),
+    0 0 30px rgba(57, 255, 20, 0.4);
 }
 
 /* ============================================
-   RESPONSIVE
+   FUN RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
   .stage--result .stage-image {
     max-width: 90vw;
-    max-height: 60vh;
-    border-width: 4px;
-    box-shadow: 8px 8px 0 rgba(0, 0, 0, 1);
+    max-height: 55vh;
+    border-width: 6px;
+    box-shadow:
+      8px 8px 0 var(--fun-hot-pink),
+      16px 16px 0 var(--fun-electric-blue);
   }
 
   .stage--result .buttonbar--bottom {
@@ -211,11 +350,17 @@
     padding: 0.75rem 1rem;
     gap: 0.5rem;
     flex-wrap: wrap;
+    max-width: 95vw;
+    box-shadow:
+      4px 4px 0 var(--fun-acid-green),
+      0 0 20px rgba(57, 255, 20, 0.3);
   }
 
   .stage--result .button {
     padding: 0.75rem 1rem;
     font-size: 0.75rem;
+    border-width: 3px;
+    box-shadow: 3px 3px 0 var(--mag-black);
   }
 
   .stage--result .stage-code {
@@ -223,11 +368,43 @@
     left: auto;
     right: auto;
     margin: 1rem 0;
+    transform: rotate(0deg);
+    box-shadow:
+      4px 4px 0 var(--fun-electric-blue),
+      8px 8px 0 var(--fun-hot-pink);
   }
 
-  .stage--chroma .chroma-background-selector {
-    bottom: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
+  .stage--result .stage-code.left,
+  .stage--result .stage-code.right {
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    transform: none;
   }
+}
+
+@media (max-width: 480px) {
+  .stage--result .buttonbar--bottom {
+    gap: 0.4rem;
+    padding: 0.5rem;
+  }
+
+  .stage--result .button {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.7rem;
+  }
+
+  .stage--result .stage-message {
+    font-size: 1.25rem;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* ============================================
+   SELECTION STYLING
+   ============================================ */
+.stage--result ::selection {
+  background: var(--fun-hot-pink);
+  color: var(--mag-white);
 }
