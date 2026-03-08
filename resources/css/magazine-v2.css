@@ -195,7 +195,7 @@
   height: 100%;
   position: relative;
   z-index: 10;
-  background: var(--mag-black);
+  background: transparent; /* Allow camera to show through */
   min-height: 100vh;
   min-width: 100vw;
 }

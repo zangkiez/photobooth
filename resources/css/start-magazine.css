@@ -69,37 +69,50 @@
 }
 
 /* 3. Specific Stage Styling (Backgrounds & Layers) */
-.stage--start.stage--active {
+/* Start Screen: Layer 1000 */
+html body .stage--start.stage--active {
   background: var(--mag-cream) !important;
-  z-index: 200 !important;
+  z-index: 1000 !important;
 }
 
-.stage--loader.stage--active {
-  background: var(--mag-black) !important;
-  z-index: 300 !important;
+/* Loader Screen: Layer 2000 (Above Start) */
+html body .stage--loader.stage--active {
+  background: transparent !important; /* Allow camera preview (behind) to show */
+  z-index: 2000 !important;
 }
 
-.stage--result.stage--active {
+/* Result Screen: Layer 3000 (Above Loader) */
+html body .stage--result.stage--active {
   background: var(--mag-cream) !important;
-  z-index: 400 !important;
+  z-index: 3000 !important;
 }
 
-/* ซ่อน elements ใน loader ที่ไม่จำเป็น */
-.stage--loader .stage-image,
-.stage--loader #video--sensor,
-.stage--loader .stage-image.off {
+/* ============================================
+   FORCE SHOW CAMERA IN LOADER
+   ============================================ */
+/* Override any inline styles set by JS */
+html body .stage--loader .stage-inner #video--sensor,
+html body .stage--loader .stage-inner .stage-image,
+html body .stage--loader .stage-inner .stage-image.off {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
-  height: auto !important;
   width: 100% !important;
+  height: 100% !important;
   position: absolute !important;
-  z-index: 1 !important;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 100%;
-  max-height: 100%;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  transform: none !important;
+  object-fit: cover !important;
+  z-index: 1 !important; /* Behind text */
+}
+
+/* Ensure text is above camera */
+html body .stage--loader #counter,
+html body .stage--loader #cheese {
+  z-index: 100 !important;
+  position: relative !important;
 }
 
 /* ============================================
