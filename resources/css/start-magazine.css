@@ -29,11 +29,11 @@
 /* ============================================
    START SCREEN BASE - FUN BACKGROUND
    ============================================ */
-/* 
+/*
    NOTE: These styles override framework.css
    framework.css sets .stage { display: none; }
    and .stage--active { display: flex; }
-   
+
    We need to ensure our magazine styles take precedence
    by loading this CSS after framework.css
 */
