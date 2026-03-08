@@ -31,15 +31,13 @@
    ============================================ */
 .stage--start {
   background: var(--mag-cream);
-  position: relative;
-  z-index: 100;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
   font-family: var(--font-main);
-  display: flex !important;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  width: 100%;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
 }
 
 /* Fun Gradient Background */
@@ -55,16 +53,21 @@
   z-index: 0;
 }
 
-/* Ensure start screen is above loader */
+/* Only show start screen when active */
 .stage--start.stage--active {
-  z-index: 200;
   display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   visibility: visible !important;
   opacity: 1 !important;
+  z-index: 200;
 }
 
 /* Loader should be below start and hidden by default */
 .stage--loader {
+  position: fixed;
+  inset: 0;
   z-index: 0;
   display: none !important;
   visibility: hidden !important;
@@ -74,6 +77,9 @@
 /* Only show loader when explicitly active */
 .stage--loader.stage--active {
   display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   visibility: visible !important;
   opacity: 1 !important;
   z-index: 100;

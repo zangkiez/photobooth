@@ -202,14 +202,25 @@
    STEP 4: LOADER (Countdown) - FUN STYLE
    ============================================ */
 .stage--loader {
-  background: var(--mag-black);
-  position: relative;
-  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Only show loader when active */
+.stage--loader.stage--active {
   display: flex !important;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  width: 100%;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 100;
+  background: var(--mag-black);
+  overflow: hidden;
 }
 
 /* Loader Inner - Center Content */

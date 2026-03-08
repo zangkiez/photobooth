@@ -28,13 +28,24 @@
    RESULT SCREEN BASE
    ============================================ */
 .stage--result {
-  background: var(--mag-cream);
-  position: relative;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Only show result screen when active */
+.stage--result.stage--active {
   display: flex !important;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  width: 100%;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 100;
+  background: var(--mag-cream);
   background-image:
     radial-gradient(ellipse at 10% 90%, rgba(255, 0, 110, 0.08) 0%, transparent 40%),
     radial-gradient(ellipse at 90% 10%, rgba(0, 245, 255, 0.08) 0%, transparent 40%);
