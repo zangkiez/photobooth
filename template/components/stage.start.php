@@ -67,8 +67,8 @@ use Photobooth\Utility\PathUtility;
                     <span class="magazine-divider__line"></span>
                 </div>
 
-                <!-- Visual Element -->
-                <div class="magazine-visual">
+                <!-- Visual Element = ปุ่มถ่ายรูป (TAP TO START) -->
+                <div class="magazine-visual takePic rotaryfocus" role="button" tabindex="0" data-command="takePic">
                     <div class="magazine-visual__box">
                         <span class="magazine-visual__icon">📸</span>
                     </div>

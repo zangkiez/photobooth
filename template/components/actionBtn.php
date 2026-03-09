@@ -12,7 +12,8 @@ if ($config['button']['force_buzzer']) {
     echo '<div class="buzzer-message">' . $config['button']['buzzer_message'] . '</div>';
 } else {
     if ($config['picture']['enabled']) {
-        echo ComponentUtility::renderButton('takePhoto', $config['icons']['take_picture'], 'takePic');
+        // ปุ่มถ่ายรูปใช้ magazine-visual ใน stage template แทน (TAP TO START)
+        // ไม่ render ปุ่ม takePic ที่นี่
     }
     if ($config['custom']['enabled']) {
         echo ComponentUtility::renderButton($config['custom']['btn_text'], $config['icons']['take_custom'], 'takeCustom');

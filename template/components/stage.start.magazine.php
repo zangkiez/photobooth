@@ -88,13 +88,13 @@ use Photobooth\Utility\PathUtility;
                         <?php endif; ?>
                     <?php endif; ?>
 
-                    <!-- Extra Visual Element -->
-                    <div class="magazine-visual">
+                    <!-- Extra Visual Element = ปุ่มถ่ายรูป (TAP TO START) -->
+                    <div class="magazine-visual takePic rotaryfocus" role="button" tabindex="0" data-command="takePic">
                         <div class="magazine-visual__box">
                             <span class="magazine-visual__icon">📸</span>
                         </div>
                         <div class="magazine-visual__text">
-                            <span class="text-caption">CAPTURE THE MOMENT</span>
+                            <span class="text-caption">TAP TO START</span>
                         </div>
                     </div>
 
