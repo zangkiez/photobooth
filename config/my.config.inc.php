@@ -20,10 +20,10 @@ return [
     'picture' => [
         'cntdwn_time' => 10,
         'cheese_time' => 4000,
+        'polaroid_effect' => true,
         'take_frame' => false,
         'frame' => 'resources/img/frames/frame_parque.png',
         'extend_by_frame' => false,
-        'keep_original' => false,
     ],
     'textonpicture' => [
         'rotation' => -100,
@@ -38,9 +38,8 @@ return [
         'show_cups' => true,
     ],
     'filters' => [
-        'enabled' => false,
         'disabled' => [
-            'antique',
+            'plain',
         ],
     ],
     'collage' => [

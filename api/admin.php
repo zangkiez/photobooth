@@ -259,8 +259,8 @@ if ($action === 'reset') {
 
     if (isset($newConfig['filters']['enabled']) && $newConfig['filters']['enabled'] == true) {
         if (isset($newConfig['picture']['keep_original']) && !$newConfig['picture']['keep_original']) {
-            $newConfig['filters']['enabled'] = false;
-            $logger->debug('Filters disabled, you must keep original images in tmp folder to use this function.', [$newConfig['filters'], $newConfig['picture']]);
+            $newConfig['picture']['keep_original'] = true;
+            $logger->debug('Keep original images enabled automatically so image filters can work.');
         }
     }
 

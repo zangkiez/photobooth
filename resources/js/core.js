@@ -1934,8 +1934,9 @@ var photoBooth = (function () {
             }
         });
     };
-    $('.imageFilter').on('click', function (e) {
+    $(document).on('click', '.imageFilter', function (e) {
         e.preventDefault();
+        e.stopPropagation();
         api.navbar.toggle();
     });
     $('.sidenav-list-item[data-filter]').on('click', function () {

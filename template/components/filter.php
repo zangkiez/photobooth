@@ -33,7 +33,7 @@ $cubeFilters = ImageUtility::getCubeFilters();
                     class="sidenav-list-item<?php echo $defaultStr === $filter->value ? ' sidenav-list-item--active' : ''; ?> rotaryfocus"
                     data-filter="<?= htmlspecialchars($filter->value) ?>"
                 >
-                    <?= htmlspecialchars($filter->label()) ?>
+                    <span class="sidenav-list-item-label"><?= htmlspecialchars($filter->label()) ?></span>
                 </button>
             <?php endif; ?>
         <?php endforeach; ?>
@@ -44,7 +44,8 @@ $cubeFilters = ImageUtility::getCubeFilters();
                     class="sidenav-list-item<?php echo $defaultStr === $cube['value'] ? ' sidenav-list-item--active' : ''; ?> rotaryfocus"
                     data-filter="<?= htmlspecialchars($cube['value']) ?>"
                 >
-                    <?= htmlspecialchars($cube['label']) ?> <span class="sidenav-list-item-badge">LUT</span>
+                    <span class="sidenav-list-item-label"><?= htmlspecialchars($cube['label']) ?></span>
+                    <span class="sidenav-list-item-badge">LUT</span>
                 </button>
             <?php endif; ?>
         <?php endforeach; ?>

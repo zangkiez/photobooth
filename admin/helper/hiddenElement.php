@@ -30,8 +30,9 @@ function isElementHidden($element_class, $setting)
             break;
     }
 
-    if (isset($fields['platform']) && $fields['platform'] != 'all' && $fields['platform'] != $os) {
-        $setting['type'] = $element_class = 'hidden';
+    $os = \Photobooth\Environment::getOperatingSystem();
+    if (isset($setting['platform']) && $setting['platform'] != 'all' && $setting['platform'] != $os) {
+        $element_class = 'hidden';
     }
 
     if (isset($setting['type']) && $setting['type'] == 'hidden') {
