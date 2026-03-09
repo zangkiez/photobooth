@@ -251,7 +251,7 @@ return [
             'value' => $config['dev']['reload_on_error'],
         ],
         'webserver_url' => [
-            'view' => 'advanced',
+            'view' => 'basic',
             'type' => 'input',
             'name' => 'webserver[url]',
             'placeholder' => $defaultConfig['webserver']['url'],

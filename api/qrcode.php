@@ -27,7 +27,7 @@ if ($filename) {
     if ($config['qr']['append_filename']) {
         $url .= $filename;
     }
-    $baseUrl = (!empty($config['webserver']['url']) && PathUtility::isUrl($config['webserver']['url']))
+    $baseUrl = (!empty($config['webserver']['url']) && PathUtility::isFullUrl($config['webserver']['url']))
         ? $config['webserver']['url']
         : null;
     $url = PathUtility::getPublicPath($url, true, $baseUrl);

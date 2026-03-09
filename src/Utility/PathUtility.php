@@ -138,7 +138,7 @@ class PathUtility
 
         $path = self::fixFilePath(self::getBaseUrl() . $path);
         if ($absolute) {
-            if ($baseUrl !== null && $baseUrl !== '' && self::isUrl($baseUrl)) {
+            if ($baseUrl !== null && $baseUrl !== '' && self::isFullUrl($baseUrl)) {
                 $path = rtrim($baseUrl, '/') . $path;
             } else {
                 $path = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $path;
@@ -146,6 +146,15 @@ class PathUtility
         }
 
         return $path;
+    }
+
+    /**
+     * Returns whether the string is a full URL with scheme and host (e.g. for use as base URL).
+     * Avoids using incomplete values like "http://" which would produce broken URLs.
+     */
+    public static function isFullUrl(string $url): bool
+    {
+        return self::isUrl($url) && preg_match('#^https?://[^/]+#', $url) === 1;
     }
 
     /**

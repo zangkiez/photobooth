@@ -162,7 +162,7 @@ if (!file_exists($vars['printFile'])) {
             if ($config['qr']['append_filename']) {
                 $url .= $vars['fileName'];
             }
-            $baseUrl = (!empty($config['webserver']['url']) && PathUtility::isUrl($config['webserver']['url']))
+            $baseUrl = (!empty($config['webserver']['url']) && PathUtility::isFullUrl($config['webserver']['url']))
                 ? $config['webserver']['url']
                 : null;
             $imageHandler->qrUrl = PathUtility::getPublicPath($url, true, $baseUrl);
