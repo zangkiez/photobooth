@@ -80,6 +80,9 @@ return [
     'login' => [
         'username' => '',
     ],
+    'gallery' => [
+        'show_on_main_app' => false,
+    ],
     'protect' => [
         'admin' => false,
         'localhost_admin' => false,

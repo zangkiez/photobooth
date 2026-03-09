@@ -206,6 +206,7 @@
     "frontpage:event_symbol": "เลือกสัญลักษณ์",
     "frontpage:event_textLeft": "ข้อความซ้าย",
     "frontpage:event_textRight": "ข้อความขวา",
+    "frontpage:gallery_show_on_main_app": "แสดงแกลเลอรี่บนหน้าแรก",
     "frontpage:logo_enabled": "แสดงโลโก้",
     "frontpage:logo_path": "เส้นทางโลโก้",
     "frontpage:logo_position": "ตำแหน่งโลโก้",

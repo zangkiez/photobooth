@@ -450,6 +450,12 @@ return [
             'data-theme-field' => 'true',
             'value' => htmlentities($config['event']['textRight'] ?? ''),
         ],
+        'gallery_show_on_main_app' => [
+            'view' => 'basic',
+            'type' => 'checkbox',
+            'name' => 'gallery[show_on_main_app]',
+            'value' => $config['gallery']['show_on_main_app'] ?? true,
+        ],
         'button_force_buzzer' => [
             'view' => 'advanced',
             'type' => 'checkbox',

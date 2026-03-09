@@ -13,6 +13,7 @@ final class GalleryConfiguration
             ->ignoreExtraKeys()
             ->children()
                 ->booleanNode('enabled')->defaultValue(true)->end()
+                ->booleanNode('show_on_main_app')->defaultValue(true)->end()
                 ->booleanNode('newest_first')->defaultValue(true)->end()
                 ->booleanNode('use_slideshow')->defaultValue(true)->end()
             ->booleanNode('use_thumb')->defaultValue(false)->end()

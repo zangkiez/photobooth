@@ -40,7 +40,7 @@ include PathUtility::getAbsolutePath('template/components/main.head.php');
         <div class="stage-message stage-message--error"><?=$languageService->translate('chromaInfoBefore')?></div>
         <?php include PathUtility::getAbsolutePath('template/components/chroma.background.selector.php'); ?>
         <div class="buttonbar buttonbar--top">
-            <?= ($config['gallery']['enabled']) ? ComponentUtility::renderButton('gallery', $config['icons']['gallery'], 'gallery-button') : '' ?>
+            <?= ($config['gallery']['enabled'] && ($config['gallery']['show_on_main_app'] ?? true)) ? ComponentUtility::renderButton('gallery', $config['icons']['gallery'], 'gallery-button') : '' ?>
         </div>
         <div class="buttonbar buttonbar--bottom">
             <?= ComponentUtility::renderButton('takePhoto', $config['icons']['take_picture'], 'take-chroma') ?>
@@ -59,7 +59,9 @@ include PathUtility::getAbsolutePath('template/components/main.head.php');
     </div>
 </div>
 
-<?php include PathUtility::getAbsolutePath('template/components/gallery.php'); ?>
+<?php if ($config['gallery']['enabled']) {
+    include PathUtility::getAbsolutePath('template/components/gallery.php');
+} ?>
 <script type="text/javascript">
     onCaptureChromaView = true;
 </script>

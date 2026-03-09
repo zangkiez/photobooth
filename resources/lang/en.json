@@ -206,6 +206,7 @@
   "frontpage:event_symbol": "Choose a symbol",
   "frontpage:event_textLeft": "Text left",
   "frontpage:event_textRight": "Text right",
+  "frontpage:gallery_show_on_main_app": "Show gallery on start page",
   "frontpage:logo_enabled": "Show logo",
   "frontpage:logo_path": "Logo path",
   "frontpage:logo_position": "Logo position",

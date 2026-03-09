@@ -27,9 +27,9 @@ if ($config['button']['force_buzzer']) {
 if ($config['button']['reload']) {
     echo ComponentUtility::renderButton('reload', $config['icons']['refresh'], 'reload');
 }
-if ($config['gallery']['enabled']) {
-    echo ComponentUtility::renderButton('gallery', $config['icons']['gallery'], 'gallery-button');
-}
+if ($config['gallery']['enabled'] && ($config['gallery']['show_on_main_app'] ?? true)) {
+        echo ComponentUtility::renderButton('gallery', $config['icons']['gallery'], 'gallery-button');
+    }
 if ($config['button']['show_cups']) {
     echo ComponentUtility::renderButton('cups', $config['icons']['cups'], 'cups-button');
 }
