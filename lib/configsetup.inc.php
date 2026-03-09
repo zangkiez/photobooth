@@ -251,9 +251,11 @@ return [
             'value' => $config['dev']['reload_on_error'],
         ],
         'webserver_url' => [
-            'type' => 'hidden',
+            'view' => 'advanced',
+            'type' => 'input',
             'name' => 'webserver[url]',
-            'value' => $defaultConfig['webserver']['url'],
+            'placeholder' => $defaultConfig['webserver']['url'],
+            'value' => htmlentities($config['webserver']['url'] ?? ''),
         ],
         'webserver_ssid' => [
             'view' => 'expert',

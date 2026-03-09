@@ -31,8 +31,16 @@ $mime = match ($extension) {
     'gif' => 'image/gif',
     default => 'image/jpeg',
 };
-$imageUrl = PathUtility::getPublicPath(FolderEnum::IMAGES->value . '/' . rawurlencode($image));
-$downloadUrl = PathUtility::getPublicPath('api/download.php?image=' . rawurlencode($image));
+$baseUrl = (!empty($config['webserver']['url']) && PathUtility::isUrl($config['webserver']['url']))
+    ? $config['webserver']['url']
+    : null;
+if ($baseUrl !== null) {
+    $imageUrl = PathUtility::getPublicPath(FolderEnum::IMAGES->value . '/' . rawurlencode($image), true, $baseUrl);
+    $downloadUrl = PathUtility::getPublicPath('api/download.php?image=' . rawurlencode($image), true, $baseUrl);
+} else {
+    $imageUrl = PathUtility::getPublicPath(FolderEnum::IMAGES->value . '/' . rawurlencode($image));
+    $downloadUrl = PathUtility::getPublicPath('api/download.php?image=' . rawurlencode($image));
+}
 $languageService = LanguageService::getInstance();
 $pageTitle = ApplicationService::getInstance()->getTitle() . ' - ' . $languageService->translate('viewer_photo_title');
 $photoswipe = false;

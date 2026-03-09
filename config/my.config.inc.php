@@ -107,7 +107,7 @@ return [
         'font' => 'resources/fonts/GreatVibes-Regular.ttf',
     ],
     'qr' => [
-        'url' => 'view.php?image=',
+        'url' => 'https://photo.betweensunandmoon.coffee/view.php?image=',
     ],
     'print' => [
         'from_result' => true,

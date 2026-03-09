@@ -27,7 +27,10 @@ if ($filename) {
     if ($config['qr']['append_filename']) {
         $url .= $filename;
     }
-    $url = PathUtility::getPublicPath($url, true);
+    $baseUrl = (!empty($config['webserver']['url']) && PathUtility::isUrl($config['webserver']['url']))
+        ? $config['webserver']['url']
+        : null;
+    $url = PathUtility::getPublicPath($url, true, $baseUrl);
     try {
         $result = QrCodeUtility::create($url);
         header('Content-Type: ' . $result->getMimeType());

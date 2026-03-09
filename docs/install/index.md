@@ -8,5 +8,6 @@ Pick the guide that matches your environment:
 - Linux:
   - [Install on Debian](install-debian.md)
   - [Enable PHP in nginx](install-nginx.md)
+  - [Raspberry Pi + Cloudflare Tunnel](raspberry-pi-cloudflare-tunnel.md) – install on Raspberry Pi and expose via Cloudflare Tunnel (e.g. for public QR download without local Wi‑Fi).
 - Windows:
   - [Install on Windows](install-windows.md)

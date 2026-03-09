@@ -114,13 +114,16 @@ class PathUtility
      *   to a path relative to the web root.
      * - Otherwise the path is appended to the Photobooth base URL.
      *
-     * @param  string  $path      Relative path, absolute path or URL.
-     * @param  bool    $absolute  When `true`, a fully qualified URL including
-     *                            scheme and host is returned.
+     * @param  string       $path      Relative path, absolute path or URL.
+     * @param  bool         $absolute  When `true`, a fully qualified URL including
+     *                                 scheme and host is returned.
+     * @param  string|null  $baseUrl   When $absolute is true and this is a full URL
+     *                                 (e.g. Cloudflare Tunnel domain), use it as the
+     *                                 origin instead of the current request host.
      *
      * @return string Public URL to the requested resource.
      */
-    public static function getPublicPath(string $path = '', bool $absolute = false): string
+    public static function getPublicPath(string $path = '', bool $absolute = false, ?string $baseUrl = null): string
     {
         if (self::isUrl($path)) {
             return $path;
@@ -135,7 +138,11 @@ class PathUtility
 
         $path = self::fixFilePath(self::getBaseUrl() . $path);
         if ($absolute) {
-            $path = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $path;
+            if ($baseUrl !== null && $baseUrl !== '' && self::isUrl($baseUrl)) {
+                $path = rtrim($baseUrl, '/') . $path;
+            } else {
+                $path = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $path;
+            }
         }
 
         return $path;
