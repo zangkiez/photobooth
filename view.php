@@ -25,54 +25,71 @@ if (!is_file($imagePath)) {
     exit();
 }
 
-// Session = รูปที่ถ่ายในรอบนั้นๆ (ช่วงเวลาตามเวลาของรูปปัจจุบัน)
-$SESSION_WINDOW_MINUTES = 15;
+$imagesDir = FolderEnum::IMAGES->absolute();
+$sessionImages = [];
 
-/**
- * Get Unix timestamp for an image for session grouping.
- * Uses filename date (Ymd_His) when naming is dateformatted, else file mtime.
- */
-$getImageTime = function (string $imageName) use ($config): ?int {
-    $base = basename($imageName);
-    $nameWithoutExt = pathinfo($base, PATHINFO_FILENAME);
-    if (!empty($config['picture']['naming']) && $config['picture']['naming'] === 'dateformatted') {
-        $dt = \DateTime::createFromFormat('Ymd_His', $nameWithoutExt);
-        return $dt ? $dt->getTimestamp() : null;
+// รายการรูป "รอบนั้น" จากแกลเลอรี่หลังถ่าย: ใช้ list จาก URL ถ้ามี (QR จาก result จะส่ง list มาด้วย)
+$listParam = isset($_GET['list']) ? (string) $_GET['list'] : '';
+if ($listParam !== '') {
+    $raw = array_map('trim', explode(',', $listParam));
+    foreach ($raw as $name) {
+        $name = basename($name);
+        if ($name === '') {
+            continue;
+        }
+        if (!preg_match('/^[A-Za-z0-9._-]+$/', $name)) {
+            continue;
+        }
+        $path = $imagesDir . DIRECTORY_SEPARATOR . $name;
+        if (is_file($path)) {
+            $sessionImages[] = $name;
+        }
     }
-    $path = FolderEnum::IMAGES->absolute() . DIRECTORY_SEPARATOR . $imageName;
-    return is_file($path) ? filemtime($path) : null;
-};
-
-// Get all images for ordering (same as gallery)
-$database = DatabaseManagerService::getInstance();
-if (!empty($config['database']['enabled'])) {
-    $allImages = $database->getContentFromDB();
-} else {
-    $allImages = $database->getFilesFromDirectory();
+    $sessionImages = array_values(array_unique($sessionImages));
+    // ถ้ารูปปัจจุบันไม่อยู่ใน list (ลิงก์เก่า) ให้ใส่ไว้เพื่อ swipe ยังใช้ได้
+    if (!in_array($image, $sessionImages, true)) {
+        $sessionImages[] = $image;
+    }
 }
-if (!empty($config['gallery']['newest_first']) && !empty($allImages)) {
-    $allImages = array_reverse($allImages);
-}
-$allImages = array_values($allImages);
 
-$currentTime = $getImageTime($image);
-$windowSeconds = $SESSION_WINDOW_MINUTES * 60;
-
-// Only images in the same time window as the current image (รอบนั้นๆ)
-$sessionImages = array_values(array_filter($allImages, function ($img) use ($getImageTime, $currentTime, $windowSeconds) {
-    $t = $getImageTime($img);
-    return $t !== null && $currentTime !== null && abs($t - $currentTime) <= $windowSeconds;
-}));
-
-// If current image not in session (e.g. no timestamp), fallback to single-image "session"
-if (!in_array($image, $sessionImages, true)) {
-    $sessionImages = [$image];
+// Fallback: ไม่มี list = ใช้ช่วงเวลา (ลิงก์ตรง / QR เก่า)
+if (empty($sessionImages)) {
+    $SESSION_WINDOW_MINUTES = 15;
+    $getImageTime = function (string $imageName) use ($config): ?int {
+        $base = basename($imageName);
+        $nameWithoutExt = pathinfo($base, PATHINFO_FILENAME);
+        if (!empty($config['picture']['naming']) && $config['picture']['naming'] === 'dateformatted') {
+            $dt = \DateTime::createFromFormat('Ymd_His', $nameWithoutExt);
+            return $dt ? $dt->getTimestamp() : null;
+        }
+        $path = FolderEnum::IMAGES->absolute() . DIRECTORY_SEPARATOR . $imageName;
+        return is_file($path) ? filemtime($path) : null;
+    };
+    $database = DatabaseManagerService::getInstance();
+    if (!empty($config['database']['enabled'])) {
+        $allImages = $database->getContentFromDB();
+    } else {
+        $allImages = $database->getFilesFromDirectory();
+    }
+    if (!empty($config['gallery']['newest_first']) && !empty($allImages)) {
+        $allImages = array_reverse($allImages);
+    }
+    $allImages = array_values($allImages);
+    $currentTime = $getImageTime($image);
+    $windowSeconds = $SESSION_WINDOW_MINUTES * 60;
+    $sessionImages = array_values(array_filter($allImages, function ($img) use ($getImageTime, $currentTime, $windowSeconds) {
+        $t = $getImageTime($img);
+        return $t !== null && $currentTime !== null && abs($t - $currentTime) <= $windowSeconds;
+    }));
+    if (!in_array($image, $sessionImages, true)) {
+        $sessionImages = [$image];
+    }
 }
 
 $currentIndex = array_search($image, $sessionImages, true);
 $currentIndex = $currentIndex === false ? 0 : (int) $currentIndex;
 
-// Previous/next within session only
+// Previous/next within session only (รอบนั้นๆ = แกลเลอรี่หลังถ่าย)
 $prevImage = $currentIndex > 0 ? $sessionImages[$currentIndex - 1] : null;
 $nextImage = $currentIndex < count($sessionImages) - 1 ? $sessionImages[$currentIndex + 1] : null;
 
@@ -548,7 +565,8 @@ include PathUtility::getAbsolutePath('template/components/main.head.php');
             <!-- Photo Frame -->
             <div class="frame-pop" id="photo-frame" aria-label="Captured media preview"
                  data-prev="<?= $prevImage ? htmlspecialchars($prevImage) : '' ?>"
-                 data-next="<?= $nextImage ? htmlspecialchars($nextImage) : '' ?>">
+                 data-next="<?= $nextImage ? htmlspecialchars($nextImage) : '' ?>"
+                 data-session-list="<?= htmlspecialchars(implode(',', $sessionImages)) ?>">
                 <?php if ($isVideo): ?>
                     <video src="<?=$imageUrl?>" controls playsinline controlsList="nodownload" id="viewer-media">
                         <?=htmlspecialchars($languageService->translate('viewer_video_fallback'))?>
@@ -692,9 +710,13 @@ include PathUtility::getAbsolutePath('template/components/main.head.php');
         
         function navigateToImage(imageName, direction) {
             frame.classList.add(direction === 'left' ? 'swipe-left' : 'swipe-right');
-            
-            setTimeout(() => {
-                window.location.href = 'view.php?image=' + encodeURIComponent(imageName);
+            var sessionList = frame.dataset.sessionList || '';
+            var url = 'view.php?image=' + encodeURIComponent(imageName);
+            if (sessionList) {
+                url += '&list=' + encodeURIComponent(sessionList);
+            }
+            setTimeout(function () {
+                window.location.href = url;
             }, 300);
         }
         

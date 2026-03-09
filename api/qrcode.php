@@ -27,6 +27,13 @@ if ($filename) {
     if ($config['qr']['append_filename']) {
         $url .= $filename;
     }
+    // รายการรูปในรอบ (แกลเลอรี่หลังถ่าย) เพื่อให้ view.php swipe ได้เฉพาะรอบนั้น
+    if (isset($_GET['list']) && is_string($_GET['list']) && $_GET['list'] !== '') {
+        $list = trim($_GET['list']);
+        if ($list !== '') {
+            $url .= '&list=' . rawurlencode($list);
+        }
+    }
     $baseUrl = (!empty($config['webserver']['url']) && PathUtility::isFullUrl($config['webserver']['url']))
         ? $config['webserver']['url']
         : null;

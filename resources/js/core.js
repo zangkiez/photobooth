@@ -1489,10 +1489,14 @@ var photoBooth = (function () {
                         }
                         resultVideo.show();
                         if (config.video.qr) {
-                            resultVideoQR.attr(
-                                'src',
-                                environment.publicFolders.api + '/qrcode.php?filename=' + data.file
-                            );
+                            var qrSrc =
+                                environment.publicFolders.api +
+                                '/qrcode.php?filename=' +
+                                encodeURIComponent(data.file);
+                            if (data.images && data.images.length) {
+                                qrSrc += '&list=' + encodeURIComponent(data.images.join(','));
+                            }
+                            resultVideoQR.attr('src', qrSrc);
                             resultVideoQR.show();
                         }
                     }
@@ -1786,7 +1790,11 @@ var photoBooth = (function () {
                 qrResultImage.addEventListener('load', function () {
                     resultPage.append(qrWrapper);
                 });
-                qrResultImage.src = environment.publicFolders.api + '/qrcode.php?filename=' + filename;
+                qrResultImage.src =
+                    environment.publicFolders.api +
+                    '/qrcode.php?filename=' +
+                    encodeURIComponent(filename) +
+                    (files && files.length ? '&list=' + encodeURIComponent(files.join(',')) : '');
                 qrResultImage.alt = 'QR-Code';
                 qrResultImage.classList.add('stage-code__image');
                 qrWrapper.append(qrResultImage);
