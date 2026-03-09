@@ -295,6 +295,10 @@ var photoBooth = (function () {
         startTime,
         endTime,
         totalTime;
+    function getFilterString(f) {
+        return typeof f === 'string' ? f : f && f.value ? f.value : 'plain';
+    }
+    window.photoboothCurrentFilter = getFilterString(imgFilter);
     var setActiveStage = function setActiveStage(stage) {
         photoboothTools.console.log('setActiveStage: ' + stage);
         startPage.removeClass('stage--active');
@@ -423,15 +427,20 @@ var photoBooth = (function () {
     api.navbar = {
         open: function open() {
             filternav.addClass('sidenav--open');
+            document.body.classList.add('filternav-open');
             rotaryController.focusSet(filternav);
         },
         close: function close() {
             filternav.removeClass('sidenav--open');
+            document.body.classList.remove('filternav-open');
         },
         toggle: function toggle() {
             filternav.toggleClass('sidenav--open');
             if (filternav.hasClass('sidenav--open')) {
+                document.body.classList.add('filternav-open');
                 rotaryController.focusSet(filternav);
+            } else {
+                document.body.classList.remove('filternav-open');
             }
         }
     };
@@ -969,7 +978,11 @@ var photoBooth = (function () {
                                                                     photoboothTools.console.logDev(
                                                                         'Taking picture took ' + totalTime + 'ms'
                                                                     );
-                                                                    imgFilter = config.filters.defaults;
+                                                                    // Keep current filter so result and gallery show the same filter
+                                                                    if (typeof getFilterString === 'function') {
+                                                                        window.photoboothCurrentFilter =
+                                                                            getFilterString(imgFilter);
+                                                                    }
                                                                     $(
                                                                         '#filternav .sidenav-list-item--active'
                                                                     ).removeClass('sidenav-list-item--active');
@@ -1283,7 +1296,10 @@ var photoBooth = (function () {
                                             totalTime = endTime - startTime;
                                             photoboothTools.console.log('Took ' + data.style, result);
                                             photoboothTools.console.logDev('Taking video took ' + totalTime + 'ms');
-                                            imgFilter = config.filters.defaults;
+                                            // Keep current filter so result and gallery show the same filter
+                                            if (typeof getFilterString === 'function') {
+                                                window.photoboothCurrentFilter = getFilterString(imgFilter);
+                                            }
                                             $('#filternav .sidenav-list-item--active').removeClass(
                                                 'sidenav-list-item--active'
                                             );
@@ -1866,6 +1882,9 @@ var photoBooth = (function () {
                 linkElement.appendTo(galimages);
             }
             galimages.children().not('a').remove();
+            if (typeof applyFilterToGalleryUrls === 'function') {
+                applyFilterToGalleryUrls();
+            }
         }
     };
     api.openGallery = function () {
@@ -1873,11 +1892,64 @@ var photoBooth = (function () {
             gallery.addClass('scrollbar');
         }
         gallery.addClass('gallery--open');
+        applyFilterToGalleryUrls();
         setTimeout(function () {
             gallery.find('.gallery__inner').show();
             rotaryController.focusSet(gallery);
         }, 300);
     };
+    function applyFilterToGalleryUrls() {
+        if (typeof config === 'undefined' || !config.filters || !config.filters.enabled) {
+            return;
+        }
+        var curFilter = typeof window.photoboothCurrentFilter !== 'undefined' ? window.photoboothCurrentFilter : '';
+        var apiBase = environment.publicFolders.api + '/download.php';
+        var container = document.getElementById('galimages');
+        if (!container) {
+            return;
+        }
+        // Match any gallery link to a photo (not already our download.php URL)
+        var links = container.querySelectorAll('a[href]');
+        links.forEach(function (a) {
+            var href = a.getAttribute('href') || a.getAttribute('data-original-href');
+            if (!href || href.indexOf('download.php') !== -1) {
+                return;
+            }
+            if (!a.getAttribute('data-original-href')) {
+                a.setAttribute('data-original-href', href);
+            }
+            var basename = href.split('/').pop().split('?')[0];
+            if (!basename || !/\.(jpe?g|png|gif|webp)$/i.test(basename)) {
+                return;
+            }
+            if (curFilter && String(curFilter) !== 'plain') {
+                var newUrl =
+                    apiBase +
+                    '?image=' +
+                    encodeURIComponent(basename) +
+                    '&filter=' +
+                    encodeURIComponent(String(curFilter)) +
+                    '&display=1';
+                a.setAttribute('href', newUrl);
+                var img = a.querySelector('img');
+                if (img) {
+                    if (!img.getAttribute('data-original-src')) {
+                        img.setAttribute('data-original-src', img.getAttribute('src') || href);
+                    }
+                    img.setAttribute('src', newUrl);
+                }
+            } else {
+                var orig = a.getAttribute('data-original-href');
+                if (orig) {
+                    a.setAttribute('href', orig);
+                    var imgEl = a.querySelector('img');
+                    if (imgEl && imgEl.getAttribute('data-original-src')) {
+                        imgEl.setAttribute('src', imgEl.getAttribute('data-original-src'));
+                    }
+                }
+            }
+        });
+    }
     api.closeGallery = function () {
         if (typeof globalGalleryHandle !== 'undefined') {
             if (globalGalleryHandle.pswp) {
@@ -1947,6 +2019,7 @@ var photoBooth = (function () {
         $('.sidenav').find('.sidenav-list-item--active').removeClass('sidenav-list-item--active');
         $(this).addClass('sidenav-list-item--active');
         imgFilter = $(this).data('filter');
+        window.photoboothCurrentFilter = getFilterString(imgFilter);
         var result = {
             file: resultPage.attr('data-img')
         };
