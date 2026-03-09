@@ -1635,7 +1635,9 @@ var photoBooth = (function () {
         body.appendChild(image);
         var qrHelpText = config.qr.custom_text
             ? config.qr.text
-            : photoboothTools.getTranslation('qrHelp') + '<br><b>' + config.webserver.ssid + '</b>';
+            : (config.qr.url && config.qr.url.toLowerCase().indexOf('http') === 0
+                ? photoboothTools.getTranslation('qrHelpScan')
+                : photoboothTools.getTranslation('qrHelp') + '<br><b>' + config.webserver.ssid + '</b>');
         var text = document.createElement('p');
         text.innerHTML = qrHelpText;
         body.appendChild(text);

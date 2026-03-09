@@ -987,6 +987,8 @@
   "qr:qr_text": "Own help text",
   "qr:qr_url": "URL for QR Code",
   "qrHelp": "To download the picture to your smartphone, connect to the WiFi:",
+  "qrHelpScan": "Scan the QR code to download the photo to your smartphone.",
+  "qrHelpScan": "Scan the QR code to download the photo to your smartphone.",
   "really_delete": "Really reset according to your settings? This cannot be undone!",
   "really_delete_image": "will be deleted! This cannot be undone! Really delete picture?",
   "reboot_button": "Reboot",
