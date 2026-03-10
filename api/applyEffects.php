@@ -76,6 +76,7 @@ $vars['isChroma'] = $_POST['style'] === 'chroma';
 
 $vars['srcImages'] = [];
 $vars['srcImages'][] = $vars['fileName'];
+$outputImages = [];  // tracks actual output filenames (may differ from srcImages on reprocess)
 
 $applyEffectsPath = PathUtility::getAbsolutePath('private/api/applyEffects.php');
 if (is_file($applyEffectsPath)) {
@@ -116,10 +117,26 @@ try {
 
     foreach ($vars['srcImages'] as $vars['singleImageFile']) {
         $imageHandler->imageModified = false;
-        $vars['resultFile'] = FolderEnum::IMAGES->absolute() . DIRECTORY_SEPARATOR . $vars['singleImageFile'];
-        $vars['keyingFile'] = FolderEnum::KEYING->absolute() . DIRECTORY_SEPARATOR . $vars['singleImageFile'];
+
+        // For filter reprocess with an active filter: save as new named variant file
+        $outputImageFile = $vars['singleImageFile'];
+        if ($isReprocess && $vars['imageFilter'] !== null && $vars['imageFilter'] !== ImageFilterEnum::PLAIN) {
+            $baseNoExt = pathinfo($vars['singleImageFile'], PATHINFO_FILENAME);
+            $ext = pathinfo($vars['singleImageFile'], PATHINFO_EXTENSION) ?: 'jpg';
+            if ($vars['imageFilter'] instanceof ImageFilterEnum) {
+                $slug = strtolower($vars['imageFilter']->value);
+            } else {
+                $slug = strtolower(pathinfo((string)$vars['imageFilter'], PATHINFO_FILENAME));
+            }
+            $slug = preg_replace('/[^a-z0-9_-]/', '_', $slug);
+            $outputImageFile = $baseNoExt . '_' . $slug . '.' . $ext;
+        }
+        $outputImages[] = $outputImageFile;
+
+        $vars['resultFile'] = FolderEnum::IMAGES->absolute() . DIRECTORY_SEPARATOR . $outputImageFile;
+        $vars['keyingFile'] = FolderEnum::KEYING->absolute() . DIRECTORY_SEPARATOR . $outputImageFile;
         $vars['tmpFile'] = FolderEnum::TEMP->absolute() . DIRECTORY_SEPARATOR . $vars['singleImageFile'];
-        $vars['thumbFile'] = FolderEnum::THUMBS->absolute() . DIRECTORY_SEPARATOR . $vars['singleImageFile'];
+        $vars['thumbFile'] = FolderEnum::THUMBS->absolute() . DIRECTORY_SEPARATOR . $outputImageFile;
 
         if (!file_exists($vars['tmpFile'])) {
             throw new \Exception('Image doesn\'t exist.');
@@ -335,14 +352,19 @@ try {
         // insert into database
         if ($config['database']['enabled'] && !$isReprocess) {
             if (($vars['isChroma'] && $config['keying']['show_all'] === true) || !$vars['isChroma']) {
-                $database->appendContentToDB($vars['singleImageFile']);
+                $database->appendContentToDB($outputImageFile);
             }
+        }
+
+        // On filter reprocess, also add variant to DB so gallery can find it
+        if ($config['database']['enabled'] && $isReprocess && $outputImageFile !== $vars['singleImageFile']) {
+            $database->appendContentToDB($outputImageFile);
         }
 
         // Store images on remote storage
         if ($config['ftp']['enabled'] && !$isReprocess) {
-            $remoteStorage->write($remoteStorage->getStorageFolder() . '/images/' . $vars['singleImageFile'], (string) file_get_contents($vars['resultFile']));
-            $remoteStorage->write($remoteStorage->getStorageFolder() . '/thumbs/' . $vars['singleImageFile'], (string) file_get_contents($vars['thumbFile']));
+            $remoteStorage->write($remoteStorage->getStorageFolder() . '/images/' . $outputImageFile, (string) file_get_contents($vars['resultFile']));
+            $remoteStorage->write($remoteStorage->getStorageFolder() . '/thumbs/' . $outputImageFile, (string) file_get_contents($vars['thumbFile']));
             if ($config['ftp']['create_webpage']) {
                 $remoteStorage->createWebpage();
             }
@@ -390,8 +412,8 @@ if (is_array($imageHandler->errorLog) && !empty($imageHandler->errorLog)) {
 }
 
 $data = [
-    'file' => $vars['fileName'],
-    'images' => $vars['srcImages'],
+    'file' => count($outputImages) > 0 ? end($outputImages) : $vars['fileName'],
+    'images' => count($outputImages) > 0 ? array_values(array_unique($outputImages)) : $vars['srcImages'],
 ];
 $logger->debug('effects applied', $data);
 echo json_encode($data);

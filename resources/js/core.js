@@ -294,7 +294,9 @@ var photoBooth = (function () {
         command,
         startTime,
         endTime,
-        totalTime;
+        totalTime,
+        sessionFiles = [],
+        captureBasename = '';
     function getFilterString(f) {
         return typeof f === 'string' ? f : f && f.value ? f.value : 'plain';
     }
@@ -313,7 +315,7 @@ var photoBooth = (function () {
         }
     };
     var ensureIdleStage = function ensureIdleStage() {
-        if (!api.takingPic && !resultPage.hasClass('stage--active')) {
+        if (!api.takingPic && !api.isFilterProcessing && !resultPage.hasClass('stage--active')) {
             photoboothTools.console.log('ensureIdleStage: forcing start (takingPic=' + api.takingPic + ')');
             setActiveStage('start');
             loader.removeClass('showBackgroundImage');
@@ -321,6 +323,7 @@ var photoBooth = (function () {
         }
     };
     api.takingPic = false;
+    api.isFilterProcessing = false;
     api.nextCollageNumber = 0;
     api.chromaimage = '';
     api.filename = '';
@@ -339,6 +342,10 @@ var photoBooth = (function () {
         if (!api.takingPic) {
             photoboothTools.console.logDev('Timeout for auto reload set to ' + timeToLive + ' milliseconds.');
             timeOut = setTimeout(function () {
+                if (filternav.hasClass('sidenav--open') || isProcessingEffects) {
+                    api.resetTimeOut();
+                    return;
+                }
                 photoboothTools.reloadPage();
             }, timeToLive);
         }
@@ -353,6 +360,9 @@ var photoBooth = (function () {
         loaderMessage.removeClass('stage-message--error');
         resultPage.removeAttr('style data-img');
         resultPage.removeClass('stage--active');
+        sessionFiles = [];
+        captureBasename = '';
+        api.isFilterProcessing = false;
         gallery.removeClass('gallery--open');
         gallery.find('.gallery__inner').hide();
         previewVideo.hide();
@@ -393,7 +403,12 @@ var photoBooth = (function () {
 
         if (!stageGuardObserver && loader.length) {
             stageGuardObserver = new MutationObserver(function () {
-                if (loader.hasClass('stage--active') && !api.takingPic && !resultPage.hasClass('stage--active')) {
+                if (
+                    loader.hasClass('stage--active') &&
+                    !api.takingPic &&
+                    !api.isFilterProcessing &&
+                    !resultPage.hasClass('stage--active')
+                ) {
                     ensureIdleStage();
                 }
             });
@@ -1383,7 +1398,8 @@ var photoBooth = (function () {
     };
     api.processPic = function (result) {
         startTime = new Date().getTime();
-        var isFilterReprocess = resultPage.hasClass('stage--active');
+        var isFilterReprocess = resultPage.hasClass('stage--active') || !!resultPage.attr('data-img');
+        api.isFilterProcessing = isFilterReprocess;
         if (!isFilterReprocess) {
             setActiveStage('loader');
         }
@@ -1420,6 +1436,7 @@ var photoBooth = (function () {
                 reprocess: isFilterReprocess ? 1 : 0
             },
             success: function success(data) {
+                api.isFilterProcessing = false;
                 setFiltersEnabled(true);
                 photoboothTools.console.log(api.photoStyle + ' processed', data);
                 endTime = new Date().getTime();
@@ -1441,6 +1458,7 @@ var photoBooth = (function () {
                 }
             },
             error: function error(jqXHR, textStatus) {
+                api.isFilterProcessing = false;
                 setFiltersEnabled(true);
                 api.errorPic({
                     error: 'Request failed: ' + textStatus
@@ -1637,7 +1655,13 @@ var photoBooth = (function () {
         photoboothTools.modal.open();
         var body = photoboothTools.modal.element.querySelector('.modal-body');
         var image = document.createElement('img');
-        image.src = environment.publicFolders.api + '/qrcode.php?filename=' + filename;
+        var qrModalList = sessionFiles.length > 0 ? sessionFiles : [filename];
+        image.src =
+            environment.publicFolders.api +
+            '/qrcode.php?filename=' +
+            encodeURIComponent(filename) +
+            '&list=' +
+            encodeURIComponent(qrModalList.join(','));
         body.appendChild(image);
         var qrHelpText = config.qr.custom_text
             ? config.qr.text
@@ -1764,9 +1788,39 @@ var photoBooth = (function () {
             );
 
         // gallery doesn't support videos atm
-        var isFilterReprocess = resultPage.attr('data-img') === filename;
-        if (!photoboothTools.isVideoFile(filename) && !isFilterReprocess) {
-            api.addImage(filename);
+        if (!photoboothTools.isVideoFile(filename)) {
+            // First capture: initialise session tracking
+            if (!captureBasename) {
+                captureBasename = filename;
+                sessionFiles = [filename];
+                api.addImage(filename);
+            } else if (sessionFiles.indexOf(filename) === -1) {
+                // New filter variant (new unique filename) — add as separate gallery entry
+                sessionFiles.push(filename);
+                api.addImage(filename);
+            } else {
+                // Same filename applied again (same filter re-applied) — cache-bust gallery thumb
+                var cbCacheKey = '?v=' + Date.now();
+                galimages.find('a').each(function () {
+                    var a = $(this);
+                    var origHref = a.attr('data-original-href') || a.attr('href') || '';
+                    if (origHref.split('/').pop().split('?')[0] === filename) {
+                        a.attr('href', environment.publicFolders.images + '/' + filename + cbCacheKey);
+                        a.removeAttr('data-original-href');
+                        var img = a.find('img');
+                        if (img.length) {
+                            var thumbBase =
+                                (config.gallery.use_thumb
+                                    ? environment.publicFolders.thumbs
+                                    : environment.publicFolders.images) +
+                                '/' +
+                                filename;
+                            img.attr('src', thumbBase + cbCacheKey);
+                            img.removeAttr('data-original-src');
+                        }
+                    }
+                });
+            }
         }
 
         // if image is a video render the qr code as image (video should be displayed over this)
@@ -1797,11 +1851,13 @@ var photoBooth = (function () {
                 qrResultImage.addEventListener('load', function () {
                     resultPage.append(qrWrapper);
                 });
+                var qrSessionList = sessionFiles.length > 0 ? sessionFiles : files && files.length ? files : [filename];
                 qrResultImage.src =
                     environment.publicFolders.api +
                     '/qrcode.php?filename=' +
                     encodeURIComponent(filename) +
-                    (files && files.length ? '&list=' + encodeURIComponent(files.join(',')) : '');
+                    '&list=' +
+                    encodeURIComponent(qrSessionList.join(','));
                 qrResultImage.alt = 'QR-Code';
                 qrResultImage.classList.add('stage-code__image');
                 qrWrapper.append(qrResultImage);
@@ -2038,7 +2094,7 @@ var photoBooth = (function () {
         imgFilter = $(this).data('filter');
         window.photoboothCurrentFilter = getFilterString(imgFilter);
         var result = {
-            file: resultPage.attr('data-img')
+            file: captureBasename || resultPage.attr('data-img')
         };
         photoboothTools.console.logDev('Applying filter: ' + imgFilter, result);
         api.processPic(result);
