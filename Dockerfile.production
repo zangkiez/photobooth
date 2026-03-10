@@ -41,8 +41,8 @@ COPY . .
 # Submodules ถ้ามี
 RUN git submodule update --init 2>/dev/null || true
 
-# PHP dependencies (production เท่านั้น)
-RUN php bin/composer install --no-dev --no-interaction --ignore-platform-reqs
+# PHP dependencies (production เท่านั้น — ไม่รัน post-install เพื่อไม่ติดตั้ง tools dev)
+RUN php bin/composer install --no-dev --no-interaction --no-scripts --ignore-platform-reqs
 
 # Frontend build
 RUN npm ci \
@@ -67,17 +67,28 @@ RUN apt-get update \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd zip \
+    && docker-php-ext-install -j$(nproc) gd zip ftp \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Apache
+# Apache — ใช้ config จาก repo (docker/)
 RUN a2enmod rewrite \
-    && echo "LimitRequestLine 12000" > /etc/apache2/conf-available/photobooth-limits.conf \
+    && echo "LimitRequestLine 12000" >> /etc/apache2/conf-available/photobooth-limits.conf \
     && a2enconf photobooth-limits.conf
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html
 WORKDIR /var/www/html
+
+# Copy โฟลเดอร์ docker/ จาก builder (generate-config + entrypoint)
+COPY --from=builder /var/www/html/docker ./docker
+
+# PHP + Apache config จาก repo (จบใน Docker ไม่ต้องตั้งบน host)
+COPY --from=builder /var/www/html/docker/php.ini /usr/local/etc/php/conf.d/photobooth.ini
+COPY --from=builder /var/www/html/docker/apache-photobooth.conf /etc/apache2/sites-available/photobooth.conf
+RUN a2dissite 000-default.conf 2>/dev/null || true \
+    && a2ensite photobooth.conf
+
+RUN chmod +x /var/www/html/docker/entrypoint-prod.sh
 
 # Copy จาก builder เฉพาะสิ่งที่รันได้ (ไม่เอา node_modules, .git, dev tools)
 COPY --from=builder /var/www/html/api                 ./api
@@ -102,14 +113,9 @@ COPY --from=builder /var/www/html/composer.json      ./
 COPY --from=builder /var/www/html/composer.lock      ./
 COPY --from=builder /var/www/html/bin/composer       ./bin/composer
 
-# โฟลเดอร์ที่ต้องมีและให้ www-data เขียนได้ (ข้อมูลจะ mount จาก host)
+# โฟลเดอร์ที่ต้องมีและให้ www-data เขียนได้
 RUN mkdir -p data/images data/thumbs data/print data/qr data/temp var \
-    && chown -R www-data:www-data /var/www/html/data /var/www/html/var /var/www/html/private
-
-# PHP production tuning (override ใน container ได้ผ่าน env ถ้าต้องการ)
-RUN echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/photobooth.ini \
-    && echo "upload_max_filesize = 20M" >> /usr/local/etc/php/conf.d/photobooth.ini \
-    && echo "post_max_size = 24M" >> /usr/local/etc/php/conf.d/photobooth.ini \
-    && echo "max_execution_time = 120" >> /usr/local/etc/php/conf.d/photobooth.ini
+    && chown -R www-data:www-data /var/www/html/data /var/www/html/var /var/www/html/private /var/www/html/config
 
 EXPOSE 80
+ENTRYPOINT ["/var/www/html/docker/entrypoint-prod.sh"]

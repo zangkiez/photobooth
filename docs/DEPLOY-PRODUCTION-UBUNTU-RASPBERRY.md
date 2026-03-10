@@ -81,10 +81,11 @@
 
 ภาพรวมไฟล์ Docker:
 
-- **`Dockerfile.production`** — Multi-stage build (builder: Composer + npm build → runner: PHP + Apache + ffmpeg + CUPS client). รองรับทั้ง amd64 และ arm64 จาก image เดียว
+- **`Dockerfile.production`** — Multi-stage build; config PHP/Apache อยู่ใน `docker/` (ไม่ต้องตั้งบน host). Config แอปสร้างจาก **env** ใน entrypoint
 - **`docker-compose.production.ubuntu.yml`** — รันบน Ubuntu (amd64), จำกัด memory 512M
 - **`docker-compose.production.pi.yml`** — รันบน Raspberry Pi (arm64), จำกัด memory 384M
-- **`.dockerignore`** — ลด build context (ไม่เอา node_modules, .git, data ขึ้น image)
+- **`.env`** — ใส่ `PHOTOBOOTH_WEBSERVER_URL`, `PHOTOBOOTH_PRINTER_NAME` ฯลฯ (copy จาก `.env.example`) — **ไม่ต้องมีไฟล์ config บน host**
+- **`.dockerignore`** — ลด build context
 
 ### 3.1 สิ่งที่ต้องมีบน host
 
@@ -105,11 +106,11 @@ sudo systemctl enable cups && sudo systemctl start cups
 ```bash
 cd /path/to/photobooth
 
-# สร้าง config ก่อน (ถ้ายังไม่มี)
-cp -n config/my.config.inc.php config/my.config.inc.php.bak 2>/dev/null || true
-# แก้ไข config/my.config.inc.php ตามต้องการ (webserver.url, print, ฯลฯ)
+# ครั้งแรก: สร้าง .env จากตัวอย่าง (แก้ค่าให้ตรงเครื่อง)
+cp .env.example .env
+# แก้ .env: PHOTOBOOTH_WEBSERVER_URL=http://<IP เครื่องนี้>, PHOTOBOOTH_PRINTER_NAME=...
 
-# Build และรัน
+# Build และรัน (ไม่ต้องมีไฟล์ config บน host)
 docker compose -f docker-compose.production.ubuntu.yml build --no-cache
 docker compose -f docker-compose.production.ubuntu.yml up -d
 
@@ -124,9 +125,9 @@ docker compose -f docker-compose.production.ubuntu.yml logs -f
 ```bash
 cd /path/to/photobooth
 
-# สร้าง config ก่อน
-cp -n config/my.config.inc.php config/my.config.inc.php.bak 2>/dev/null || true
-# แก้ config/my.config.inc.php (webserver.url = http://<IP ของ Pi>)
+# ครั้งแรก: สร้าง .env
+cp .env.example .env
+# แก้ .env: PHOTOBOOTH_WEBSERVER_URL=http://<IP ของ Pi>
 
 # Build (บน Pi จะใช้เวลานานกว่าบน PC)
 docker compose -f docker-compose.production.pi.yml build --no-cache
@@ -137,7 +138,7 @@ docker compose -f docker-compose.production.pi.yml logs -f
 
 ### 3.4 Volume และ Config
 
-ทั้งสอง compose ใช้ volume เดียวกัน:
+ทั้งสอง compose ใช้ volume เดียวกัน; **config แอปสร้างจาก env ใน container (ไม่ mount ไฟล์จาก host)**
 
 | Volume | เก็บอะไร |
 |--------|----------|
@@ -145,7 +146,7 @@ docker compose -f docker-compose.production.pi.yml logs -f
 | `photobooth_private` | ไฟล์ส่วนตัว (frames, backgrounds, fonts) |
 | `photobooth_var` | log, cache, lock |
 
-Config บน host: ต้องมีไฟล์ `config/my.config.inc.php` แล้ว mount เข้า container (อ่านอย่างเดียว). ถ้าไม่มี ให้สร้างจาก Admin Panel แล้ว copy ออกมา หรือเขียน PHP return array ตามตัวอย่างในหัวข้อ 4 (Deploy Ubuntu ติดตั้งตรง)
+**Config:** ใส่ใน `.env` (หรือ environment ใน compose) — ตัวแปร `PHOTOBOOTH_WEBSERVER_URL`, `PHOTOBOOTH_PRINTER_NAME` ฯลฯ ดูใน `.env.example`
 
 ### 3.5 เครื่องพิมพ์ (CUPS บน host)
 
@@ -171,15 +172,42 @@ cd /path/to/photobooth
 git pull
 
 # Ubuntu
-docker compose -f docker-compose.production.ubuntu.yml build --no-cache
-docker compose -f docker-compose.production.ubuntu.yml up -d
+docker compose -f docker-compose.production.ubuntu.yml up -d --build
 
 # หรือ Pi
-docker compose -f docker-compose.production.pi.yml build --no-cache
-docker compose -f docker-compose.production.pi.yml up -d
+docker compose -f docker-compose.production.pi.yml up -d --build
 ```
 
 ข้อมูลใน volume ไม่หาย — เฉพาะ code ใน image เปลี่ยน
+
+### 3.7 อัปเดตหลายเครื่อง (20 ตู้) — แค่ git pull + คำสั่งเดียว
+
+เมื่อมีหลายสถานี (หลายเครื่อง) ต้องการให้ **setup และอัปเดตง่าย**:
+
+**หลักการ (Senior / Ops):**
+- **Config จบใน Docker** — PHP, Apache, และ config แอป (URL, ชื่อเครื่องพิมพ์) มาจาก **env** เท่านั้น ไม่ต้องแก้ไฟล์บน host เครื่องละ 2 ต่อ
+- **อัปเดต = git pull + compose ขึ้นใหม่** — ไม่ต้องรัน composer/npm บน host
+
+**บนแต่ละเครื่อง (ครั้งแรก):**
+1. Clone repo, สร้าง `.env` จาก `.env.example` (แก้เฉพาะ `PHOTOBOOTH_WEBSERVER_URL` และ `PHOTOBOOTH_PRINTER_NAME` ตามเครื่อง)
+2. รัน `docker compose -f docker-compose.production.ubuntu.yml up -d --build` (หรือ `.pi.yml` บน Pi)
+
+**อัปเดตทุกเครื่อง (ทำซ้ำที่ละเครื่อง หรือใช้ script):**
+```bash
+cd /path/to/photobooth
+git pull
+docker compose -f docker-compose.production.ubuntu.yml up -d --build
+```
+
+**ถ้ามี 20 เครื่อง** — ใช้ script หรือ Ansible ส่งคำสั่งเดียวกันไปทุก host:
+```bash
+# ตัวอย่าง: วนลูป IP
+for ip in 192.168.1.101 192.168.1.102 ... ; do
+  ssh "photobooth@$ip" "cd /opt/photobooth && git pull && docker compose -f docker-compose.production.ubuntu.yml up -d --build"
+done
+```
+
+หรือเก็บ path และ compose file เป็นตัวแปรใน `.env` หรือ config ของ Ansible แล้วรันหนึ่งคำสั่ง deploy ทุกเครื่อง
 
 ---
 
@@ -220,7 +248,7 @@ php -v   # ต้อง >= 8.1 แนะนำ 8.4
 php -m | grep -E "gd|mbstring|xml|zip|curl|fileinfo"
 ```
 
-### 3.4 ติดตั้ง Apache และเปิด mod_rewrite
+### 4.4 ติดตั้ง Apache และเปิด mod_rewrite
 
 ```bash
 sudo apt install -y apache2
@@ -229,7 +257,7 @@ sudo systemctl enable apache2
 sudo systemctl start apache2
 ```
 
-### 3.5 ติดตั้ง Node.js 20 (สำหรับ build เท่านั้น)
+### 4.5 ติดตั้ง Node.js 20 (สำหรับ build เท่านั้น)
 
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
@@ -238,7 +266,7 @@ node -v   # v20.x
 npm -v
 ```
 
-### 3.6 ติดตั้ง Composer, ffmpeg, CUPS และเครื่องมืออื่นๆ
+### 4.6 ติดตั้ง Composer, ffmpeg, CUPS และเครื่องมืออื่นๆ
 
 ```bash
 # Composer (รันในฐานะผู้ใช้ที่ใช้ deploy)
@@ -251,7 +279,7 @@ sudo systemctl enable cups
 sudo systemctl start cups
 ```
 
-### 3.7 โคลนโปรเจกต์และ build
+### 4.7 โคลนโปรเจกต์และ build
 
 ```bash
 # สมมติใช้ /var/www/html เป็น root ของเว็บ
@@ -279,7 +307,7 @@ sudo -u www-data npm ci
 sudo -u www-data npm run build
 ```
 
-### 3.8 สิทธิ์โฟลเดอร์ data, private, var
+### 4.8 สิทธิ์โฟลเดอร์ data, private, var
 
 ```bash
 cd /var/www/html
@@ -288,7 +316,7 @@ sudo chown -R www-data:www-data data private var
 sudo chmod -R 775 data private var
 ```
 
-### 3.9 กำหนดค่า Apache VirtualHost
+### 4.9 กำหนดค่า Apache VirtualHost
 
 ```bash
 sudo nano /etc/apache2/sites-available/photobooth.conf
@@ -320,7 +348,7 @@ sudo a2dissite 000-default.conf
 sudo systemctl reload apache2
 ```
 
-### 3.10 กลุ่มผู้ใช้สำหรับกล้องและเครื่องพิมพ์
+### 4.10 กลุ่มผู้ใช้สำหรับกล้องและเครื่องพิมพ์
 
 ```bash
 sudo gpasswd -a www-data plugdev
@@ -331,7 +359,7 @@ sudo gpasswd -a www-data lpadmin
 
 ถ้าใช้ gphoto2 กับ DSLR อาจต้อง rule udev หรือสิทธิ์เพิ่ม — ดูเอกสารของ distro/กล้อง
 
-### 3.11 เพิ่มเครื่องพิมพ์ใน CUPS (ถ้าใช้พิมพ์)
+### 4.11 เพิ่มเครื่องพิมพ์ใน CUPS (ถ้าใช้พิมพ์)
 
 ```bash
 # เปิดเว็บ CUPS (จากเครื่องเดียวกัน)
@@ -342,7 +370,7 @@ sudo lpadmin -p PRINTER_NAME -E -v <uri> -m everywhere
 lpstat -p
 ```
 
-### 3.12 ไฟล์ config ของ Photobooth
+### 4.12 ไฟล์ config ของ Photobooth
 
 สร้างหรือแก้ไข `config/my.config.inc.php` (ไม่ commit ไฟล์นี้):
 
@@ -382,7 +410,7 @@ return [
 sudo chown www-data:www-data /var/www/html/config/my.config.inc.php
 ```
 
-### 3.13 ตรวจสอบครั้งสุดท้ายและรีสตาร์ต
+### 4.13 ตรวจสอบครั้งสุดท้ายและรีสตาร์ต
 
 ```bash
 php -m | grep -E "gd|zip|mbstring|xml|curl"
@@ -396,9 +424,9 @@ sudo systemctl status cups
 
 ---
 
-## 4. Deploy บน Raspberry Pi (ละเอียด)
+## 5. Deploy บน Raspberry Pi (ติดตั้งตรง)
 
-### 4.1 ฮาร์ดแวร์และ OS ที่แนะนำ
+### 5.1 ฮาร์ดแวร์และ OS ที่แนะนำ
 
 | รายการ | แนะนำ |
 |--------|--------|
@@ -410,7 +438,7 @@ sudo systemctl status cups
 | **กล้อง** | Pi Camera Module 3 / 3+ หรือ USB webcam หรือ gphoto2 (DSLR) |
 | **เครื่องพิมพ์** | USB ต่อกับ Pi โดยตรง |
 
-### 4.2 Boot จาก USB (แนะนำสำหรับรันทั้งวัน)
+### 5.2 Boot จาก USB (แนะนำสำหรับรันทั้งวัน)
 
 ลดการเขียน SD และยืดอายุการใช้งาน:
 
@@ -420,14 +448,14 @@ sudo systemctl status cups
 
 หรือใช้ SD เป็น boot แล้ว rootfs อยู่บน USB — ดูเอกสาร Raspberry Pi
 
-### 4.3 อัปเดตระบบและติดตั้งแพ็กเกจ
+### 5.3 อัปเดตระบบและติดตั้งแพ็กเกจ
 
 ```bash
 sudo apt update && sudo apt full-upgrade -y
 sudo apt install -y git curl wget
 ```
 
-### 4.4 ติดตั้ง PHP, Apache และ extensions
+### 5.4 ติดตั้ง PHP, Apache และ extensions
 
 Raspberry Pi OS Bookworm มี PHP ใน repo:
 
@@ -451,7 +479,7 @@ php -v
 php -m | grep -E "gd|mbstring|xml|zip|curl"
 ```
 
-### 4.5 Apache mod_rewrite และเปิดใช้
+### 5.5 Apache mod_rewrite และเปิดใช้
 
 ```bash
 sudo a2enmod rewrite headers
@@ -459,14 +487,14 @@ sudo systemctl enable apache2
 sudo systemctl start apache2
 ```
 
-### 4.6 Node.js 20 สำหรับ build
+### 5.6 Node.js 20 สำหรับ build
 
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
 ```
 
-### 4.7 Composer, ffmpeg, CUPS, gphoto2
+### 5.7 Composer, ffmpeg, CUPS, gphoto2
 
 ```bash
 curl -sS https://getcomposer.org/installer | php
@@ -477,7 +505,7 @@ sudo systemctl enable cups
 sudo systemctl start cups
 ```
 
-### 4.8 โคลนและ build (เหมือน Ubuntu)
+### 5.8 โคลนและ build (เหมือน Ubuntu)
 
 ```bash
 cd /var/www
@@ -490,7 +518,7 @@ sudo -u www-data npm ci
 sudo -u www-data npm run build
 ```
 
-### 4.9 โฟลเดอร์ data, private, var
+### 5.9 โฟลเดอร์ data, private, var
 
 ```bash
 cd /var/www/html
@@ -499,7 +527,7 @@ sudo chown -R www-data:www-data data private var
 sudo chmod -R 775 data private var
 ```
 
-### 4.10 VirtualHost และกลุ่มผู้ใช้
+### 5.10 VirtualHost และกลุ่มผู้ใช้
 
 ทำเหมือน Ubuntu: สร้าง `sites-available/photobooth.conf`, a2ensite, a2dissite 000-default, reload
 
@@ -512,7 +540,7 @@ sudo gpasswd -a www-data lp
 sudo gpasswd -a www-data lpadmin
 ```
 
-### 4.11 Config Photobooth บน Pi
+### 5.11 Config Photobooth บน Pi
 
 ใช้ IP ของ Pi ใน LAN (หรือ hostname):
 
@@ -524,7 +552,7 @@ sudo gpasswd -a www-data lpadmin
 'commands' => [ 'print' => 'lp -d PRINTER_NAME -o fit-to-page %s' ],
 ```
 
-### 4.12 ตรวจอุณหภูมิและ Thermal Throttling (สำคัญสำหรับรันทั้งวัน)
+### 5.12 ตรวจอุณหภูมิและ Thermal Throttling (สำคัญสำหรับรันทั้งวัน)
 
 ```bash
 # ดูอุณหภูมิ (ต้องมี vcgencmd บน Pi)
@@ -536,7 +564,7 @@ vcgencmd get_throttled
 
 ถ้า `get_throttled` ไม่ใช่ 0x0 แปลว่ามีการ throttle (ร้อนหรือไฟไม่พอ) — ต้องแก้การระบายความร้อนหรือเปลี่ยนอะแดปเตอร์
 
-### 4.13 ปิดบริการที่ไม่ใช้ (ลด RAM/CPU)
+### 5.13 ปิดบริการที่ไม่ใช้ (ลด RAM/CPU)
 
 ถ้าไม่ใช้ Bluetooth/Wi-Fi สามารถปิดได้:
 
@@ -549,9 +577,9 @@ sudo systemctl disable hciuart
 
 ---
 
-## 5. ตั้งค่าเพื่อความเสถียร — ระบบไม่ค้าง
+## 6. ตั้งค่าเพื่อความเสถียร — ระบบไม่ค้าง
 
-### 5.1 PHP (ทั้ง Ubuntu และ Pi)
+### 6.1 PHP (ทั้ง Ubuntu และ Pi)
 
 แก้ไข `php.ini` ที่ Apache/PHP ใช้ (มักอยู่ที่ `/etc/php/8.4/apache2/php.ini` หรือ `/etc/php/8.3/apache2/php.ini`):
 
@@ -584,7 +612,7 @@ realpath_cache_ttl = 600
 sudo systemctl reload apache2
 ```
 
-### 5.2 Apache — จำนวน process/thread
+### 6.2 Apache — จำนวน process/thread
 
 ถ้าใช้ MPM prefork (ค่าเริ่มต้นของ Apache กับ mod_php):
 
@@ -612,7 +640,7 @@ sudo nano /etc/apache2/mods-available/mpm_prefork.conf
 sudo systemctl restart apache2
 ```
 
-### 5.3 Swap (สำคัญโดยเฉพาะบน Pi)
+### 6.3 Swap (สำคัญโดยเฉพาะบน Pi)
 
 ป้องกัน Out of Memory เมื่อมีผู้ใช้พร้อมกันหรือสร้าง collage/GIF:
 
@@ -636,7 +664,7 @@ sudo dphys-swapfile setup
 sudo dphys-swapfile swapon
 ```
 
-### 5.4 Log rotation — จำกัดขนาด log
+### 6.4 Log rotation — จำกัดขนาด log
 
 ป้องกัน disk เต็มจาก log:
 
@@ -657,7 +685,7 @@ sudo nano /etc/logrotate.d/apache2-photobooth
 }
 ```
 
-### 5.5 ไฟล์ lock การพิมพ์
+### 6.5 ไฟล์ lock การพิมพ์
 
 ถ้ากดพิมพ์แล้วค้าง (ไม่ error แต่ไม่พิมพ์) มักเป็นเพราะ `data/print.lock` ไม่ถูกลบ:
 
@@ -667,7 +695,7 @@ sudo -u www-data rm -f /var/www/html/data/print.lock
 
 สามารถเพิ่ม cron หรือสคริปต์ตรวจลบ lock เก่าที่ค้างเกิน X นาที (ถ้าต้องการ)
 
-### 5.6 ฐานข้อมูลรูป (แกลเลอรี่)
+### 6.6 ฐานข้อมูลรูป (แกลเลอรี่)
 
 ฐานข้อมูลรูปเป็นไฟล์ JSON ใน `data/` — ถ้ามีรูปจำนวนมากการ rebuild อาจใช้เวลาสักครู่ ทำได้จาก **Admin Panel** (ปุ่ม "สร้างฐานข้อมูลรูปใหม่") หรือเรียก API (ต้อง login ก่อน):
 
@@ -677,9 +705,9 @@ curl -b cookies.txt "http://localhost/api/rebuildImageDB.php"
 
 ---
 
-## 6. ความปลอดภัย
+## 7. ความปลอดภัย
 
-### 6.1 Firewall (UFW) — Ubuntu / Pi
+### 7.1 Firewall (UFW) — Ubuntu / Pi
 
 ```bash
 sudo apt install -y ufw
@@ -691,12 +719,12 @@ sudo ufw enable
 sudo ufw status
 ```
 
-### 6.2 จำกัดการเข้าถึง Admin
+### 7.2 จำกัดการเข้าถึง Admin
 
 - เปิดใช้ Login ใน Photobooth (Admin Panel → Login) และตั้งรหัสผ่านแข็งแรง
 - ถ้าไม่ต้องการให้คนนอก LAN เข้า Admin อาจใช้ firewall จำกัดว่าเฉพาะ IP ภายในเท่านั้นที่เข้าพอร์ต 80 ได้ หรือใช้ VPN
 
-### 6.3 อัปเดตความปลอดภัยอัตโนมัติ (Ubuntu)
+### 7.3 อัปเดตความปลอดภัยอัตโนมัติ (Ubuntu)
 
 ```bash
 sudo apt install -y unattended-upgrades
@@ -705,9 +733,9 @@ sudo dpkg-reconfigure -plow unattended-upgrades
 
 ---
 
-## 7. การอัปเดตและดูแล
+## 8. การอัปเดตและดูแล
 
-### 7.1 อัปเดตโค้ด Photobooth
+### 8.1 อัปเดตโค้ด Photobooth
 
 ```bash
 cd /var/www/html
@@ -719,7 +747,7 @@ sudo -u www-data npm run build
 sudo systemctl reload apache2
 ```
 
-### 7.2 Backup ข้อมูล
+### 8.2 Backup ข้อมูล
 
 โฟลเดอร์ที่ควร backup เป็นประจำ: `data/`, `config/my.config.inc.php`, `private/` (ถ้ามีการอัปโหลด)
 
@@ -728,7 +756,7 @@ tar -czvf photobooth-data-$(date +%Y%m%d).tar.gz -C /var/www/html data config/my
 # ย้ายไปที่เก็บ backup (NAS, USB, cloud)
 ```
 
-### 7.3 ตรวจสอบ disk และ log
+### 8.3 ตรวจสอบ disk และ log
 
 ```bash
 df -h
@@ -738,27 +766,27 @@ tail -100 /var/log/apache2/photobooth_error.log
 
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
-### 8.1 ระบบค้างหรือตอบช้า
+### 9.1 ระบบค้างหรือตอบช้า
 
 - **หน่วยความจำ:** `free -h` — ดูใช้ swap เยอะหรือไม่; ปรับ `memory_limit` หรือลด MaxRequestWorkers
 - **Raspberry Pi:** `vcgencmd measure_temp` และ `vcgencmd get_throttled` — ถ้าร้อนหรือ throttle ให้เพิ่มการระบายความร้อน
 - **Disk I/O:** ใช้ `iostat` หรือ `iotop` ดูว่า disk เต็มหรือช้า; พิจารณาใช้ USB SSD/NVMe แทน SD
 
-### 8.2 พิมพ์ไม่ออก
+### 9.2 พิมพ์ไม่ออก
 
 - ตรวจ CUPS: `lpstat -p`, `lpstat -t`
 - ตรวจ lock: `ls -la /var/www/html/data/print.lock` แล้วลบถ้าค้าง: `sudo -u www-data rm /var/www/html/data/print.lock`
 - ตรวจคำสั่งใน config: `commands.print` ต้องใช้ชื่อเครื่องพิมพ์จาก `lpstat -p`
 
-### 8.3 กล้องไม่ทำงาน
+### 9.3 กล้องไม่ทำงาน
 
 - ตรวจสิทธิ์กลุ่ม: `groups www-data` ต้องมี `video`, `plugdev`
 - USB: ต่อกล้องแล้วรัน `lsusb`, `gphoto2 --auto-detect`
 - Pi Camera: เปิด camera ใน `raspi-config` และตรวจว่าใช้ `libcamera` หรือ `device_cam` ตามที่ config
 
-### 8.4 หลังอัปเดตแล้วหน้าเว็บผิดปกติ
+### 9.4 หลังอัปเดตแล้วหน้าเว็บผิดปกติ
 
 - Build frontend ใหม่: `cd /var/www/html && sudo -u www-data npm run build`
 - ล้าง cache เบราว์เซอร์หรือเปิดใน private window

@@ -1,6 +1,8 @@
 # ============================================================
 # Photobooth Production — Raspberry Pi (arm64)
 # รันบน Pi: docker compose -f docker-compose.production.pi.yml up -d
+# อัปเดต: git pull && docker compose -f docker-compose.production.pi.yml up -d --build
+# Config จาก env — ใส่ใน .env
 # ============================================================
 
 services:
@@ -17,11 +19,12 @@ services:
       - photobooth_data:/var/www/html/data
       - photobooth_private:/var/www/html/private
       - photobooth_var:/var/www/html/var
-      - ./config/my.config.inc.php:/var/www/html/config/my.config.inc.php:ro
-      # CUPS บน Pi (path เดียวกับ Linux)
       - /var/run/cups/cups.sock:/var/run/cups/cups.sock
+    env_file:
+      - .env
     environment:
       - TZ=Asia/Bangkok
+      - PHOTOBOOTH_FORCE_GENERATE_CONFIG=1
     # Pi RAM น้อย — จำกัด memory
     deploy:
       resources:

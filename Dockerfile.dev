@@ -1,0 +1,66 @@
+# ============================================================
+# Photobooth Dev — Mac (และ Linux) ใช้กับ docker-compose.dev.yml
+# Config PHP/Apache อยู่ใน docker/ — ไม่ต้องตั้งค่าบน host
+# ============================================================
+
+FROM php:8.4-apache
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git \
+        unzip \
+        libzip-dev \
+        libpng-dev \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        ca-certificates \
+        curl \
+        gnupg \
+        ffmpeg \
+        gphoto2 \
+        libimage-exiftool-perl \
+        rsync \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd zip ftp \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Node.js 20
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Apache: config จาก repo
+RUN a2enmod rewrite \
+    && echo "LimitRequestLine 12000" >> /etc/apache2/conf-available/photobooth-limits.conf \
+    && a2enconf photobooth-limits.conf
+
+ENV APACHE_DOCUMENT_ROOT=/var/www/html
+WORKDIR /var/www/html
+
+# Config ที่จบใน Docker (PHP + Apache)
+COPY docker/php.ini /usr/local/etc/php/conf.d/photobooth.ini
+RUN echo "memory_limit = 768M" >> /usr/local/etc/php/conf.d/99-photobooth-memory.ini
+COPY docker/apache-photobooth.conf /etc/apache2/sites-available/photobooth.conf
+RUN a2dissite 000-default.conf && a2ensite photobooth.conf
+
+# Print proxy สำหรับ dev (ส่งไป relay บน Mac)
+COPY docker/lp-print-proxy.sh /usr/local/bin/lp
+RUN chmod +x /usr/local/bin/lp
+
+# Script สร้าง config จาก env + entrypoint
+COPY docker/generate-config.php /var/www/html/docker/generate-config.php
+COPY docker/entrypoint-dev.sh /entrypoint-dev.sh
+RUN chmod +x /entrypoint-dev.sh
+
+# ไม่ copy โปรเจกต์ใน image — จะ mount จาก host ตอนรัน; entrypoint จะ composer install + npm run build
+RUN mkdir -p /var/www/html/data/images /var/www/html/data/thumbs /var/www/html/data/print /var/www/html/data/qr /var/www/html/data/temp /var/www/html/var /var/www/html/private \
+    && chown -R www-data:www-data /var/www/html
+
+ENTRYPOINT ["/entrypoint-dev.sh"]
+
+EXPOSE 80

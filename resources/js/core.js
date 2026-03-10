@@ -1435,6 +1435,8 @@ var photoBooth = (function () {
                 collageLimit: api.collageLimit,
                 reprocess: isFilterReprocess ? 1 : 0
             },
+            timeout: 240000,
+            dataType: 'json',
             success: function success(data) {
                 api.isFilterProcessing = false;
                 setFiltersEnabled(true);

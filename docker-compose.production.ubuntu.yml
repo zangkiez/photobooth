@@ -1,6 +1,10 @@
 # ============================================================
 # Photobooth Production — Ubuntu (amd64)
 # รัน: docker compose -f docker-compose.production.ubuntu.yml up -d
+# อัปเดต: git pull && docker compose -f docker-compose.production.ubuntu.yml up -d --build
+#
+# Config ทั้งหมดจาก env (ไม่ต้องมีไฟล์ config บน host)
+# ตั้งค่าใน .env หรือ environment ด้านล่าง
 # ============================================================
 
 services:
@@ -14,18 +18,17 @@ services:
     ports:
       - "80:80"
     volumes:
-      # ข้อมูลรูป, ฐานข้อมูล, print queue, temp
       - photobooth_data:/var/www/html/data
-      # ไฟล์ส่วนตัว (frames, backgrounds, fonts)
       - photobooth_private:/var/www/html/private
-      # log, cache, lock
       - photobooth_var:/var/www/html/var
-      # Config ส่วนตัว — สร้างจาก config/my.config.inc.php.example แล้ว mount
-      - ./config/my.config.inc.php:/var/www/html/config/my.config.inc.php:ro
-      # เครื่องพิมพ์: ใช้ CUPS บน host (ถ้าไม่ใช้พิมพ์ ลบบรรทัดนี้ได้)
       - /var/run/cups/cups.sock:/var/run/cups/cups.sock
+    env_file:
+      - .env
     environment:
       - TZ=Asia/Bangkok
+      - PHOTOBOOTH_FORCE_GENERATE_CONFIG=1
+      # ตัวอย่าง (หรือใส่ใน .env): PHOTOBOOTH_WEBSERVER_URL=http://192.168.1.100
+      # ตัวอย่าง (หรือใส่ใน .env): PHOTOBOOTH_PRINTER_NAME=Dai_Nippon_Printing_DP_QW410
     deploy:
       resources:
         limits:

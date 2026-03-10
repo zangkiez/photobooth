@@ -128,6 +128,26 @@ ddev start
 4. เปิด gulp watch (CSS/JS auto-rebuild เมื่อแก้ไฟล์ใน `resources/`)
 5. **เปิด Print Relay บน Mac host** (port 6631) อัตโนมัติ
 
+### Dev บน Mac ด้วย Docker (ทางเลือกจาก DDEV) — config จบใน Docker
+
+ถ้าไม่อยากใช้ DDEV ใช้ **docker-compose.dev.yml** ได้ — PHP/Apache/config อยู่ใน Docker ไม่ต้องตั้งค่าบน host; อัปเดตแค่ `git pull` แล้ว `docker compose up -d --build`
+
+```bash
+cd photobooth
+# ครั้งแรก: รัน print-relay บน Mac (อีก terminal) ถ้าต้องการทดสอบพิมพ์
+# ./bin/print-relay 6631 Dai_Nippon_Printing_DP_QW410
+
+docker compose -f docker-compose.dev.yml up -d --build
+# เปิด http://localhost:9080
+```
+
+- **Config แอป** จาก env ใน compose (`PHOTOBOOTH_WEBSERVER_URL`, `PHOTOBOOTH_PRINTER_NAME`) — แก้ใน `docker-compose.dev.yml` หรือส่ง env
+- **PHP/Apache** ใช้ `docker/php.ini` และ `docker/apache-photobooth.conf` ใน repo
+- โค้ด mount จาก host → แก้แล้วเห็นผล; `vendor` และ `node_modules` อยู่ใน volume ของ container (Linux)
+- อัปเดต: `git pull && docker compose -f docker-compose.dev.yml up -d --build`
+
+ดูรายละเอียดใน [docs/DEPLOY-PRODUCTION-UBUNTU-RASPBERRY.md](docs/DEPLOY-PRODUCTION-UBUNTU-RASPBERRY.md) (ส่วน Docker) และ [.env.example](.env.example) สำหรับตัวแปร config
+
 ### URL สำหรับ Dev
 
 | URL | ใช้ทำอะไร |

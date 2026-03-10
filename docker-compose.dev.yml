@@ -1,0 +1,37 @@
+# ============================================================
+# Photobooth Dev — Mac (และ Linux)
+# รัน: docker compose -f docker-compose.dev.yml up -d
+# อัปเดต: git pull && docker compose -f docker-compose.dev.yml up -d --build
+#
+# Config PHP/Apache อยู่ใน Docker (docker/php.ini, docker/apache-photobooth.conf)
+# Config แอป (webserver URL, printer) จาก env ด้านล่าง — ไม่ต้องมีไฟล์ config บน host
+# ============================================================
+
+services:
+  photobooth:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: photobooth-dev
+    restart: unless-stopped
+    ports:
+      - "9080:80"
+    volumes:
+      # โค้ดจาก host — แก้แล้วเห็นผล (vendor/node_modules ใช้ของ container ผ่าน volume แยก)
+      - .:/var/www/html
+      - photobooth_dev_vendor:/var/www/html/vendor
+      - photobooth_dev_node_modules:/var/www/html/node_modules
+      # ไม่ mount config — สร้างจาก env ใน entrypoint
+    environment:
+      - TZ=Asia/Bangkok
+      # URL ที่เปิดจากเบราว์เซอร์ (ถ้าใช้ tunnel ใส่ URL นั้น)
+      - PHOTOBOOTH_WEBSERVER_URL=http://localhost:9080
+      # ชื่อเครื่องพิมพ์บน host (ถ้ารัน print-relay บน Mac)
+      - PHOTOBOOTH_PRINTER_NAME=Dai_Nippon_Printing_DP_QW410
+    # Mac: print-relay รันบน host ที่ port 6631
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  photobooth_dev_vendor:
+  photobooth_dev_node_modules:

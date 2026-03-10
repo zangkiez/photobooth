@@ -53,6 +53,7 @@ tools/*/vendor
 
 /vendor/
 /.ddev/.built
+/.env
 
 # rembg virtual environment
 scripts/rembg_venv/
