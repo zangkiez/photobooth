@@ -1,0 +1,115 @@
+# ============================================================
+# Photobooth Production — รองรับทั้ง Ubuntu (amd64) และ Raspberry Pi (arm64)
+# Build: docker build -f Dockerfile.production -t photobooth:production .
+# ============================================================
+
+# ------------------------------------------------------------------------------
+# Stage 1: Build (composer + npm build)
+# ------------------------------------------------------------------------------
+FROM php:8.4-apache AS builder
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git \
+        unzip \
+        libzip-dev \
+        libpng-dev \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        ca-certificates \
+        curl \
+        gnupg \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Node.js 20
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Composer (โฟลเดอร์ bin/ ของโปรเจกต์)
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=bin --filename=composer
+
+WORKDIR /var/www/html
+
+# Copy โปรเจกต์ (ใช้ .dockerignore เพื่อลด context)
+COPY . .
+
+# Submodules ถ้ามี
+RUN git submodule update --init 2>/dev/null || true
+
+# PHP dependencies (production เท่านั้น)
+RUN php bin/composer install --no-dev --no-interaction --ignore-platform-reqs
+
+# Frontend build
+RUN npm ci \
+    && npm run build:gulp \
+    && npm run build:head \
+    && npx rimraf welcome/.skip_welcome 2>/dev/null || true
+
+# ------------------------------------------------------------------------------
+# Stage 2: Runtime (เฉพาะ PHP + Apache + ffmpeg + CUPS client)
+# ------------------------------------------------------------------------------
+FROM php:8.4-apache AS runner
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ffmpeg \
+        gphoto2 \
+        libimage-exiftool-perl \
+        cups-client \
+        rsync \
+        libzip-dev \
+        libpng-dev \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Apache
+RUN a2enmod rewrite \
+    && echo "LimitRequestLine 12000" > /etc/apache2/conf-available/photobooth-limits.conf \
+    && a2enconf photobooth-limits.conf
+
+ENV APACHE_DOCUMENT_ROOT=/var/www/html
+WORKDIR /var/www/html
+
+# Copy จาก builder เฉพาะสิ่งที่รันได้ (ไม่เอา node_modules, .git, dev tools)
+COPY --from=builder /var/www/html/api                 ./api
+COPY --from=builder /var/www/html/admin              ./admin
+COPY --from=builder /var/www/html/assets             ./assets
+COPY --from=builder /var/www/html/chroma             ./chroma
+COPY --from=builder /var/www/html/config             ./config
+COPY --from=builder /var/www/html/faq                ./faq
+COPY --from=builder /var/www/html/gallery            ./gallery
+COPY --from=builder /var/www/html/lib                ./lib
+COPY --from=builder /var/www/html/login               ./login
+COPY --from=builder /var/www/html/manual             ./manual
+COPY --from=builder /var/www/html/private             ./private
+COPY --from=builder /var/www/html/resources          ./resources
+COPY --from=builder /var/www/html/src                ./src
+COPY --from=builder /var/www/html/template            ./template
+COPY --from=builder /var/www/html/vendor             ./vendor
+COPY --from=builder /var/www/html/index.php          ./
+COPY --from=builder /var/www/html/view.php           ./
+COPY --from=builder /var/www/html/HEAD               ./
+COPY --from=builder /var/www/html/composer.json      ./
+COPY --from=builder /var/www/html/composer.lock      ./
+COPY --from=builder /var/www/html/bin/composer       ./bin/composer
+
+# โฟลเดอร์ที่ต้องมีและให้ www-data เขียนได้ (ข้อมูลจะ mount จาก host)
+RUN mkdir -p data/images data/thumbs data/print data/qr data/temp var \
+    && chown -R www-data:www-data /var/www/html/data /var/www/html/var /var/www/html/private
+
+# PHP production tuning (override ใน container ได้ผ่าน env ถ้าต้องการ)
+RUN echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/photobooth.ini \
+    && echo "upload_max_filesize = 20M" >> /usr/local/etc/php/conf.d/photobooth.ini \
+    && echo "post_max_size = 24M" >> /usr/local/etc/php/conf.d/photobooth.ini \
+    && echo "max_execution_time = 120" >> /usr/local/etc/php/conf.d/photobooth.ini
+
+EXPOSE 80

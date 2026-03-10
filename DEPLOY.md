@@ -499,6 +499,8 @@ Browser -> api/print.php
 
 ## Production — Raspberry Pi 5
 
+> **คู่มือ deploy แบบละเอียด (Ubuntu + Raspberry Pi, รันทั้งวันระบบไม่ค้าง):** [docs/DEPLOY-PRODUCTION-UBUNTU-RASPBERRY.md](docs/DEPLOY-PRODUCTION-UBUNTU-RASPBERRY.md)
+
 ### สิ่งที่ต้องเตรียม
 
 - Raspberry Pi 5 (RAM 4GB ขึ้นไป)

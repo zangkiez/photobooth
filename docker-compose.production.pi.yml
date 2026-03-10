@@ -1,0 +1,36 @@
+# ============================================================
+# Photobooth Production — Raspberry Pi (arm64)
+# รันบน Pi: docker compose -f docker-compose.production.pi.yml up -d
+# ============================================================
+
+services:
+  photobooth:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    platform: linux/arm64
+    container_name: photobooth-production
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - photobooth_data:/var/www/html/data
+      - photobooth_private:/var/www/html/private
+      - photobooth_var:/var/www/html/var
+      - ./config/my.config.inc.php:/var/www/html/config/my.config.inc.php:ro
+      # CUPS บน Pi (path เดียวกับ Linux)
+      - /var/run/cups/cups.sock:/var/run/cups/cups.sock
+    environment:
+      - TZ=Asia/Bangkok
+    # Pi RAM น้อย — จำกัด memory
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+        reservations:
+          memory: 192M
+
+volumes:
+  photobooth_data:
+  photobooth_private:
+  photobooth_var:

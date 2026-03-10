@@ -1,0 +1,39 @@
+# ============================================================
+# Photobooth Production — Ubuntu (amd64)
+# รัน: docker compose -f docker-compose.production.ubuntu.yml up -d
+# ============================================================
+
+services:
+  photobooth:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    platform: linux/amd64
+    container_name: photobooth-production
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      # ข้อมูลรูป, ฐานข้อมูล, print queue, temp
+      - photobooth_data:/var/www/html/data
+      # ไฟล์ส่วนตัว (frames, backgrounds, fonts)
+      - photobooth_private:/var/www/html/private
+      # log, cache, lock
+      - photobooth_var:/var/www/html/var
+      # Config ส่วนตัว — สร้างจาก config/my.config.inc.php.example แล้ว mount
+      - ./config/my.config.inc.php:/var/www/html/config/my.config.inc.php:ro
+      # เครื่องพิมพ์: ใช้ CUPS บน host (ถ้าไม่ใช้พิมพ์ ลบบรรทัดนี้ได้)
+      - /var/run/cups/cups.sock:/var/run/cups/cups.sock
+    environment:
+      - TZ=Asia/Bangkok
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+volumes:
+  photobooth_data:
+  photobooth_private:
+  photobooth_var:

@@ -459,6 +459,7 @@ sudo chown -R www-data:www-data var/
 ถ้าคุณ **develop บน Mac** และจะ **รันจริงบน Raspberry Pi 5** แนะนำให้อ่านคู่มือแยก:
 
 - **[DEPLOY.md](DEPLOY.md)** — อธิบายความต่างระหว่าง **DDEV** (dev บน Mac), **Docker Compose** (ทดสอบบน Mac/PC), และ **Production** (รันบน Raspberry Pi 5) พร้อมวิธี setup แต่ละแบบ
+- **[docs/DEPLOY-PRODUCTION-UBUNTU-RASPBERRY.md](docs/DEPLOY-PRODUCTION-UBUNTU-RASPBERRY.md)** — คู่มือ deploy บน **Ubuntu** และ **Raspberry Pi** แบบละเอียด สำหรับรัน production มีผู้ใช้ทั้งวันและระบบไม่ค้าง
 
 สรุปสั้นๆ:
 

@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# DDEV (dev only)
+.ddev
+
+# Dependencies (จะติดตั้งใน builder)
+node_modules
+vendor
+
+# Dev / tooling
+tools/*/vendor
+.vscode
+.idea
+*.iml
+.php-cs-fixer.cache
+.phplint.cache
+.phpunit.result.cache
+.sass-cache
+
+# ข้อมูลที่ไม่นำเข้า image (ใช้ volume แทน)
+data/*
+!data/.gitkeep
+var/*
+!var/.gitkeep
+
+# ไฟล์ที่ไม่จำเป็นใน image
+*.patch
+*.log
+.DS_Store
+welcome/.skip_welcome
+.skip_welcome
+
+# เอกสาร/ทดสอบ (optional ลดขนาด image)
+# test
+# faq
+# docs
+
+# Config ส่วนตัว — mount จาก host
+# config/my.config.inc.php
