@@ -1455,6 +1455,13 @@ var photoBooth = (function () {
                     api.renderChroma(data.file);
                 } else {
                     api.renderPic(data.file, data.images);
+                    // Auto-add collage slideshow GIF to gallery
+                    if (data.slideshow && !isFilterReprocess) {
+                        if (sessionFiles.indexOf(data.slideshow) === -1) {
+                            sessionFiles.push(data.slideshow);
+                        }
+                        api.addImage(data.slideshow);
+                    }
                 }
             },
             error: function error(jqXHR, textStatus) {

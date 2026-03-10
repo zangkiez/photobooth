@@ -13,6 +13,7 @@ use Photobooth\Processor\ImageProcessor;
 use Photobooth\Service\DatabaseManagerService;
 use Photobooth\Service\LoggerService;
 use Photobooth\Service\RemoteStorageService;
+use Photobooth\Utility\GifEncoder;
 use Photobooth\Utility\ImageUtility;
 use Photobooth\Utility\PathUtility;
 
@@ -411,9 +412,56 @@ if (is_array($imageHandler->errorLog) && !empty($imageHandler->errorLog)) {
     $logger->error('Error', $imageHandler->errorLog);
 }
 
+// ---- Collage slideshow GIF (auto-generated animated GIF from individual shots) ----
+$slideshowFile = null;
+if (
+    !$isReprocess &&
+    $vars['isCollage'] &&
+    !empty($config['collage']['slideshow_enabled']) &&
+    !empty($vars['collageSrcImagePaths'])
+) {
+    try {
+        $framePaths = array_values(array_filter($vars['collageSrcImagePaths'], 'file_exists'));
+        if (count($framePaths) >= 2) {
+            $n = count($framePaths);
+            // Duration: 5 s for 3 frames + 1 s per extra frame beyond 3, over 2 loops.
+            // frame_delay_cs = total_ms / (n * 2) / 10
+            $totalMs       = (5 + max(0, $n - 3)) * 1000;
+            $frameDelayCentiseconds = max(5, (int) round($totalMs / ($n * 2) / 10));
+            $thumbSize   = intval(substr($config['picture']['thumb_size'], 0, -2));
+
+            $gifBasename  = pathinfo($vars['fileName'], PATHINFO_FILENAME) . '-slideshow.gif';
+            $gifImagePath = FolderEnum::IMAGES->absolute() . DIRECTORY_SEPARATOR . $gifBasename;
+            $gifThumbPath = FolderEnum::THUMBS->absolute() . DIRECTORY_SEPARATOR . $gifBasename;
+
+            // Full-size animated GIF (max 800 px wide by default)
+            $gifBinary = GifEncoder::createAnimatedGif($framePaths, 800, $frameDelayCentiseconds, 0);
+            file_put_contents($gifImagePath, $gifBinary);
+
+            // Thumbnail animated GIF
+            $thumbBinary = GifEncoder::createAnimatedGif($framePaths, $thumbSize, $frameDelayCentiseconds, 0);
+            file_put_contents($gifThumbPath, $thumbBinary);
+
+            $perms = $config['picture']['permissions'];
+            @chmod($gifImagePath, (int) octdec($perms));
+            @chmod($gifThumbPath, (int) octdec($perms));
+
+            if ($config['database']['enabled']) {
+                $database->appendContentToDB($gifBasename);
+            }
+
+            $slideshowFile = $gifBasename;
+            $logger->debug('Collage slideshow GIF created', ['file' => $gifBasename, 'frames' => $n, 'delay_cs' => $frameDelayCentiseconds]);
+        }
+    } catch (\Throwable $e) {
+        $logger->error('Failed to create collage slideshow GIF: ' . $e->getMessage());
+    }
+}
+
 $data = [
     'file' => count($outputImages) > 0 ? end($outputImages) : $vars['fileName'],
     'images' => count($outputImages) > 0 ? array_values(array_unique($outputImages)) : $vars['srcImages'],
+    'slideshow' => $slideshowFile,
 ];
 $logger->debug('effects applied', $data);
 echo json_encode($data);

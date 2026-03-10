@@ -1048,6 +1048,12 @@ return [
             'data-theme-field' => 'true',
             'value' => $config['collage']['keep_single_images'],
         ],
+        'collage_slideshow_enabled' => [
+            'view' => 'advanced',
+            'type' => 'checkbox',
+            'name' => 'collage[slideshow_enabled]',
+            'value' => $config['collage']['slideshow_enabled'],
+        ],
         'collage_key' => [
             'view' => 'expert',
             'type' => 'input',

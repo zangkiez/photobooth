@@ -14,6 +14,7 @@ return [
     ],
     'screensaver' => [
         'enabled' => true,
+        'mode' => 'video',
         'text' => 'daaad',
     ],
     'logo' => [
@@ -22,7 +23,7 @@ return [
     ],
     'picture' => [
         'cntdwn_time' => 10,
-        'cheese_time' => 4000,
+        'cheese_time' => 500,
         'polaroid_effect' => true,
         'take_frame' => false,
         'frame' => 'resources/img/frames/frame_parque.png',
@@ -72,6 +73,7 @@ return [
         'placeholderpath' => 'resources/img/background/01.jpg',
         'background' => 'resources/img/background/สำเนาของ Second​ hand​ Market​ _​ Music​ _3.png',
         'background_on_top' => true,
+        'slideshow_enabled' => true,
     ],
     'textoncollage' => [
         'line1' => 'Between',

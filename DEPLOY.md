@@ -3,8 +3,33 @@
 คู่มือนี้อธิบายความต่างระหว่างการรัน Photobooth แบบ **DDEV**, **Docker Compose** และ **Production (รันจริงบน Raspberry Pi 5)** รวมถึงวิธี setup แต่ละแบบ
 
 **สถานการณ์ของคุณ:**  
-- **Dev:** ทำบน Mac  
+- **Dev:** ทำบน Mac (ผ่าน DDEV)  
 - **Production:** รันจริงบน Raspberry Pi 5  
+
+---
+
+## การเปลี่ยนแปลงล่าสุด (10 มีนาคม 2026)
+
+### 🐛 Bug Fixes
+- **Filter slide กลับหน้าแรก:** แก้ไข timeout ไม่ reload page ขณะที่ filter nav เปิดอยู่หรือกำลัง process
+- **ปรับ filter ได้แค่ครั้งแรก:** แก้ให้ใช้ไฟล์ต้นฉบับ (captureBasename) แทน variant สำหรับ filter reprocess ครั้งถัดไป
+
+### ✨ ฟีเจอร์ใหม่ — Collage Slideshow GIF
+- หลังถ่าย collage เสร็จ ระบบจะสร้าง **animated GIF** จากรูปเดี่ยวทุกใบอัตโนมัติ
+- GIF ถูกเพิ่มเข้า gallery ทันที
+- ระยะเวลา: 3 รูป = 5 วิ, วน 2 รอบ; ทุกรูปเพิ่ม = +1 วิ
+- **ต้องการเพียง PHP GD** (มีอยู่แล้วใน stack ปัจจุบัน) — ไม่ต้องติดตั้ง ffmpeg เพิ่ม
+- เปิดใช้ได้ที่: Admin → Collage → **"Create animated GIF slideshow after collage"**
+
+### ไฟล์ที่เปลี่ยนแปลง
+| ไฟล์ | รายละเอียด |
+|------|------------|
+| `src/Utility/GifEncoder.php` | ✨ ใหม่ — Pure-PHP animated GIF encoder |
+| `src/Configuration/Section/CollageConfiguration.php` | เพิ่ม config `collage[slideshow_enabled]` |
+| `lib/configsetup.inc.php` | เพิ่ม checkbox ใน Admin panel |
+| `api/applyEffects.php` | สร้าง GIF slideshow หลัง collage process |
+| `resources/js/core.js` | รับ `data.slideshow` แล้วเพิ่มลง gallery + แก้ filter bugs |
+| `resources/lang/en.json` + `th.json` | เพิ่ม translation key ใหม่ |
 
 ---
 
@@ -141,11 +166,13 @@ sudo apt dist-upgrade
 sudo apt install -y libapache2-mod-php
 
 # Dependencies (ปรับตามที่โปรเจกต์ต้องการ)
-sudo apt install -y curl git gphoto2 libimage-exiftool-perl nodejs php-xml php-gd php-zip php-mbstring php-mbstring rsync udisks2 python3
+sudo apt install -y curl git gphoto2 libimage-exiftool-perl nodejs php-xml php-gd php-zip php-mbstring rsync udisks2 python3
 ```
 
 - ต้องมี **PHP >= 8.4** และ **Node.js >= 20**  
   - ถ้าใน repo มีเวอร์ชันต่ำกว่า ดู [Prerequisites](https://photoboothproject.github.io/) หรือใช้ [Photobooth Setup Wizard](https://photoboothproject.github.io/install/setup_wizard)
+- **`php-gd`** ต้องติดตั้งเพื่อรองรับฟีเจอร์ animated GIF slideshow (มักติดตั้งพร้อม libapache2-mod-php แต่ตรวจสอบว่ามีอยู่)  
+  ตรวจสอบด้วย: `php -m | grep gd`
 
 #### 3.3 โคลนโปรเจกต์และ Build
 ```bash
@@ -188,6 +215,9 @@ sudo -u www-data npm install
 sudo -u www-data npm run build
 ```
 
+> **หลัง update ล่าสุด (10 มี.ค. 2026):** ไม่ต้องติดตั้ง dependency เพิ่ม — `php-gd` มีอยู่แล้วใน stack ปัจจุบัน  
+> เข้า Admin → Collage เพื่อเปิดฟีเจอร์ animated GIF slideshow ถ้าต้องการ
+
 ### ข้อดี
 - ใช้ **กล้องและเครื่องพิมพ์จริง** ได้
 - ไม่ใช้ทรัพยากรของ Docker
@@ -211,3 +241,11 @@ sudo -u www-data npm run build
 - [ติดตั้งบน Raspberry Pi + Cloudflare Tunnel](docs/install/raspberry-pi-cloudflare-tunnel.md) (ใน repo นี้)
 - [DDEV Documentation](https://ddev.readthedocs.io/)
 - [Raspberry Pi OS](https://www.raspberrypi.com/software/)
+
+---
+
+## Changelog
+
+| วันที่ | รายการ |
+|--------|--------|
+| 10 มี.ค. 2026 | เพิ่ม animated GIF slideshow หลัง collage; แก้ filter slide กลับหน้าแรก; แก้ filter ปรับได้แค่ครั้งเดียว |
