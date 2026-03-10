@@ -1383,7 +1383,10 @@ var photoBooth = (function () {
     };
     api.processPic = function (result) {
         startTime = new Date().getTime();
-        setActiveStage('loader');
+        var isFilterReprocess = resultPage.hasClass('stage--active');
+        if (!isFilterReprocess) {
+            setActiveStage('loader');
+        }
         setFiltersEnabled(false);
         loaderMessage.html(
             '<i class="' +
@@ -1490,9 +1493,7 @@ var photoBooth = (function () {
                         resultVideo.show();
                         if (config.video.qr) {
                             var qrSrc =
-                                environment.publicFolders.api +
-                                '/qrcode.php?filename=' +
-                                encodeURIComponent(data.file);
+                                environment.publicFolders.api + '/qrcode.php?filename=' + encodeURIComponent(data.file);
                             if (data.images && data.images.length) {
                                 qrSrc += '&list=' + encodeURIComponent(data.images.join(','));
                             }
@@ -1639,9 +1640,9 @@ var photoBooth = (function () {
         body.appendChild(image);
         var qrHelpText = config.qr.custom_text
             ? config.qr.text
-            : (config.qr.url && config.qr.url.toLowerCase().indexOf('http') === 0
-                ? photoboothTools.getTranslation('qrHelpScan')
-                : photoboothTools.getTranslation('qrHelp') + '<br><b>' + config.webserver.ssid + '</b>');
+            : config.qr.url && config.qr.url.toLowerCase().indexOf('http') === 0
+              ? photoboothTools.getTranslation('qrHelpScan')
+              : photoboothTools.getTranslation('qrHelp') + '<br><b>' + config.webserver.ssid + '</b>';
         var text = document.createElement('p');
         text.innerHTML = qrHelpText;
         body.appendChild(text);
@@ -1762,7 +1763,8 @@ var photoBooth = (function () {
             );
 
         // gallery doesn't support videos atm
-        if (!photoboothTools.isVideoFile(filename)) {
+        var isFilterReprocess = resultPage.attr('data-img') === filename;
+        if (!photoboothTools.isVideoFile(filename) && !isFilterReprocess) {
             api.addImage(filename);
         }
 
@@ -1770,10 +1772,14 @@ var photoBooth = (function () {
         var imageUrl = photoboothTools.isVideoFile(filename)
             ? environment.publicFolders.api + '/qrcode.php?filename=' + filename
             : environment.publicFolders.images + '/' + filename;
+        var imageCacheKey = '?v=' + Date.now();
         var preloadImage = new Image();
         preloadImage.onload = function () {
             resultPage.css({
-                '--stage-background-image': 'url('.concat(imageUrl, '?filter=').concat(imgFilter, ')')
+                '--stage-background-image': 'url('
+                    .concat(imageUrl, imageCacheKey)
+                    .concat('&filter=')
+                    .concat(imgFilter, ')')
             });
             resultPage.attr('data-img', filename);
             setActiveStage('result');
@@ -1810,7 +1816,7 @@ var photoBooth = (function () {
                 rotaryController.focusSet(resultPage);
             }
         };
-        preloadImage.src = imageUrl;
+        preloadImage.src = imageUrl + imageCacheKey;
         api.takingPic = false;
         remoteBuzzerClient.inProgress(false);
         photoboothTools.console.logDev('Taking picture in progress: ' + api.takingPic);

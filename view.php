@@ -107,11 +107,12 @@ $mime = match ($extension) {
 $baseUrl = (!empty($config['webserver']['url']) && PathUtility::isFullUrl($config['webserver']['url']))
     ? $config['webserver']['url']
     : null;
+$imageFileMtime = is_file($imagePath) ? filemtime($imagePath) : time();
 if ($baseUrl !== null) {
-    $imageUrl = PathUtility::getPublicPath(FolderEnum::IMAGES->value . '/' . rawurlencode($image), true, $baseUrl);
+    $imageUrl = PathUtility::getPublicPath(FolderEnum::IMAGES->value . '/' . rawurlencode($image), true, $baseUrl) . '?v=' . $imageFileMtime;
     $downloadUrl = PathUtility::getPublicPath('api/download.php?image=' . rawurlencode($image), true, $baseUrl);
 } else {
-    $imageUrl = PathUtility::getPublicPath(FolderEnum::IMAGES->value . '/' . rawurlencode($image));
+    $imageUrl = PathUtility::getPublicPath(FolderEnum::IMAGES->value . '/' . rawurlencode($image)) . '?v=' . $imageFileMtime;
     $downloadUrl = PathUtility::getPublicPath('api/download.php?image=' . rawurlencode($image));
 }
 $languageService = LanguageService::getInstance();
