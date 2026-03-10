@@ -1416,7 +1416,8 @@ var photoBooth = (function () {
                 filter: imgFilter,
                 style: api.photoStyle,
                 collageLayout: api.collageLayout,
-                collageLimit: api.collageLimit
+                collageLimit: api.collageLimit,
+                reprocess: isFilterReprocess ? 1 : 0
             },
             success: function success(data) {
                 setFiltersEnabled(true);

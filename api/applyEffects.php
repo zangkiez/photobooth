@@ -44,7 +44,6 @@ try {
 
     if (isset($_POST['collageLayout'])) {
         $config['collage']['layout'] = $_POST['collageLayout'];
-
     }
 
     $limitData = Collage::calculateLimit($config['collage'], $logger);
@@ -52,6 +51,7 @@ try {
     $config['collage']['placeholder'] = $limitData['placeholderEnabled'];
 
     $vars['style'] = $_POST['style'];
+    $isReprocess = !empty($_POST['reprocess']) && (string)$_POST['reprocess'] === '1';
 
     $vars['imageFilter'] = null;
     if (!isset($_POST['filter'])) {
@@ -168,7 +168,6 @@ try {
                     } catch (\Exception $e) {
                         throw new \Exception('Error applying image filter.');
                     }
-
                 }
 
                 if ($config['picture']['flip'] !== 'off') {
@@ -334,14 +333,14 @@ try {
         unset($imageResource);
 
         // insert into database
-        if ($config['database']['enabled']) {
+        if ($config['database']['enabled'] && !$isReprocess) {
             if (($vars['isChroma'] && $config['keying']['show_all'] === true) || !$vars['isChroma']) {
                 $database->appendContentToDB($vars['singleImageFile']);
             }
         }
 
         // Store images on remote storage
-        if ($config['ftp']['enabled']) {
+        if ($config['ftp']['enabled'] && !$isReprocess) {
             $remoteStorage->write($remoteStorage->getStorageFolder() . '/images/' . $vars['singleImageFile'], (string) file_get_contents($vars['resultFile']));
             $remoteStorage->write($remoteStorage->getStorageFolder() . '/thumbs/' . $vars['singleImageFile'], (string) file_get_contents($vars['thumbFile']));
             if ($config['ftp']['create_webpage']) {
@@ -355,7 +354,10 @@ try {
             $imageHandler->addErrorData('Warning: Failed to change picture permissions.');
         }
 
-        if (!$config['picture']['keep_original']) {
+        // Keep temp file when filters are enabled (required for subsequent filter re-processing)
+        // or when this is already a re-process call; only delete when filters are disabled
+        $keepTempForFilter = $isReprocess || !empty($config['filters']['enabled']);
+        if (!$config['picture']['keep_original'] && !$keepTempForFilter) {
             if (!unlink($vars['tmpFile'])) {
                 $imageHandler->addErrorData('Warning: Failed to remove temporary photo.');
             }

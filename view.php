@@ -167,6 +167,42 @@ include PathUtility::getAbsolutePath('template/components/main.head.php');
         opacity: 0.8;
     }
 
+    .swipe-hint.auto-show {
+        opacity: 0.75;
+    }
+
+    .swipe-hint--left.auto-show {
+        animation: swipeHintLeft 0.9s ease-in-out 3;
+    }
+
+    .swipe-hint--right.auto-show {
+        animation: swipeHintRight 0.9s ease-in-out 3;
+    }
+
+    @keyframes swipeHintLeft {
+
+        0%,
+        100% {
+            transform: translateY(-50%) translateX(0);
+        }
+
+        40% {
+            transform: translateY(-50%) translateX(-10px);
+        }
+    }
+
+    @keyframes swipeHintRight {
+
+        0%,
+        100% {
+            transform: translateY(-50%) translateX(0);
+        }
+
+        40% {
+            transform: translateY(-50%) translateX(10px);
+        }
+    }
+
     /* Corner Decorations - มุมสีสันสดใส */
     .magazine-viewer::before,
     .magazine-viewer::after {
@@ -643,6 +679,18 @@ include PathUtility::getAbsolutePath('template/components/main.head.php');
 
         const prevImage = frame.dataset.prev;
         const nextImage = frame.dataset.next;
+
+        // Auto-show swipe hints on page load so user knows they can swipe
+        if (hintLeft || hintRight) {
+            setTimeout(function() {
+                if (hintLeft) hintLeft.classList.add('auto-show');
+                if (hintRight) hintRight.classList.add('auto-show');
+            }, 600);
+            setTimeout(function() {
+                if (hintLeft) hintLeft.classList.remove('auto-show');
+                if (hintRight) hintRight.classList.remove('auto-show');
+            }, 3600);
+        }
 
         // Touch events
         frame.addEventListener('touchstart', handleTouchStart, {
