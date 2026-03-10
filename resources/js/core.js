@@ -1462,6 +1462,10 @@ var photoBooth = (function () {
                         }
                         api.addImage(data.slideshow);
                     }
+                    // Auto-add collage slideshow MP4 to gallery (inline video)
+                    if (data.slideshow_mp4 && !isFilterReprocess) {
+                        api.addVideoToGallery(data.slideshow_mp4);
+                    }
                 }
             },
             error: function error(jqXHR, textStatus) {
@@ -1966,6 +1970,37 @@ var photoBooth = (function () {
                 applyFilterToGalleryUrls();
             }
         }
+    };
+    /**
+     * Add a collage slideshow MP4 to the gallery as an inline autoplay video thumbnail.
+     * Clicking the video opens the full MP4 in a new browser tab.
+     * PhotoSwipe is bypassed intentionally (no data-pswp-* attributes).
+     */
+    api.addVideoToGallery = function (videoName) {
+        if (!config.gallery.enabled) {
+            return;
+        }
+        var videoUrl = environment.publicFolders.images + '/' + videoName;
+        var videoEl = document.createElement('video');
+        videoEl.src = videoUrl;
+        videoEl.autoplay = true;
+        videoEl.loop = true;
+        videoEl.muted = true;
+        videoEl.setAttribute('playsinline', '');
+        videoEl.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;';
+        var linkEl = $('<a>')
+            .addClass('gallery-list-item gallery-slideshow-video rotaryfocus')
+            .attr('href', videoUrl)
+            .attr('target', '_blank')
+            .attr('rel', 'noopener noreferrer')
+            .attr('title', 'Slideshow MP4')
+            .append(videoEl);
+        if (config.gallery.newest_first) {
+            linkEl.prependTo(galimages);
+        } else {
+            linkEl.appendTo(galimages);
+        }
+        galimages.children().not('a').remove();
     };
     api.openGallery = function () {
         if (config.gallery.scrollbar) {

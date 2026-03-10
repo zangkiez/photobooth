@@ -50,6 +50,11 @@ class GifEncoder
             imagecopyresampled($canvas, $src, 0, 0, 0, 0, $outW, $outH, imagesx($src), imagesy($src));
             imagedestroy($src);
 
+            // Convert to 255-colour palette with Floyd-Steinberg dithering before
+            // encoding as GIF — dramatically reduces the muddy / blurry look that
+            // comes from GIF's 256-colour limit when PHP does the conversion itself.
+            imagetruecolortopalette($canvas, true, 255);
+
             ob_start();
             imagegif($canvas);
             $raw = ob_get_clean();

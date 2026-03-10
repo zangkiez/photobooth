@@ -412,8 +412,9 @@ if (is_array($imageHandler->errorLog) && !empty($imageHandler->errorLog)) {
     $logger->error('Error', $imageHandler->errorLog);
 }
 
-// ---- Collage slideshow GIF (auto-generated animated GIF from individual shots) ----
+// ---- Collage slideshow GIF + MP4 (auto-generated after collage) ----
 $slideshowFile = null;
+$slideshowMp4  = null;
 if (
     !$isReprocess &&
     $vars['isCollage'] &&
@@ -423,26 +424,25 @@ if (
     try {
         $framePaths = array_values(array_filter($vars['collageSrcImagePaths'], 'file_exists'));
         if (count($framePaths) >= 2) {
-            $n = count($framePaths);
+            $n        = count($framePaths);
+            $loopCount = 2;
             // Duration: 5 s for 3 frames + 1 s per extra frame beyond 3, over 2 loops.
-            // frame_delay_cs = total_ms / (n * 2) / 10
-            $totalMs       = (5 + max(0, $n - 3)) * 1000;
-            $frameDelayCentiseconds = max(5, (int) round($totalMs / ($n * 2) / 10));
-            $thumbSize   = intval(substr($config['picture']['thumb_size'], 0, -2));
+            $totalMs               = (5 + max(0, $n - 3)) * 1000;
+            $frameDelayCentiseconds = max(5, (int) round($totalMs / ($n * $loopCount) / 10));
+            $thumbSize             = intval(substr($config['picture']['thumb_size'], 0, -2));
+            $perms                 = $config['picture']['permissions'];
 
+            // ---- Animated GIF ----
             $gifBasename  = pathinfo($vars['fileName'], PATHINFO_FILENAME) . '-slideshow.gif';
             $gifImagePath = FolderEnum::IMAGES->absolute() . DIRECTORY_SEPARATOR . $gifBasename;
             $gifThumbPath = FolderEnum::THUMBS->absolute() . DIRECTORY_SEPARATOR . $gifBasename;
 
-            // Full-size animated GIF (max 800 px wide by default)
             $gifBinary = GifEncoder::createAnimatedGif($framePaths, 800, $frameDelayCentiseconds, 0);
             file_put_contents($gifImagePath, $gifBinary);
 
-            // Thumbnail animated GIF
             $thumbBinary = GifEncoder::createAnimatedGif($framePaths, $thumbSize, $frameDelayCentiseconds, 0);
             file_put_contents($gifThumbPath, $thumbBinary);
 
-            $perms = $config['picture']['permissions'];
             @chmod($gifImagePath, (int) octdec($perms));
             @chmod($gifThumbPath, (int) octdec($perms));
 
@@ -452,16 +452,86 @@ if (
 
             $slideshowFile = $gifBasename;
             $logger->debug('Collage slideshow GIF created', ['file' => $gifBasename, 'frames' => $n, 'delay_cs' => $frameDelayCentiseconds]);
+
+            // ---- MP4 via ffmpeg (if available) ----
+            $ffmpegBin = '';
+            exec('which ffmpeg 2>/dev/null', $ffmpegWhich, $ffmpegWhichRet);
+            if ($ffmpegWhichRet === 0 && !empty($ffmpegWhich[0])) {
+                $ffmpegBin = trim($ffmpegWhich[0]);
+            }
+            if ($ffmpegBin !== '') {
+                $frameSeconds    = ($totalMs / 1000.0) / ($n * $loopCount);
+                $mp4Basename     = pathinfo($vars['fileName'], PATHINFO_FILENAME) . '-slideshow.mp4';
+                $mp4Path         = FolderEnum::IMAGES->absolute() . DIRECTORY_SEPARATOR . $mp4Basename;
+                $posterBasename  = pathinfo($vars['fileName'], PATHINFO_FILENAME) . '-slideshow-poster.jpg';
+                $posterImagePath = FolderEnum::IMAGES->absolute() . DIRECTORY_SEPARATOR . $posterBasename;
+                $posterThumbPath = FolderEnum::THUMBS->absolute() . DIRECTORY_SEPARATOR . $posterBasename;
+
+                // Build ffmpeg concat list (repeat frames $loopCount times for looping)
+                $concatTmp   = (string) tempnam(sys_get_temp_dir(), 'pb_sl_');
+                $concatLines = '';
+                for ($loop = 0; $loop < $loopCount; $loop++) {
+                    foreach ($framePaths as $fp) {
+                        $concatLines .= "file '" . str_replace("'", "'\\''", $fp) . "'\n";
+                        $concatLines .= 'duration ' . number_format($frameSeconds, 3) . "\n";
+                    }
+                }
+                // ffmpeg concat quirk: duplicate last frame with tiny duration
+                $lastFp       = end($framePaths);
+                $concatLines .= "file '" . str_replace("'", "'\\''", $lastFp) . "'\n";
+                $concatLines .= "duration 0.001\n";
+                file_put_contents($concatTmp, $concatLines);
+
+                $ffmpegCmd = sprintf(
+                    '%s -y -f concat -safe 0 -i %s -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p -movflags +faststart %s 2>&1',
+                    escapeshellcmd($ffmpegBin),
+                    escapeshellarg($concatTmp),
+                    escapeshellarg($mp4Path)
+                );
+                exec($ffmpegCmd, $ffmpegOut, $ffmpegRet);
+                @unlink($concatTmp);
+
+                if ($ffmpegRet === 0 && file_exists($mp4Path)) {
+                    $slideshowMp4 = $mp4Basename;
+                    @chmod($mp4Path, (int) octdec($perms));
+                    if ($config['database']['enabled']) {
+                        $database->appendContentToDB($mp4Basename);
+                    }
+
+                    // Poster JPEG (first collage frame) for the gallery video item thumbnail
+                    copy($framePaths[0], $posterImagePath);
+                    @chmod($posterImagePath, (int) octdec($perms));
+                    $posterRes = $imageHandler->createFromImage($framePaths[0]);
+                    if ($posterRes instanceof \GdImage) {
+                        $posterThumbRes = $imageHandler->resizeImage($posterRes, $thumbSize);
+                        if ($posterThumbRes instanceof \GdImage) {
+                            $imageHandler->jpegQuality = $config['jpeg_quality']['thumb'];
+                            $imageHandler->saveJpeg($posterThumbRes, $posterThumbPath);
+                            @chmod($posterThumbPath, (int) octdec($perms));
+                            imagedestroy($posterThumbRes);
+                        }
+                        imagedestroy($posterRes);
+                    }
+
+                    $logger->debug('Collage slideshow MP4 created', ['file' => $mp4Basename, 'frames' => $n]);
+                } else {
+                    $logger->error('ffmpeg failed creating slideshow MP4', ['cmd' => $ffmpegCmd, 'output' => $ffmpegOut]);
+                }
+            }
         }
     } catch (\Throwable $e) {
-        $logger->error('Failed to create collage slideshow GIF: ' . $e->getMessage());
+        $logger->error('Failed to create collage slideshow: ' . $e->getMessage());
     }
 }
 
 $data = [
-    'file' => count($outputImages) > 0 ? end($outputImages) : $vars['fileName'],
-    'images' => count($outputImages) > 0 ? array_values(array_unique($outputImages)) : $vars['srcImages'],
-    'slideshow' => $slideshowFile,
+    'file'          => count($outputImages) > 0 ? end($outputImages) : $vars['fileName'],
+    'images'        => count($outputImages) > 0 ? array_values(array_unique($outputImages)) : $vars['srcImages'],
+    'slideshow'     => $slideshowFile,
+    'slideshow_mp4' => $slideshowMp4,
+    'slideshow_poster' => $slideshowMp4 !== null
+        ? pathinfo($vars['fileName'], PATHINFO_FILENAME) . '-slideshow-poster.jpg'
+        : null,
 ];
 $logger->debug('effects applied', $data);
 echo json_encode($data);
