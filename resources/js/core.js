@@ -1981,12 +1981,15 @@ var photoBooth = (function () {
             return;
         }
         var videoUrl = environment.publicFolders.images + '/' + videoName;
+        // Derive poster filename: replace -slideshow.mp4 → -slideshow-poster.jpg
+        var posterUrl = videoUrl.replace(/\.mp4$/i, '-poster.jpg');
         var videoEl = document.createElement('video');
         videoEl.src = videoUrl;
         videoEl.autoplay = true;
         videoEl.loop = true;
         videoEl.muted = true;
         videoEl.setAttribute('playsinline', '');
+        videoEl.setAttribute('poster', posterUrl);
         videoEl.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;';
         var linkEl = $('<a>')
             .addClass('gallery-list-item gallery-slideshow-video rotaryfocus')
