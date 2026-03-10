@@ -228,6 +228,8 @@ Mac CUPS -> DNP QW410
 | `.ddev/config.yaml` (hook) | Mac host | Auto-start relay ทุกครั้ง `ddev start` |
 | `config/my.config.inc.php` | — | `commands.print = 'lp -d <ชื่อปริ้น> ...'` |
 
+> **Photobooth บน Cloud + Print บน Local:** ถ้ารัน Photobooth บน cloud แล้วต้องการส่งงานพิมพ์ไปเครื่องพิมพ์ที่ต่อกับเครื่อง local ผ่าน **Cloudflare Tunnel (HTTPS)** ดูคู่มือออกแบบและ setup ได้ที่ [docs/print-relay-cloudflare-tunnel.md](docs/print-relay-cloudflare-tunnel.md)
+
 ### Setup เครื่องพิมพ์ใหม่ (เมื่อเปลี่ยนปริ้นหรือ environment ใหม่)
 
 **1. เพิ่มเครื่องพิมพ์ใน Mac:**

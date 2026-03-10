@@ -470,6 +470,18 @@ sudo chown -R www-data:www-data var/
 
 ---
 
+## 🖨️ Print Relay (`bin/print-relay`) — สำหรับ dev ให้พิมพ์จริงได้
+
+เมื่อรันแอปด้วย **DDEV หรือ Docker** แอปจะอยู่ภายใน container จึงเข้าถึงเครื่องพิมพ์ที่ต่อกับ Mac/PC โดยตรงไม่ได้  
+**`bin/print-relay`** คือ HTTP server เล็กๆ (Python) รันบน Mac/โฮสต์ รับงานพิมพ์จาก Photobooth ใน container แล้วส่งต่อไปยัง CUPS (`lp`) บนโฮสต์ ทำให้ทดสอบพิมพ์กับเครื่องพิมพ์จริง (เช่น DNP QW410) ได้
+
+- **วิธีใช้:** `./bin/print-relay [PORT] [PRINTER_NAME]`
+- **ค่าเริ่มต้น:** port `6631` ชื่อเครื่องพิมพ์จาก `lpstat -p` (เช่น `Dai_Nippon_Printing_DP_QW410`)
+- **Endpoint:** ส่งรูปมา `POST /` หรือ `POST /print` (รองรับ JPEG/PNG/PDF), `GET /health` ใช้ตรวจสอบว่า relay ทำงาน
+- รัน relay ไว้บนโฮสต์ตอนพัฒนา แล้วตั้งคำสั่งพิมพ์ของ Photobooth ให้ชี้ไปที่ `http://host.docker.internal:6631/print` (หรือ IP โฮสต์และ port ที่ใช้) เพื่อให้ container ส่งงานพิมพ์ผ่าน relay
+
+---
+
 ## 🌐 API และการทำงาน
 
 ### API Endpoints หลัก
@@ -485,7 +497,15 @@ sudo chown -R www-data:www-data var/
 | `/api/sendPic.php` | ส่งรูปทางอีเมล | POST |
 | `/api/settings.php` | ดึง/บันทึกการตั้งค่า | GET/POST |
 
-### โครงสร้างฐานข้อมูล
+### โครงสร้างฐานข้อมูล (Data storage)
+
+โปรเจกต์**ไม่มี MySQL / PostgreSQL / SQLite** ข้อมูลเก็บในรูปแบบ **ไฟล์ JSON (.txt)** ในโฟลเดอร์ `data/`:
+
+- **ฐานข้อมูลรูป** (`data/<database_file>.txt`) — รายการชื่อไฟล์รูปที่แกลเลอรี่ใช้ (เปิด/ปิดได้ ถ้าปิดแกลเลอรี่จะอ่านจากโฟลเดอร์รูปโดยตรง)
+- **ฐานข้อมูลอีเมล** (`data/<mail_file>.txt`) — ที่อยู่อีเมลที่เก็บเมื่อใช้ฟีเจอร์ส่งเมล
+- **ฐานข้อมูลการพิมพ์** — ใช้กับข้อมูลเกี่ยวกับการพิมพ์ (เช่น ตัวเลือก reset)
+
+สามารถสร้าง/สร้างใหม่ฐานข้อมูลรูปจากแผงผู้ดูแลได้
 
 ```
 data/
@@ -493,7 +513,7 @@ data/
 ├── thumbs/          # รูปย่อ
 ├── print/           # รูปสำหรับพิมพ์
 ├── qr/              # QR Codes
-└── database.txt     # ฐานข้อมูลรูป
+└── database.txt     # ฐานข้อมูลรูป (JSON)
 ```
 
 ### ระบบภาษา

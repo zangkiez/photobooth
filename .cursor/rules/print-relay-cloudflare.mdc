@@ -1,0 +1,27 @@
+---
+description: Print Relay + Cloudflare Tunnel — ออกแบบระบบ Photobooth บน cloud ส่งงานพิมพ์ไป local
+globs: bin/print-relay,docs/print-relay*.md,docs/*cloudflare*.md,.ddev/web-build/lp*.py,config/my.config.inc.php
+alwaysApply: false
+---
+
+# Print Relay + Cloudflare Tunnel (HTTPS)
+
+เมื่อแก้ไขหรือออกแบบระบบที่เกี่ยวกับ **print relay**, **Cloudflare Tunnel**, หรือ **Photobooth บน cloud ส่งงานพิมพ์ไปเครื่อง local** ให้อ้างอิงและทำตามเอกสารออกแบบนี้:
+
+- **เอกสารหลัก:** [docs/print-relay-cloudflare-tunnel.md](docs/print-relay-cloudflare-tunnel.md)
+
+## สถาปัตยกรรมย่อ
+
+- **Cloud:** Photobooth เรียก `commands.print` (สคริปต์ที่ curl POST ไป Relay URL)
+- **Cloudflare:** subdomain (เช่น print.yourdomain.com) → tunnel → local
+- **Local:** cloudflared → localhost:6631 → `bin/print-relay` → CUPS → เครื่องพิมพ์
+
+## สิ่งที่ต้องไม่สับสน
+
+- พอร์ต **631** = CUPS web UI (จัดการเครื่องพิมพ์)
+- พอร์ต **6631** = print-relay (รับ POST จาก cloud/container แล้วส่งต่อ `lp`)
+
+## บน Cloud
+
+- ใช้ **Cloudflare Tunnel (cloudflared)** ไม่ใช้ ngrok
+- สคริปต์บน cloud ต้อง POST ไปที่ **HTTPS URL ของ tunnel** (เช่น https://print.yourdomain.com/print) ไม่ใช่ localhost

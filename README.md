@@ -87,6 +87,16 @@ _*1 Capture from webcam is possible using third party software e.g. [fswebcam](h
     -   Adjust the style of Photobooth via admin panel.
 -   ... _And many more options to adjust and style Photobooth for your personal needs_
 
+## Data storage (no traditional database)
+
+Photobooth does **not** use MySQL, PostgreSQL, or SQLite. Data is stored in **file-based “databases”** (JSON in `.txt` files under `data/`):
+
+- **Picture database** (`data/<database_file>.txt`) — optional list of image filenames used by the gallery; can be disabled so the gallery reads the images folder directly.
+- **Mail database** (`data/<mail_file>.txt`) — stored email addresses when using the mail feature.
+- **Print database** — used for print-related data (e.g. reset options).
+
+The picture database can be (re)built from the admin panel so the gallery stays in sync with the images on disk.
+
 ## :wrench: Installation & Troubleshooting
 
 Please follow the installation instructions
@@ -114,6 +124,15 @@ Notes:
 - Matches the docker compose image (PHP 8.4, Apache, Node 20).
 - If DDEV isn’t installed, continue using `docker compose up --build` as documented above.
 - Quick validation: after `ddev start`, open the site URL, take a test photo, check gallery/slideshow, and run `ddev qa`; if assets look stale, run `ddev build`.
+
+#### Print relay (`bin/print-relay`) — optional, for local dev with a real printer
+
+When developing with DDEV (or Docker), the app runs inside a container and cannot access the host's printer directly. **`bin/print-relay`** is a small Python HTTP server you run on your Mac (or host). It receives print jobs from the Photobooth app in the container and forwards them to CUPS (`lp`) on the host, so you can test printing to a real printer (e.g. DNP QW410 or any CUPS printer).
+
+- **Usage:** `./bin/print-relay [PORT] [PRINTER_NAME]`
+- **Defaults:** port `6631`, printer name from `lpstat -p` (e.g. `Dai_Nippon_Printing_DP_QW410`).
+- **Endpoints:** `POST /` or `POST /print` with image body (JPEG/PNG/PDF); `GET /health` for liveness.
+- Run it on the host while developing; point Photobooth's print command to `http://host.docker.internal:6631/print` (or your host IP and port) so the container can send jobs to the relay.
 
 ### :mag: Changelog
 
