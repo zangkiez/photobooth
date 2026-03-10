@@ -2,9 +2,9 @@
 
 คู่มือนี้อธิบายความต่างระหว่างการรัน Photobooth แบบ **DDEV**, **Docker Compose** และ **Production (รันจริงบน Raspberry Pi 5)** รวมถึงวิธี setup แต่ละแบบ
 
-**สถานการณ์ของคุณ:**  
-- **Dev:** ทำบน Mac (ผ่าน DDEV)  
-- **Production:** รันจริงบน Raspberry Pi 5  
+**สถานการณ์ของคุณ:**
+- **Dev:** ทำบน Mac (ผ่าน DDEV)
+- **Production:** รันจริงบน Raspberry Pi 5
 
 ---
 
@@ -60,8 +60,8 @@
 
 ### สิ่งที่ต้องติดตั้งบน Mac
 - **Docker Desktop** (หรือ Docker Engine บน Linux)
-- **DDEV**  
-  - macOS: `brew install ddev`  
+- **DDEV**
+  - macOS: `brew install ddev`
   - หรือดู [การติดตั้ง DDEV](https://ddev.readthedocs.io/en/stable/users/install/ddev-installation/)
 
 ### วิธี Setup
@@ -80,8 +80,8 @@ ddev build
 ```
 
 ### การเข้าใช้งาน
-- **HTTP:** http://photobooth.ddev.site:9080  
-- **HTTPS:** https://photobooth.ddev.site:9443  
+- **HTTP:** http://photobooth.ddev.site:9080
+- **HTTPS:** https://photobooth.ddev.site:9443
 
 ### คำสั่งที่ใช้บ่อย
 - `ddev start` / `ddev stop` / `ddev restart` — เปิด/ปิด/รีสตาร์ท
@@ -148,7 +148,7 @@ docker compose up --build
 
 ### สิ่งที่ต้องเตรียม
 - Raspberry Pi 5
-- Raspberry Pi OS 64-bit (Bookworm ขึ้นไป)  
+- Raspberry Pi OS 64-bit (Bookworm ขึ้นไป)
   - ดาวน์โหลด: https://www.raspberrypi.com/software/
 - การเชื่อมต่อเครือข่าย (Wi‑Fi หรือ Ethernet)
 
@@ -169,9 +169,9 @@ sudo apt install -y libapache2-mod-php
 sudo apt install -y curl git gphoto2 libimage-exiftool-perl nodejs php-xml php-gd php-zip php-mbstring rsync udisks2 python3
 ```
 
-- ต้องมี **PHP >= 8.4** และ **Node.js >= 20**  
+- ต้องมี **PHP >= 8.4** และ **Node.js >= 20**
   - ถ้าใน repo มีเวอร์ชันต่ำกว่า ดู [Prerequisites](https://photoboothproject.github.io/) หรือใช้ [Photobooth Setup Wizard](https://photoboothproject.github.io/install/setup_wizard)
-- **`php-gd`** ต้องติดตั้งเพื่อรองรับฟีเจอร์ animated GIF slideshow (มักติดตั้งพร้อม libapache2-mod-php แต่ตรวจสอบว่ามีอยู่)  
+- **`php-gd`** ต้องติดตั้งเพื่อรองรับฟีเจอร์ animated GIF slideshow (มักติดตั้งพร้อม libapache2-mod-php แต่ตรวจสอบว่ามีอยู่)
   ตรวจสอบด้วย: `php -m | grep gd`
 
 #### 3.3 โคลนโปรเจกต์และ Build
@@ -215,7 +215,7 @@ sudo -u www-data npm install
 sudo -u www-data npm run build
 ```
 
-> **หลัง update ล่าสุด (10 มี.ค. 2026):** ไม่ต้องติดตั้ง dependency เพิ่ม — `php-gd` มีอยู่แล้วใน stack ปัจจุบัน  
+> **หลัง update ล่าสุด (10 มี.ค. 2026):** ไม่ต้องติดตั้ง dependency เพิ่ม — `php-gd` มีอยู่แล้วใน stack ปัจจุบัน
 > เข้า Admin → Collage เพื่อเปิดฟีเจอร์ animated GIF slideshow ถ้าต้องการ
 
 ### ข้อดี
