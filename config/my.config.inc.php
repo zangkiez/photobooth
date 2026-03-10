@@ -120,4 +120,9 @@ return [
         'limit' => 1,
         'frame' => 'resources/img/frames/frame.png',
     ],
+    // ส่งงานพิมพ์จาก DDEV container ไปยัง CUPS บน Mac ผ่าน host.docker.internal
+    // /usr/local/bin/lp ใน container คือ Python3 IPP proxy (ไม่ต้องลง cups-client)
+    'commands' => [
+        'print' => 'lp -H host.docker.internal:631 -d L8050_Series_on_NETUSB -o landscape -o fit-to-page %s',
+    ],
 ];

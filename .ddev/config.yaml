@@ -47,3 +47,11 @@ hooks:
         if ! pgrep -f "gulp watch" >/dev/null; then
           npm run watch:gulp >/tmp/ddev-gulp-watch.log 2>&1 &
         fi
+    - name: Start print relay on Mac host
+      exec-host: |
+        if ! curl -sf --max-time 1 http://localhost:6631/health >/dev/null 2>&1; then
+          nohup python3 "$(pwd)/bin/print-relay" >/tmp/print-relay.log 2>&1 &
+          echo "[print-relay] Started on port 6631 (log: /tmp/print-relay.log)"
+        else
+          echo "[print-relay] Already running on port 6631"
+        fi

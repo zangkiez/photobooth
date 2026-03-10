@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""
+Print Relay Server — รันบน Mac, รับงานพิมพ์จาก DDEV container และส่งต่อไปยัง CUPS
+
+Usage:
+  ./bin/print-relay [PORT] [PRINTER_NAME]
+
+Defaults:
+  PORT         = 6631
+  PRINTER_NAME = L8050_Series_on_NETUSB  (จาก lpstat -p)
+
+เปิดไว้ตอน dev แล้ว Photobooth ใน container จะปริ้นผ่าน relay นี้ได้
+"""
+import sys
+import os
+import subprocess
+import tempfile
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 6631
+PRINTER = sys.argv[2] if len(sys.argv) > 2 else 'L8050_Series_on_NETUSB'
+
+
+class PrintHandler(BaseHTTPRequestHandler):
+    def log_message(self, fmt, *args):
+        print(f'[print-relay] {fmt % args}')
+
+    def do_GET(self):
+        if self.path == '/health':
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b'OK')
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def do_POST(self):
+        if self.path not in ('/', '/print'):
+            self.send_response(404)
+            self.end_headers()
+            return
+
+        length = int(self.headers.get('Content-Length', 0))
+        if length == 0:
+            self.send_response(400)
+            self.end_headers()
+            return
+
+        data = self.rfile.read(length)
+
+        # Determine file extension from Content-Type
+        content_type = self.headers.get('Content-Type', 'image/jpeg')
+        ext_map = {
+            'image/jpeg': '.jpg',
+            'image/png': '.png',
+            'application/pdf': '.pdf',
+        }
+        ext = ext_map.get(content_type, '.jpg')
+
+        with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as f:
+            f.write(data)
+            tmp_path = f.name
+
+        try:
+            result = subprocess.run(
+                ['lp', '-d', PRINTER, '-o', 'landscape', '-o', 'fit-to-page', tmp_path],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            if result.returncode == 0:
+                print(f'[print-relay] ✓ {result.stdout.strip()}')
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(result.stdout.encode())
+            else:
+                print(f'[print-relay] ✗ lp error: {result.stderr.strip()}')
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(result.stderr.encode())
+        except subprocess.TimeoutExpired:
+            print('[print-relay] ✗ timeout')
+            self.send_response(504)
+            self.end_headers()
+        finally:
+            os.unlink(tmp_path)
+
+
+if __name__ == '__main__':
+    print(f'[print-relay] Starting on port {PORT}, printer: {PRINTER}')
+    print(f'[print-relay] Press Ctrl+C to stop')
+    try:
+        HTTPServer(('0.0.0.0', PORT), PrintHandler).serve_forever()
+    except KeyboardInterrupt:
+        print('\n[print-relay] Stopped')
