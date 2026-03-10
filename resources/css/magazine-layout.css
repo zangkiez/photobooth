@@ -284,13 +284,15 @@
 
 /* ============================================
    BUTTONBAR - MAGAZINE OVERRIDE
+   ปุ่มในแถบใช้ position กำหนดตำแหน่ง → container ไม่ต้องมีขอบ/พื้นหลัง
+   ถ้าเปิดปุ่มเพิ่มภายหลัง สามารถนำ border/background กลับมาได้
    ============================================ */
 .stage--magazine .buttonbar {
   margin-top: var(--space-lg);
   padding: var(--space-md);
-  background: var(--mag-white);
-  border: var(--border-thick);
-  box-shadow: var(--shadow-hard);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   position: relative;
 }
 

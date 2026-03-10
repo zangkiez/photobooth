@@ -665,13 +665,31 @@ html body .stage--loader #cheese {
 /* ============================================
    FUN BUTTONS - MAGAZINE STYLE
    ============================================ */
-.stage--start .buttonbar {
+/* Buttonbar: ไม่มีขอบ/พื้นหลัง (ปุ่มใช้ position กำหนดเอง; ถ้าเปิดปุ่มเพิ่มภายหลังค่อยนำ style กลับได้) */
+.stage--start .buttonbar,
+.stage--start.stage--magazine .buttonbar {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 1.5rem;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  position: relative;
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s backwards;
+}
+
+/* ซ่อนป้าย ACTIONS บนหน้า start (ใช้เมื่อมีปุ่มหลายปุ่ม) */
+.stage--start .buttonbar::before {
+  display: none;
+}
+
+/* Override [data-ui-theme=modern_squared] position:fixed — ให้ปุ่ม cups อยู่ในการไหลของแถบ ไม่หลุดไปมุมจอ */
+.stage--start.stage--magazine .buttonbar .button,
+.stage--start.stage--magazine .buttonbar button[data-command=cups-button] {
+  position: static;
 }
 
 .stage--start .button {
