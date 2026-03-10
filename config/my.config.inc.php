@@ -9,6 +9,9 @@ return [
     'adminpanel' => [
         'view' => 'expert',
     ],
+    'webserver' => [
+        'url' => 'https://photo.betweensunandmoon.coffee',
+    ],
     'screensaver' => [
         'enabled' => true,
         'text' => 'daaad',
@@ -109,12 +112,10 @@ return [
     'qr' => [
         'url' => 'https://photo.betweensunandmoon.coffee/view.php?image=',
     ],
-    'webserver' => [
-        'url' => 'https://photo.betweensunandmoon.coffee',
-    ],
     'print' => [
         'from_result' => true,
         'from_gallery' => true,
+        'limit' => 1,
         'frame' => 'resources/img/frames/frame.png',
     ],
 ];
