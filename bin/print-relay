@@ -63,7 +63,7 @@ class PrintHandler(BaseHTTPRequestHandler):
 
         try:
             result = subprocess.run(
-                ['lp', '-d', PRINTER, '-o', 'landscape', '-o', 'fit-to-page', tmp_path],
+                ['lp', '-d', PRINTER, '-o', 'PageSize=dnp4x6', '-o', 'landscape', '-o', 'fit-to-page', tmp_path],
                 capture_output=True,
                 text=True,
                 timeout=30,
