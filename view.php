@@ -394,6 +394,11 @@ include PathUtility::getAbsolutePath('template/components/main.head.php');
         pointer-events: none;
     }
 
+    /* Allow video controls to be interactive */
+    .frame-pop video[controls] {
+        pointer-events: auto;
+    }
+
     /* Swipe Animation Classes */
     .frame-pop.swipe-left {
         animation: swipeLeft 0.3s ease-out;

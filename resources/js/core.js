@@ -1986,6 +1986,8 @@ var photoBooth = (function () {
         var videoUrl = environment.publicFolders.images + '/' + videoName;
         // Derive poster filename: replace -slideshow.mp4 → -slideshow-poster.jpg
         var posterUrl = videoUrl.replace(/\.mp4$/i, '-poster.jpg');
+
+        // Thumbnail shown in the gallery strip (muted autoplay, no controls)
         var videoEl = document.createElement('video');
         videoEl.src = videoUrl;
         videoEl.autoplay = true;
@@ -1994,11 +1996,21 @@ var photoBooth = (function () {
         videoEl.setAttribute('playsinline', '');
         videoEl.setAttribute('poster', posterUrl);
         videoEl.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;';
+
+        // Full-screen video shown inside PhotoSwipe lightbox
+        var pswpHtml =
+            '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000;">' +
+            '<video src="' + videoUrl + '" poster="' + posterUrl + '" controls playsinline ' +
+            'style="max-width:100%;max-height:100%;"></video>' +
+            '</div>';
+
         var linkEl = $('<a>')
             .addClass('gallery-list-item gallery-slideshow-video rotaryfocus')
             .attr('href', videoUrl)
-            .attr('target', '_blank')
-            .attr('rel', 'noopener noreferrer')
+            .attr('data-pswp-type', 'html')
+            .attr('data-pswp-html', pswpHtml)
+            .attr('data-pswp-width', 1280)
+            .attr('data-pswp-height', 720)
             .attr('title', 'Slideshow MP4')
             .append(videoEl);
         if (config.gallery.newest_first) {
