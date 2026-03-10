@@ -190,7 +190,7 @@ ddev qa                       # รัน linting + phpstan + tests
 ],
 ```
 
-**3. เปิด photobooth บน iPhone** ผ่าน URL ของ Cloudflare Tunnel  
+**3. เปิด photobooth บน iPhone** ผ่าน URL ของ Cloudflare Tunnel
 Safari จะขอ permission กล้อง → อนุญาต
 
 ### ข้อสังเกต
@@ -482,7 +482,7 @@ sudo systemctl start cups
 
 #### ขั้นที่ 6 — เพิ่มเครื่องพิมพ์บน Pi
 
-เข้า CUPS web admin: `http://localhost:631`  
+เข้า CUPS web admin: `http://localhost:631`
 หรือ command line:
 ```bash
 # หา URI ของปริ้น
