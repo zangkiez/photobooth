@@ -1464,6 +1464,9 @@ var photoBooth = (function () {
                     }
                     // Auto-add collage slideshow MP4 to gallery (inline video)
                     if (data.slideshow_mp4 && !isFilterReprocess) {
+                        if (sessionFiles.indexOf(data.slideshow_mp4) === -1) {
+                            sessionFiles.push(data.slideshow_mp4);
+                        }
                         api.addVideoToGallery(data.slideshow_mp4);
                     }
                 }

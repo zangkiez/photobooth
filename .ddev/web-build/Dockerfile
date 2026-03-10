@@ -2,7 +2,7 @@ ARG BASE_IMAGE
 FROM $BASE_IMAGE
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git ca-certificates curl && \
+    apt-get install -y --no-install-recommends git ca-certificates curl ffmpeg && \
     rm -rf /var/lib/apt/lists/*
 
 # Preinstall node 20 for consistency with project engines

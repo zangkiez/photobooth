@@ -223,7 +223,7 @@ function initPhotoSwipeFromDOM(gallerySelector) {
         var gallery = new PhotoSwipeLightbox({
             mainClass: 'rotarygroup',
             gallery: selector,
-            children: 'a',
+            children: 'a:not(.gallery-slideshow-video)',
             bgOpacity: config.pswp.bgOpacity,
             loop: config.pswp.loop,
             pinchToClose: config.pswp.pinchToClose,
@@ -315,7 +315,8 @@ function initPhotoSwipeFromDOM(gallerySelector) {
                             var currSlideElement = gallery.pswp.currSlide.data.element;
                             var captionHTML = '';
                             if (currSlideElement) {
-                                captionHTML = currSlideElement.querySelector('img').getAttribute('alt');
+                                var captionImg = currSlideElement.querySelector('img');
+                                captionHTML = captionImg ? captionImg.getAttribute('alt') : '';
                             }
                             el.innerHTML = captionHTML || '';
                         });
@@ -596,9 +597,14 @@ function initPhotoSwipeFromDOM(gallerySelector) {
     };
     $(gallerySelector).on('click', function (e) {
         e.preventDefault();
-        if ($(gallerySelector).children('a').length > 0) {
+        // Video items open in a new tab; skip PhotoSwipe for them
+        if ($(e.target).closest('.gallery-slideshow-video').length > 0) {
+            return;
+        }
+        var pswpItems = $(gallerySelector).find('>a:not(.gallery-slideshow-video)');
+        if (pswpItems.length > 0) {
             var element = $(e.target).closest('a');
-            var index = $(gallerySelector).find('>a').index(element);
+            var index = pswpItems.index(element);
             globalGalleryHandle = openPhotoSwipe(gallerySelector, index);
         }
     });

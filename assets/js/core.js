@@ -984,7 +984,22 @@ const photoBooth = (function () {
                 } else if (api.photoStyle === PhotoStyle.CHROMA) {
                     api.renderChroma(data.file);
                 } else {
+                    const isFilterReprocess = resultPage.hasClass('stage--active') || !!resultPage.attr('data-img');
                     api.renderPic(data.file, data.images);
+                    // Auto-add collage slideshow GIF to gallery
+                    if (data.slideshow && !isFilterReprocess) {
+                        if (sessionFiles.indexOf(data.slideshow) === -1) {
+                            sessionFiles.push(data.slideshow);
+                        }
+                        api.addImage(data.slideshow);
+                    }
+                    // Auto-add collage slideshow MP4 to gallery
+                    if (data.slideshow_mp4 && !isFilterReprocess) {
+                        if (sessionFiles.indexOf(data.slideshow_mp4) === -1) {
+                            sessionFiles.push(data.slideshow_mp4);
+                        }
+                        api.addVideoToGallery(data.slideshow_mp4);
+                    }
                 }
             },
             error: (jqXHR, textStatus) => {
@@ -1423,6 +1438,38 @@ const photoBooth = (function () {
 
             galimages.children().not('a').remove();
         }
+    };
+
+    /**
+     * Add a collage slideshow MP4 to the gallery as an inline autoplay video.
+     */
+    api.addVideoToGallery = function (videoName) {
+        if (!config.gallery.enabled) {
+            return;
+        }
+        const videoUrl = environment.publicFolders.images + '/' + videoName;
+        const posterUrl = videoUrl.replace(/\.mp4$/i, '-poster.jpg');
+        const videoEl = document.createElement('video');
+        videoEl.src = videoUrl;
+        videoEl.autoplay = true;
+        videoEl.loop = true;
+        videoEl.muted = true;
+        videoEl.setAttribute('playsinline', '');
+        videoEl.setAttribute('poster', posterUrl);
+        videoEl.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;';
+        const linkEl = $('<a>')
+            .addClass('gallery-list-item gallery-slideshow-video rotaryfocus')
+            .attr('href', videoUrl)
+            .attr('target', '_blank')
+            .attr('rel', 'noopener noreferrer')
+            .attr('title', 'Slideshow MP4')
+            .append(videoEl);
+        if (config.gallery.newest_first) {
+            linkEl.prependTo(galimages);
+        } else {
+            linkEl.appendTo(galimages);
+        }
+        galimages.children().not('a').remove();
     };
 
     api.openGallery = function () {
