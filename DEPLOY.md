@@ -81,7 +81,7 @@ iPhone Safari ──HTTPS──► Cloudflare Tunnel
                                               |
                                         Mac CUPS
                                               |
-                                       Epson L8050
+                                 DNP QW410 (Dai_Nippon_Printing_DP_QW410)
 ```
 
 ### Production (Raspberry Pi 5)
@@ -214,9 +214,9 @@ PHP exec("lp file.jpg")
 curl POST file -> host.docker.internal:6631/print
        |
 bin/print-relay (Python HTTP server, Mac host)
-subprocess.run(['lp', '-d', 'L8050...', file])
+subprocess.run(['lp', '-d', PRINTER, file])
        |
-Mac CUPS -> Epson L8050
+Mac CUPS -> DNP QW410
 ```
 
 ### ไฟล์ที่เกี่ยวข้อง
@@ -226,7 +226,7 @@ Mac CUPS -> Epson L8050
 | `.ddev/web-build/lp-cups.py` | Container | ถูก copy เป็น `/usr/local/bin/lp` — curl POST ไปหา relay |
 | `bin/print-relay` | Mac host | Python HTTP server รับ job แล้วส่งต่อ `lp` ของ Mac |
 | `.ddev/config.yaml` (hook) | Mac host | Auto-start relay ทุกครั้ง `ddev start` |
-| `config/my.config.inc.php` | — | `commands.print = 'lp -H ... -d L8050...'` |
+| `config/my.config.inc.php` | — | `commands.print = 'lp -d <ชื่อปริ้น> ...'` |
 
 ### Setup เครื่องพิมพ์ใหม่ (เมื่อเปลี่ยนปริ้นหรือ environment ใหม่)
 
@@ -236,8 +236,10 @@ Mac CUPS -> Epson L8050
 **2. หาชื่อ printer:**
 ```bash
 lpstat -p
-# ตัวอย่าง: printer L8050_Series_on_NETUSB is idle.
+# ตัวอย่าง: printer Dai_Nippon_Printing_DP_QW410 is idle.
 ```
+
+> **หมายเหตุ:** ชื่อปริ้นขึ้นอยู่กับ driver ที่ลงใน Mac ตรวจด้วย `lpstat -p` ทุกครั้ง
 
 **3. อัปเดต `bin/print-relay`** (บรรทัด PRINTER):
 ```python
@@ -247,7 +249,7 @@ PRINTER = sys.argv[2] if len(sys.argv) > 2 else 'ชื่อปริ้นข�
 **4. อัปเดต `config/my.config.inc.php`:**
 ```php
 'commands' => [
-    'print' => 'lp -H host.docker.internal:631 -d ชื่อปริ้นของคุณ -o landscape -o fit-to-page %s',
+    'print' => 'lp -d ชื่อปริ้นของคุณ -o landscape -o fit-to-page %s',
 ],
 ```
 
@@ -256,10 +258,9 @@ PRINTER = sys.argv[2] if len(sys.argv) > 2 else 'ชื่อปริ้นข�
 sudo cupsctl --remote-any
 sudo launchctl stop org.cups.cupsd
 sudo launchctl start org.cups.cupsd
-
-# ตรวจว่า listen ทุก interface (ต้องเห็น *.631)
-netstat -anp tcp | grep LISTEN | grep 631
 ```
+
+> **หมายเหตุ:** ขั้นตอนนี้ไม่จำเป็นแล้ว เพราะ relay บน Mac รับผิดชอบส่ง job ให้ CUPS โดยตรง ไม่ต้องให้ Docker เข้า CUPS
 
 **6. ทดสอบ:**
 ```bash
@@ -268,6 +269,10 @@ curl http://localhost:6631/health
 
 # ทดสอบปริ้นจาก container
 ddev exec "lp -d ชื่อปริ้นของคุณ /var/www/html/resources/img/logo/logo-plain-fulltext.png"
+# ต้องเห็น: request id is ชื่อปริ้น-XX (1 file(s))
+
+# ถ้าปริ้นไม่ออกแต่ command สำเร็จ — ตรวจ print.lock:
+ddev exec "ls /var/www/html/data/print.lock 2>/dev/null && echo LOCKED || echo ok"
 ```
 
 ### Log ของ Relay
@@ -605,8 +610,22 @@ nohup python3 bin/print-relay > /tmp/print-relay.log 2>&1 &
 cat /tmp/print-relay.log
 
 # ทดสอบส่ง job จาก container
-ddev exec "lp -d L8050_Series_on_NETUSB /var/www/html/resources/img/logo/logo-plain-fulltext.png"
+ddev exec "lp -d Dai_Nippon_Printing_DP_QW410 /var/www/html/resources/img/logo/logo-plain-fulltext.png"
+# ต้องเห็น: request id is Dai_Nippon_Printing_DP_QW410-XX (1 file(s))
 ```
+
+### Print lock ค้าง (กดปริ้นแล้วเงียบ ไม่มี error)
+
+```bash
+# ตรวจและลบ lock
+ls data/print.lock && rm data/print.lock && echo "✓ lock removed"
+
+# ตรวจ printed.csv ว่าเกิน limit ไหม
+cat data/printed.csv
+# ถ้า limit เต็ม: แก้ config/my.config.inc.php → 'limit' => 0
+```
+
+> **สาเหตุ print lock ค้าง:** เกิดเมื่อ PHP เรียก lp แล้ว relay ส่งต่อสำเร็จแต่ unlock process ไม่ถูกเรียก เช่น browser ปิดก่อน หรือ timeout — ลบ `data/print.lock` ได้เลย
 
 ### CUPS listen แค่ localhost ทำให้ Docker ต่อไม่ได้
 
@@ -680,6 +699,7 @@ git commit && git push
 
 | วันที่ | รายการ |
 |--------|--------|
+| 10 มี.ค. 2026 | แก้ชื่อปริ้น → `Dai_Nippon_Printing_DP_QW410` (DNP QW410); แก้ print.lock ค้าง; `print.limit => 0` |
 | 10 มี.ค. 2026 | Print Relay: ปริ้นจาก DDEV ผ่าน Python relay → Mac CUPS; auto-start ผ่าน DDEV hook |
 | 10 มี.ค. 2026 | รองรับกล้อง iPhone บน Dev ผ่าน Cloudflare Tunnel + Browser Camera |
 | 10 มี.ค. 2026 | Collage Slideshow GIF + MP4; แก้ GIF LCT palette bug; แก้ PhotoSwipe video modal; แก้ filter bugs |
