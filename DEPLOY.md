@@ -241,43 +241,147 @@ lpstat -p
 
 > **หมายเหตุ:** ชื่อปริ้นขึ้นอยู่กับ driver ที่ลงใน Mac ตรวจด้วย `lpstat -p` ทุกครั้ง
 
-**3. อัปเดต `bin/print-relay`** (บรรทัด PRINTER):
+**3. หา media option ที่ปริ้นรองรับ:**
+```bash
+lpoptions -p <ชื่อปริ้น> -l | grep -i "pagesize\|media"
+# ตัวอย่าง output: PageSize/Media Size: dnp4x3 dnp4x4 dnp4x6 ...
+```
+
+**4. อัปเดต `bin/print-relay`** (บรรทัด PRINTER):
 ```python
 PRINTER = sys.argv[2] if len(sys.argv) > 2 else 'ชื่อปริ้นของคุณ'
 ```
 
-**4. อัปเดต `config/my.config.inc.php`:**
+**5. อัปเดต `config/my.config.inc.php`:**
 ```php
 'commands' => [
-    'print' => 'lp -d ชื่อปริ้นของคุณ -o landscape -o fit-to-page %s',
+    'print' => 'lp -d ชื่อปริ้น -o PageSize=dnp4x6 -o fit-to-page %s',
 ],
 ```
 
-**5. เปิด CUPS รับ request จาก Docker (ทำครั้งเดียว):**
+> **หมายเหตุ:** อย่าใส่ `-o landscape` — PHP ใน `print.php` rotate ภาพไว้แล้ว ถ้าใส่จะ rotate ซ้ำทำให้ภาพตกขอบ
+
+**6. Restart print-relay** (จำเป็นทุกครั้งที่แก้ไข `bin/print-relay`):
 ```bash
-sudo cupsctl --remote-any
-sudo launchctl stop org.cups.cupsd
-sudo launchctl start org.cups.cupsd
+pkill -f "bin/print-relay"
+nohup python3 bin/print-relay > /tmp/print-relay.log 2>&1 &
+
+# ตรวจว่าขึ้นมาแล้ว
+curl http://localhost:6631/health
 ```
 
-> **หมายเหตุ:** ขั้นตอนนี้ไม่จำเป็นแล้ว เพราะ relay บน Mac รับผิดชอบส่ง job ให้ CUPS โดยตรง ไม่ต้องให้ Docker เข้า CUPS
+> **สรุป: เปลี่ยนปริ้นต้อง restart อะไรบ้าง**
+> | สิ่งที่เปลี่ยน | ต้อง restart |
+> |---------------|-------------|
+> | ชื่อปริ้น (`bin/print-relay`) | ✅ `pkill -f bin/print-relay` แล้วรันใหม่ |
+> | ชื่อปริ้น (`config/my.config.inc.php`) | ❌ ไม่ต้อง — PHP อ่านทุก request |
+> | paper size / options (config เท่านั้น) | ❌ ไม่ต้อง |
+> | paper size / options (relay ด้วย) | ✅ restart relay |
+> | `ddev restart` | ❌ ไม่จำเป็น เว้นแต่แก้ Dockerfile |
 
-**6. ทดสอบ:**
+**7. ทดสอบ:**
 ```bash
-# ตรวจ relay
-curl http://localhost:6631/health
-
-# ทดสอบปริ้นจาก container
 ddev exec "lp -d ชื่อปริ้นของคุณ /var/www/html/resources/img/logo/logo-plain-fulltext.png"
 # ต้องเห็น: request id is ชื่อปริ้น-XX (1 file(s))
-
-# ถ้าปริ้นไม่ออกแต่ command สำเร็จ — ตรวจ print.lock:
-ddev exec "ls /var/www/html/data/print.lock 2>/dev/null && echo LOCKED || echo ok"
 ```
 
 ### Log ของ Relay
 ```bash
 cat /tmp/print-relay.log
+```
+
+---
+
+### คู่มือ `lp` command — อธิบายแต่ละ option
+
+`lp` คือ command สั่งพิมพ์บน macOS/Linux ผ่าน CUPS
+
+#### Syntax พื้นฐาน
+```bash
+lp [options] <ไฟล์>
+```
+
+#### Options ที่ใช้ในโปรเจกต์นี้
+
+| Option | ความหมาย | ตัวอย่าง |
+|--------|----------|---------|
+| `-d <ชื่อปริ้น>` | เลือกเครื่องพิมพ์ที่จะส่งงาน | `-d Dai_Nippon_Printing_DP_QW410` |
+| `-o PageSize=<ขนาด>` | กำหนดขนาดกระดาษ ชื่อขึ้นกับ driver | `-o PageSize=dnp4x6` |
+| `-o fit-to-page` | ย่อ/ขยายภาพให้พอดีกระดาษ ไม่ตัด | `-o fit-to-page` |
+| `-o landscape` | หมุนภาพ 90° ก่อนส่งให้ปริ้น | `-o landscape` |
+| `-n <จำนวน>` | จำนวนก็อปปี้ | `-n 2` |
+| `-H <host:port>` | ส่งไปยัง CUPS server อื่น | `-H localhost:631` |
+
+#### ขนาดกระดาษ DNP QW410 — ดูได้ด้วย
+
+```bash
+lpoptions -p Dai_Nippon_Printing_DP_QW410 -l | grep PageSize
+# PageSize/Media Size: dnp4x3 dnp4x4 dnp4x4.5 dnp4x6 dnp4.5x3 dnp4.5x4 ...
+```
+
+| ชื่อ option | ขนาดจริง |
+|------------|---------|
+| `dnp4x3` | 4 × 3 นิ้ว |
+| `dnp4x4` | 4 × 4 นิ้ว |
+| `dnp4x6` | 4 × 6 นิ้ว ← **ที่ใช้อยู่** |
+| `dnp4.5x6` | 4.5 × 6 นิ้ว |
+| `dnp4.5x8` | 4.5 × 8 นิ้ว |
+
+#### `-o fit-to-page` vs ไม่ใส่
+
+| | ผล |
+|--|--|
+| **ใส่ `-o fit-to-page`** | ภาพถูกย่อ/ขยายให้พอดีกระดาษ ไม่มีส่วนที่ถูกตัดออก |
+| **ไม่ใส่** | CUPS ปริ้นขนาดจริงของภาพ ถ้าใหญ่กว่ากระดาษจะถูกตัด (crop) |
+
+#### ทำไมถึง **ไม่** ใส่ `-o landscape` ในโปรเจกต์นี้
+
+PHP ใน `api/print.php` rotate ภาพให้เป็น landscape ก่อนบันทึกไฟล์ print อยู่แล้ว:
+```php
+// จาก api/print.php
+if (imagesx($source) > imagesy($source) || $config['print']['no_rotate'] === true) {
+    $imageHandler->qrRotate = false;
+} else {
+    $source = imagerotate($source, 90, 0);  // ← rotate ที่นี่แล้ว
+}
+```
+
+ถ้าใส่ `-o landscape` อีกครั้ง CUPS จะ rotate ซ้ำ ทำให้ภาพกลับมาเป็น portrait บนกระดาษ landscape → **ภาพตกขอบ**
+
+#### ตัวอย่าง command เต็มที่ใช้อยู่
+
+```bash
+lp -d Dai_Nippon_Printing_DP_QW410 \
+   -o PageSize=dnp4x6 \
+   -o media=Custom.4x6 \
+   -o scaling=100 \
+   -o position=center \
+   /path/to/image.jpg
+```
+
+| Option | ความหมาย |
+|--------|----------|
+| `PageSize=dnp4x6` | บอก driver ว่ากระดาษที่ใส่คือ DNP 4×6 |
+| `media=Custom.4x6` | บอก CUPS ว่าขนาด media คือ 4×6 นิ้ว (ตรงกับกระดาษจริง) |
+| `scaling=100` | ปริ้น 100% ไม่ย่อ/ขยาย — ใช้ขนาดภาพตามที่ PHP เตรียมไว้ |
+| `position=center` | วางภาพตรงกลางกระดาษ |
+
+อ่านง่ายๆ: _"ส่งไฟล์นี้ไปปริ้นที่ DNP QW410, กระดาษ 4×6, ปริ้นเต็ม 100% วางกลาง"_
+
+#### ปรับแต่งเพิ่มเติมที่ทำได้
+
+```bash
+# ปริ้น 2 ก็อปปี้
+lp -d Dai_Nippon_Printing_DP_QW410 -o PageSize=dnp4x6 -o fit-to-page -n 2 file.jpg
+
+# ดู job ที่รออยู่ในคิว
+lpq -P Dai_Nippon_Printing_DP_QW410
+
+# ยกเลิก job (เอา job ID จาก lpq)
+cancel <job-id>
+
+# ดู options ทั้งหมดที่ปริ้นรองรับ
+lpoptions -p Dai_Nippon_Printing_DP_QW410 -l
 ```
 
 ---

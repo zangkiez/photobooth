@@ -18,7 +18,7 @@ import tempfile
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 6631
-PRINTER = sys.argv[2] if len(sys.argv) > 2 else 'Photo_Printer_on_NETUSB'
+PRINTER = sys.argv[2] if len(sys.argv) > 2 else 'Dai_Nippon_Printing_DP_QW410'
 
 
 class PrintHandler(BaseHTTPRequestHandler):
@@ -63,7 +63,7 @@ class PrintHandler(BaseHTTPRequestHandler):
 
         try:
             result = subprocess.run(
-                ['lp', '-d', PRINTER, '-o', 'PageSize=dnp4x6', '-o', 'fit-to-page', tmp_path],
+                ['lp', '-d', PRINTER, '-o', 'PageSize=dnp4x6', '-o', 'media=Custom.4x6', '-o', 'scaling=100', '-o', 'position=center', tmp_path],
                 capture_output=True,
                 text=True,
                 timeout=30,

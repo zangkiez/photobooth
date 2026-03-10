@@ -123,6 +123,6 @@ return [
     // ส่งงานพิมพ์จาก DDEV container ไปยัง CUPS บน Mac ผ่าน host.docker.internal
     // /usr/local/bin/lp ใน container คือ Python3 IPP proxy (ไม่ต้องลง cups-client)
     'commands' => [
-        'print' => 'lp -d Photo_Printer_on_NETUSB -o PageSize=dnp4x6 -o fit-to-page %s',
+        'print' => 'lp -d Dai_Nippon_Printing_DP_QW410 -o PageSize=dnp4x6 -o media=Custom.4x6 -o scaling=100 -o position=center %s',
     ],
 ];
