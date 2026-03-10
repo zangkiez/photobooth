@@ -21,6 +21,7 @@ function initPhotoSwipeFromDOM(gallerySelector) {
             mainClass: 'rotarygroup',
             gallery: selector,
             children: 'a',
+            allowHTML: true,
             bgOpacity: config.pswp.bgOpacity,
             loop: config.pswp.loop,
             pinchToClose: config.pswp.pinchToClose,
@@ -296,6 +297,44 @@ function initPhotoSwipeFromDOM(gallerySelector) {
                         }
                     }
                 });
+            }
+        });
+
+        // Render custom video slides – build DOM directly from data-video-src
+        // to avoid HTML-in-attribute escaping issues with data-pswp-html.
+        gallery.on('contentLoad', (e) => {
+            const { content } = e;
+            if (content.type === 'video-slide') {
+                e.preventDefault();
+                const src    = content.data.element.dataset.videoSrc;
+                const poster = content.data.element.dataset.videoPoster;
+
+                const video = document.createElement('video');
+                video.src = src;
+                video.poster = poster;
+                video.controls = true;
+                video.setAttribute('playsinline', '');
+                video.style.cssText = 'max-width:100%;max-height:90vh;display:block;';
+
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000;';
+                wrap.appendChild(video);
+
+                content.element = wrap;
+            }
+        });
+
+        gallery.on('contentActivate', ({ content }) => {
+            if (content.type === 'video-slide' && content.element) {
+                const video = content.element.querySelector('video');
+                if (video) video.play().catch(() => {});
+            }
+        });
+
+        gallery.on('contentDeactivate', ({ content }) => {
+            if (content.type === 'video-slide' && content.element) {
+                const video = content.element.querySelector('video');
+                if (video) video.pause();
             }
         });
 

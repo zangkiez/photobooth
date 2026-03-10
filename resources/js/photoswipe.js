@@ -224,7 +224,7 @@ function initPhotoSwipeFromDOM(gallerySelector) {
             mainClass: 'rotarygroup',
             gallery: selector,
             children: 'a',
-            bgOpacity: config.pswp.bgOpacity,
+            allowHTML: true,
             loop: config.pswp.loop,
             pinchToClose: config.pswp.pinchToClose,
             closeOnVerticalDrag: config.pswp.closeOnVerticalDrag,
@@ -549,6 +549,47 @@ function initPhotoSwipeFromDOM(gallerySelector) {
                 });
             }
         });
+
+        // Render custom video slides – build DOM directly from data-video-src
+        // to avoid HTML-in-attribute escaping issues with data-pswp-html.
+        gallery.on('contentLoad', function (e) {
+            var content = e.content;
+            if (content.type === 'video-slide') {
+                e.preventDefault();
+                var src    = content.data.element.dataset.videoSrc;
+                var poster = content.data.element.dataset.videoPoster;
+
+                var video = document.createElement('video');
+                video.src = src;
+                video.poster = poster;
+                video.controls = true;
+                video.setAttribute('playsinline', '');
+                video.style.cssText = 'max-width:100%;max-height:90vh;display:block;';
+
+                var wrap = document.createElement('div');
+                wrap.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000;';
+                wrap.appendChild(video);
+
+                content.element = wrap;
+            }
+        });
+
+        gallery.on('contentActivate', function (_ref) {
+            var content = _ref.content;
+            if (content.type === 'video-slide' && content.element) {
+                var video = content.element.querySelector('video');
+                if (video) video.play().catch(function () {});
+            }
+        });
+
+        gallery.on('contentDeactivate', function (_ref) {
+            var content = _ref.content;
+            if (content.type === 'video-slide' && content.element) {
+                var video = content.element.querySelector('video');
+                if (video) video.pause();
+            }
+        });
+
         gallery.on('afterInit', function () {
             $('.pswp__button').addClass('rotaryfocus');
             if (!config.no_request) {

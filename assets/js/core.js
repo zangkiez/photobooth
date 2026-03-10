@@ -1460,18 +1460,12 @@ const photoBooth = (function () {
         videoEl.setAttribute('poster', posterUrl);
         videoEl.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;';
 
-        // Full-screen video shown inside PhotoSwipe lightbox
-        const pswpHtml =
-            '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000;">' +
-            '<video src="' + videoUrl + '" poster="' + posterUrl + '" controls playsinline ' +
-            'style="max-width:100%;max-height:100%;"></video>' +
-            '</div>';
-
         const linkEl = $('<a>')
             .addClass('gallery-list-item gallery-slideshow-video rotaryfocus')
             .attr('href', videoUrl)
-            .attr('data-pswp-type', 'html')
-            .attr('data-pswp-html', pswpHtml)
+            .attr('data-pswp-type', 'video-slide')
+            .attr('data-video-src', videoUrl)
+            .attr('data-video-poster', posterUrl)
             .attr('data-pswp-width', 1280)
             .attr('data-pswp-height', 720)
             .attr('title', 'Slideshow MP4')
