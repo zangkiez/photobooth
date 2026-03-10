@@ -117,12 +117,12 @@ return [
     'print' => [
         'from_result' => true,
         'from_gallery' => true,
-        'limit' => 1,
+        'limit' => 0,
         'frame' => 'resources/img/frames/frame.png',
     ],
     // ส่งงานพิมพ์จาก DDEV container ไปยัง CUPS บน Mac ผ่าน host.docker.internal
     // /usr/local/bin/lp ใน container คือ Python3 IPP proxy (ไม่ต้องลง cups-client)
     'commands' => [
-        'print' => 'lp -H host.docker.internal:631 -d L8050_Series_on_NETUSB -o landscape -o fit-to-page %s',
+        'print' => 'lp -d EPSON_L8050_Series -o landscape -o fit-to-page %s',
     ],
 ];
