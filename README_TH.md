@@ -14,8 +14,9 @@
 4. [การตั้งค่าและการใช้งาน](#การตั้งค่าและการใช้งาน)
 5. [คำอธิบายไฟล์ตั้งค่า](#คำอธิบายไฟล์ตั้งค่า)
 6. [การติดตั้ง](#การติดตั้ง)
-7. [API และการทำงาน](#api-และการทำงาน)
-8. [ฟีเจอร์หลัก](#ฟีเจอร์หลัก)
+7. [การ Deploy: DDEV / Docker Compose / Production](#การ-deploy-ddev--docker-compose--production)
+8. [API และการทำงาน](#api-และการทำงาน)
+9. [ฟีเจอร์หลัก](#ฟีเจอร์หลัก)
 
 ---
 
@@ -450,6 +451,22 @@ sudo chown -R www-data:www-data data/
 sudo chown -R www-data:www-data private/
 sudo chown -R www-data:www-data var/
 ```
+
+---
+
+## 🚢 การ Deploy: DDEV / Docker Compose / Production
+
+ถ้าคุณ **develop บน Mac** และจะ **รันจริงบน Raspberry Pi 5** แนะนำให้อ่านคู่มือแยก:
+
+- **[DEPLOY.md](DEPLOY.md)** — อธิบายความต่างระหว่าง **DDEV** (dev บน Mac), **Docker Compose** (ทดสอบบน Mac/PC), และ **Production** (รันบน Raspberry Pi 5) พร้อมวิธี setup แต่ละแบบ
+
+สรุปสั้นๆ:
+
+| แบบ | ใช้เมื่อ | สิ่งที่ต้องมี |
+|-----|----------|----------------|
+| **DDEV** | พัฒนาบน Mac ไม่อยากลง PHP/Node โดยตรง | Docker Desktop + DDEV |
+| **Docker Compose** | ทดสอบ build + รันแบบใกล้เคียง production | Docker Desktop |
+| **Production (Pi 5)** | รันจริงในงาน ต่อกล้อง/เครื่องพิมพ์ | Raspberry Pi 5 + Raspberry Pi OS |
 
 ---
 

@@ -1,5 +1,9 @@
 <?php
+
 use Photobooth\Utility\PathUtility;
+use Photobooth\Service\LanguageService;
+
+$languageService = LanguageService::getInstance();
 ?>
 <!-- Start Page - Magazine/Street Style (Fun Edition) -->
 <div class="stage stage--start stage--magazine rotarygroup" data-stage="start">
@@ -88,15 +92,26 @@ use Photobooth\Utility\PathUtility;
                         <?php endif; ?>
                     <?php endif; ?>
 
-                    <!-- Extra Visual Element = ปุ่มถ่ายรูป (TAP TO START) -->
-                    <div class="magazine-visual takePic rotaryfocus" role="button" tabindex="0" data-command="takePic">
-                        <div class="magazine-visual__box">
-                            <span class="magazine-visual__icon">📸</span>
+                    <!-- Visual = TAP TO START (กดแล้วเริ่มคอลลาจ) -->
+                    <?php if (!empty($config['collage']['enabled'])): ?>
+                        <div class="magazine-visual takeCollage rotaryfocus" role="button" tabindex="0" data-command="takeCollage">
+                            <div class="magazine-visual__box">
+                                <span class="magazine-visual__icon">📸</span>
+                            </div>
+                            <div class="magazine-visual__text">
+                                <span class="text-caption">TAP TO START</span>
+                            </div>
                         </div>
-                        <div class="magazine-visual__text">
-                            <span class="text-caption">TAP TO START</span>
+                    <?php elseif (!empty($config['picture']['enabled'])): ?>
+                        <div class="magazine-visual takePic rotaryfocus" role="button" tabindex="0" data-command="takePic">
+                            <div class="magazine-visual__box">
+                                <span class="magazine-visual__icon">📸</span>
+                            </div>
+                            <div class="magazine-visual__text">
+                                <span class="text-caption">TAP TO START</span>
+                            </div>
                         </div>
-                    </div>
+                    <?php endif; ?>
 
                 </div>
             </div>
@@ -140,8 +155,7 @@ use Photobooth\Utility\PathUtility;
         class="screensaver-overlay"
         data-mode="<?= $screensaverMode ?>"
         data-source="<?= $screensaverSource ?>"
-        style="display: none;"
-    >
+        style="display: none;">
         <div id="screensaver-text-top" class="screensaver-overlay__text screensaver-overlay__text--top"></div>
         <div id="screensaver-text-center" class="screensaver-overlay__text screensaver-overlay__text--center"></div>
         <img id="screensaver-image" class="screensaver-overlay__image" alt="screensaver">

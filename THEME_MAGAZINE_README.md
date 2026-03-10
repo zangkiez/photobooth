@@ -95,6 +95,8 @@
 <link rel="stylesheet" href="resources/css/animations-magazine.css" />
 ```
 
+```
+
 ### 2. ใช้งาน CSS Classes
 
 #### Typography Classes
@@ -126,6 +128,15 @@
 <button class="button-fun button-fun--yellow">Sunshine</button>
 <button class="button-fun button-fun--purple">Vivid Purple</button>
 ```
+
+### 3. ใช้แค่คอลลาจ (TAP TO START = คอลลาจ)
+
+ถ้าใช้โหมด **คอลลาจเท่านั้น** ไม่ใช้ฟีเจอร์ถ่ายรูปเดี่ยว:
+
+- **Admin** → **Pictures**: ปิด **อนุญาตถ่ายรูป** (Picture enabled = off)
+- **Admin** → **Collage**: เปิด **เปิดใช้คอลลาจ** (Collage enabled = on)
+
+จากนั้นปุ่ม **TAP TO START** บนหน้าแรกจะเริ่มคอลลาจเท่านั้น และจะไม่มีปุ่มถ่ายรูปเดี่ยวในแถบปุ่ม
 
 #### Sticker Classes
 ```html
