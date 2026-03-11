@@ -5,6 +5,7 @@ return [
         'language' => 'th',
         'local_timezone' => 'Asia/Bangkok',
         'show_fork' => false,
+        'shutter_cheese_img' => null,
     ],
     'adminpanel' => [
         'view' => 'expert',
@@ -70,7 +71,6 @@ return [
         'take_frame' => 'once',
         'frame' => 'private/images/frames/สำเนาของ Second​ hand​ Market​ _​ Music​ _3.png',
         'polaroid_effect' => true,
-        'placeholderpath' => 'resources/img/background/01.jpg',
         'background' => 'resources/img/background/สำเนาของ Second​ hand​ Market​ _​ Music​ _3.png',
         'background_on_top' => true,
         'slideshow_enabled' => true,
@@ -103,6 +103,7 @@ return [
     'background' => [
         'defaults' => 'resources/img/background.png',
         'chroma' => 'resources/img/background.png',
+        'admin' => 'resources/img/background.png',
     ],
     'preview' => [
         'mode' => 'device_cam',
@@ -117,12 +118,12 @@ return [
     'print' => [
         'from_result' => true,
         'from_gallery' => true,
-        'limit' => 0,
         'frame' => 'resources/img/frames/frame.png',
     ],
-    // ส่งงานพิมพ์จาก DDEV container ไปยัง CUPS บน Mac ผ่าน host.docker.internal
-    // /usr/local/bin/lp ใน container คือ Python3 IPP proxy (ไม่ต้องลง cups-client)
     'commands' => [
         'print' => 'lp -d Dai_Nippon_Printing_DP_QW410 -o PageSize=dnp4x6 -o media=Custom.4x6 -o scaling=100 -o position=center %s',
+    ],
+    'remotebuzzer' => [
+        'serverip' => '192.168.156.3',
     ],
 ];
