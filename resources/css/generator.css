@@ -147,6 +147,17 @@
     text-transform: uppercase; letter-spacing: .04em;
 }
 .g-hint { font-size: .66rem; color: var(--g-muted); margin-top: .2rem; line-height: 1.4; }
+.g-input {
+    display: block; width: 100%; height: 32px;
+    border: 1.5px solid var(--g-border); border-radius: 6px;
+    padding: 0 .5rem; font-size: .82rem; color: var(--g-text);
+    background: #fff; outline: none; transition: border-color .15s;
+}
+.g-input:focus { border-color: var(--g-primary); }
+.g-lbl-hint { font-weight: 400; text-transform: none; letter-spacing: 0; font-size: .62rem; color: var(--g-muted); }
+.g-pct-wrap { position: relative; display: flex; align-items: center; }
+.g-pct-wrap .g-input { padding-right: 1.6rem; }
+.g-pct-sym { position: absolute; right: .5rem; font-size: .75rem; color: var(--g-muted); pointer-events: none; }
 .g-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .625rem; }
 .g-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; }
 .g-field { margin-bottom: .625rem; }

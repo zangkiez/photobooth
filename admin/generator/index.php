@@ -416,37 +416,29 @@ echo $font_styles;
                                     <div class="g-row2" style="margin-bottom:.4rem;">
                                         <div>
                                             <div class="g-label">X Position</div>
-                                            <?= AdminInput::renderInput([
-                                                'type' => 'number', 'name' => 'picture-x-position-' . $i,
-                                                'value' => rand(100, 500),
-                                                'attributes' => ['data-prop' => 'left', 'data-trigger' => 'image'],
-                                            ], 'collage:generator:x_position') ?>
+                                            <input class="g-input" type="number" name="picture-x-position-<?= $i ?>" value="<?= rand(100, 500) ?>" data-prop="left" data-trigger="image">
                                         </div>
                                         <div>
                                             <div class="g-label">Y Position</div>
-                                            <?= AdminInput::renderInput([
-                                                'type' => 'number', 'name' => 'picture-y-position-' . $i,
-                                                'value' => rand(100, 500),
-                                                'attributes' => ['data-prop' => 'top', 'data-trigger' => 'image'],
-                                            ], 'collage:generator:y_position') ?>
+                                            <input class="g-input" type="number" name="picture-y-position-<?= $i ?>" value="<?= rand(100, 500) ?>" data-prop="top" data-trigger="image">
                                         </div>
                                     </div>
                                     <div class="g-row2" style="margin-bottom:.4rem;">
                                         <div>
-                                            <div class="g-label">Width</div>
-                                            <?= AdminInput::renderInput([
-                                                'type' => 'text', 'name' => 'picture-width-' . $i,
-                                                'value' => 'x*0.5',
-                                                'attributes' => ['data-prop' => 'width', 'data-trigger' => 'image'],
-                                            ], 'collage:generator:image_width') ?>
+                                            <div class="g-label">Width <span class="g-lbl-hint">% of W</span></div>
+                                            <div class="g-pct-wrap">
+                                                <input class="g-input" type="number" min="1" max="300" step="1" name="picture-width-pct-<?= $i ?>" value="50" data-pct-for="picture-width-<?= $i ?>" data-pct-axis="x">
+                                                <span class="g-pct-sym">%</span>
+                                            </div>
+                                            <input type="hidden" name="picture-width-<?= $i ?>" value="x*0.5" data-prop="width" data-trigger="image">
                                         </div>
                                         <div>
-                                            <div class="g-label">Height</div>
-                                            <?= AdminInput::renderInput([
-                                                'type' => 'text', 'name' => 'picture-height-' . $i,
-                                                'value' => 'y*0.5',
-                                                'attributes' => ['data-prop' => 'height', 'data-trigger' => 'image'],
-                                            ], 'collage:generator:image_height') ?>
+                                            <div class="g-label">Height <span class="g-lbl-hint">% of H</span></div>
+                                            <div class="g-pct-wrap">
+                                                <input class="g-input" type="number" min="1" max="300" step="1" name="picture-height-pct-<?= $i ?>" value="50" data-pct-for="picture-height-<?= $i ?>" data-pct-axis="y">
+                                                <span class="g-pct-sym">%</span>
+                                            </div>
+                                            <input type="hidden" name="picture-height-<?= $i ?>" value="y*0.5" data-prop="height" data-trigger="image">
                                         </div>
                                     </div>
                                     <div class="g-row2">
