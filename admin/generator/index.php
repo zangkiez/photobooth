@@ -137,463 +137,7 @@ $font_styles .= '</style>';
 echo $font_styles;
 ?>
 <style id="fontselectedStyle"></style>
-<style>
-/* ═══════════════════════════════════════════════════════════════════
-   COLLAGE GENERATOR — Complete UI Redesign v2
-═══════════════════════════════════════════════════════════════════ */
-:root {
-    --g-primary: #6366f1;
-    --g-primary-dark: #4f46e5;
-    --g-primary-light: #eef2ff;
-    --g-success: #22c55e;
-    --g-danger: #ef4444;
-    --g-warning: #f59e0b;
-    --g-bg: #f1f5f9;
-    --g-surface: #ffffff;
-    --g-border: #e2e8f0;
-    --g-text: #1e293b;
-    --g-muted: #64748b;
-    --g-radius: 12px;
-    --g-radius-sm: 8px;
-    --g-shadow: 0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
-    --g-shadow-md: 0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
-    --g-shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
-    --g-sidebar-w: 420px;
-}
-*, *::before, *::after { box-sizing: border-box; }
-
-.gen-root {
-    position: fixed; inset: 0;
-    display: flex; flex-direction: column;
-    background: var(--g-bg); overflow: hidden;
-    font-family: system-ui, -apple-system, sans-serif;
-    font-size: 14px; color: var(--g-text);
-}
-
-/* Top bar */
-.gen-topbar {
-    height: 54px; background: var(--g-surface);
-    border-bottom: 1px solid var(--g-border);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 1.25rem; flex-shrink: 0;
-    box-shadow: var(--g-shadow); z-index: 50;
-}
-.gen-topbar-title {
-    font-size: 1rem; font-weight: 700; color: var(--g-text);
-    display: flex; align-items: center; gap: .5rem;
-}
-.gen-topbar-icon {
-    width: 28px; height: 28px; border-radius: 8px;
-    background: linear-gradient(135deg, var(--g-primary), #7c3aed);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: .85rem;
-}
-.gen-topbar-actions { display: flex; align-items: center; gap: .5rem; }
-.gen-topbar-btn {
-    display: inline-flex; align-items: center; gap: .35rem;
-    padding: .3rem .75rem; border-radius: 7px;
-    border: 1.5px solid var(--g-border); background: var(--g-surface);
-    color: var(--g-muted); font-size: .78rem; font-weight: 600;
-    cursor: pointer; text-decoration: none; transition: all .15s;
-}
-.gen-topbar-btn:hover { border-color: var(--g-primary); color: var(--g-primary); background: var(--g-primary-light); }
-
-/* Stepper */
-.gen-stepper {
-    height: 46px; background: var(--g-surface);
-    border-bottom: 1px solid var(--g-border);
-    display: flex; align-items: stretch; flex-shrink: 0;
-    overflow-x: auto; scrollbar-width: none;
-}
-.gen-stepper::-webkit-scrollbar { display: none; }
-.gen-step-tab {
-    display: flex; align-items: center; gap: .5rem;
-    padding: 0 1.125rem; cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all .2s; white-space: nowrap;
-    color: var(--g-muted); font-size: .8rem; font-weight: 500;
-    user-select: none; flex-shrink: 0;
-}
-.gen-step-tab:hover { color: var(--g-primary); background: var(--g-primary-light); }
-.gen-step-tab.active { color: var(--g-primary); border-bottom-color: var(--g-primary); background: var(--g-primary-light); }
-.gen-step-tab.done .gen-step-num { background: var(--g-success); color: #fff; }
-.gen-step-num {
-    width: 20px; height: 20px; border-radius: 50%;
-    background: var(--g-border); color: var(--g-muted);
-    font-size: .68rem; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: all .2s;
-}
-.gen-step-tab.active .gen-step-num { background: var(--g-primary); color: #fff; }
-.gen-step-sep { color: #d1d5db; font-size: .6rem; display: flex; align-items: center; padding: 0 .1rem; flex-shrink: 0; }
-
-/* Body */
-.gen-body { flex: 1; display: flex; min-height: 0; overflow: hidden; }
-
-/* Sidebar */
-.gen-sidebar {
-    width: var(--g-sidebar-w); min-width: 300px; max-width: 460px;
-    flex-shrink: 0; background: var(--g-surface);
-    border-right: 1px solid var(--g-border);
-    display: flex; flex-direction: column; overflow: hidden;
-}
-.gen-scroll {
-    flex: 1; overflow-y: auto; overflow-x: hidden;
-    padding: 1rem 1.125rem; scroll-behavior: smooth;
-}
-.gen-scroll::-webkit-scrollbar { width: 4px; }
-.gen-scroll::-webkit-scrollbar-thumb { background: var(--g-border); border-radius: 2px; }
-.gen-nav {
-    border-top: 1px solid var(--g-border);
-    padding: .75rem 1.125rem;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-shrink: 0; background: var(--g-surface); gap: .5rem;
-}
-
-/* Step panels — animated transitions */
-.gen-panel { display: none; opacity: 0; transform: translateX(8px); }
-.gen-panel.active { display: block; animation: panelIn .22s cubic-bezier(.4,0,.2,1) forwards; }
-@keyframes panelIn { to { opacity: 1; transform: translateX(0); } }
-
-/* Cards */
-.g-card {
-    background: var(--g-surface); border: 1px solid var(--g-border);
-    border-radius: var(--g-radius); padding: .875rem 1rem;
-    margin-bottom: .875rem;
-}
-.g-card-title {
-    font-size: .7rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .06em;
-    color: var(--g-muted); margin-bottom: .75rem;
-    display: flex; align-items: center; gap: .4rem;
-}
-.g-card-title i { font-size: .8rem; }
-
-/* Step header */
-.g-step-h {
-    font-size: .95rem; font-weight: 700; color: var(--g-text);
-    margin-bottom: .875rem; padding-bottom: .625rem;
-    border-bottom: 2px solid var(--g-border);
-}
-.g-step-h small {
-    display: block; font-size: .72rem; font-weight: 400;
-    color: var(--g-muted); margin-top: .2rem; line-height: 1.4;
-}
-
-/* Fields */
-.g-label {
-    display: block; font-size: .68rem; font-weight: 700;
-    color: var(--g-muted); margin-bottom: .2rem;
-    text-transform: uppercase; letter-spacing: .04em;
-}
-.g-hint { font-size: .66rem; color: var(--g-muted); margin-top: .2rem; line-height: 1.4; }
-.g-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .625rem; }
-.g-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; }
-.g-field { margin-bottom: .625rem; }
-.g-field:last-child { margin-bottom: 0; }
-
-/* Presets */
-.g-presets { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .625rem; }
-.g-preset {
-    padding: .22rem .55rem; border-radius: 5px;
-    border: 1.5px solid var(--g-border); background: #fff;
-    font-size: .7rem; font-weight: 600; color: var(--g-muted);
-    cursor: pointer; transition: all .15s; line-height: 1.5;
-}
-.g-preset:hover { border-color: var(--g-primary); color: var(--g-primary); background: var(--g-primary-light); }
-.g-preset.active { border-color: var(--g-primary); background: var(--g-primary); color: #fff; }
-
-/* Toggle switch */
-.g-toggle-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: .4rem 0; border-bottom: 1px solid #f8fafc;
-}
-.g-toggle-row:last-child { border-bottom: none; }
-.g-toggle-lbl { font-size: .8rem; font-weight: 500; color: var(--g-text); }
-.g-toggle-sub { font-size: .66rem; color: var(--g-muted); margin-top: .1rem; }
-.g-switch { position: relative; width: 34px; height: 19px; flex-shrink: 0; }
-.g-switch input { opacity: 0; width: 0; height: 0; }
-.g-slider {
-    position: absolute; cursor: pointer; inset: 0;
-    background: var(--g-border); border-radius: 10px; transition: background .2s;
-}
-.g-slider::before {
-    content: ''; position: absolute;
-    width: 13px; height: 13px; left: 3px; top: 3px;
-    background: #fff; border-radius: 50%;
-    transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2);
-}
-.g-switch input:checked + .g-slider { background: var(--g-primary); }
-.g-switch input:checked + .g-slider::before { transform: translateX(15px); }
-
-/* Number spinner */
-.g-spin {
-    display: flex; align-items: stretch;
-    border: 1.5px solid var(--g-border); border-radius: var(--g-radius-sm);
-    overflow: hidden; background: #fff; height: 32px;
-    transition: border-color .15s;
-}
-.g-spin:focus-within { border-color: var(--g-primary); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
-.g-spin input[type="number"], .g-spin input[type="text"] {
-    flex: 1 1 0%; min-width: 0;
-    border: none !important; border-radius: 0 !important;
-    outline: none !important; box-shadow: none !important;
-    text-align: center; padding: 0 .2rem;
-    font-size: .8rem; background: transparent; color: var(--g-text);
-}
-.g-spin-btn {
-    flex: 0 0 26px; width: 26px;
-    background: #f8fafc; border: none; cursor: pointer;
-    font-size: .85rem; font-weight: 700; color: var(--g-muted);
-    display: flex; align-items: center; justify-content: center;
-    transition: background .1s, color .1s; padding: 0; user-select: none;
-}
-.g-spin-btn:hover { background: #e2e8f0; color: var(--g-text); }
-.g-spin-btn:active { background: #cbd5e1; }
-
-/* Frame card */
-.gen-frame-card {
-    background: #fafafa; border: 1.5px solid var(--g-border);
-    border-radius: var(--g-radius); padding: .625rem .75rem;
-    margin-bottom: .5rem; transition: border-color .2s, box-shadow .2s, background .2s;
-    will-change: transform;
-}
-.gen-frame-card:hover { border-color: #a5b4fc; box-shadow: var(--g-shadow-md); }
-.gen-frame-card.selected { border-color: var(--g-primary); background: var(--g-primary-light); box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
-.gen-frame-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: .4rem; cursor: pointer; }
-.gen-frame-badge {
-    display: inline-flex; align-items: center; gap: .3rem;
-    background: var(--g-primary); color: #fff; border-radius: 4px;
-    padding: .12rem .4rem; font-size: .68rem; font-weight: 700;
-    transition: background .15s;
-}
-.gen-frame-card:not(.selected) .gen-frame-badge { background: #94a3b8; }
-.gen-frame-card.selected .gen-frame-badge { background: var(--g-primary); }
-.gen-frame-del {
-    width: 24px; height: 24px; border-radius: 5px; border: none;
-    background: #fee2e2; color: var(--g-danger);
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: .75rem; transition: all .15s; flex-shrink: 0;
-}
-.gen-frame-del:hover { background: var(--g-danger); color: #fff; transform: scale(1.1); }
-.gen-frame-body {
-    overflow: hidden;
-    max-height: 0;
-    opacity: 0;
-    transition: max-height .3s cubic-bezier(.4,0,.2,1), opacity .25s ease, padding .3s ease;
-    padding-top: 0;
-}
-.gen-frame-card.open .gen-frame-body {
-    max-height: 800px;
-    opacity: 1;
-    padding-top: .4rem;
-}
-.gen-frame-toggle {
-    width: 18px; height: 18px; border: none; background: transparent;
-    color: var(--g-muted); cursor: pointer; display: flex;
-    align-items: center; justify-content: center; font-size: .65rem;
-    transition: transform .25s cubic-bezier(.4,0,.2,1), color .15s; margin-left: .2rem;
-}
-.gen-frame-card.open .gen-frame-toggle { transform: rotate(180deg); color: var(--g-primary); }
-
-/* Couple mode */
-.g-couple {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff;
-    border-radius: var(--g-radius); padding: .7rem .875rem;
-    margin-bottom: .875rem; display: flex; align-items: center; gap: .625rem;
-}
-.g-couple-icon { font-size: 1.3rem; flex-shrink: 0; }
-.g-couple-text { flex: 1; }
-.g-couple-text strong { display: block; font-size: .82rem; }
-.g-couple-text span { font-size: .7rem; opacity: .85; line-height: 1.4; }
-
-/* Load saved banner */
-.g-load-banner {
-    background: var(--g-primary-light); border: 1.5px solid var(--g-primary);
-    border-radius: var(--g-radius); padding: .6rem .875rem;
-    margin-bottom: .875rem; display: flex; align-items: center; gap: .625rem;
-}
-.g-load-banner i { color: var(--g-primary); font-size: .95rem; }
-.g-load-banner span { flex: 1; font-size: .78rem; color: var(--g-primary); font-weight: 500; }
-.g-load-banner button {
-    padding: .28rem .65rem; border-radius: 5px; border: none;
-    background: var(--g-primary); color: #fff;
-    font-size: .72rem; font-weight: 600; cursor: pointer; white-space: nowrap;
-}
-.g-load-banner button:hover { background: var(--g-primary-dark); }
-
-/* Detect-from-BG button */
-.g-detect-btn {
-    display: inline-flex; align-items: center; gap: .35rem;
-    padding: .38rem .7rem; border-radius: 6px;
-    border: 1.5px solid var(--g-primary); background: var(--g-primary-light);
-    color: var(--g-primary); font-size: .72rem; font-weight: 600;
-    cursor: pointer; transition: all .15s; margin-top: .4rem;
-}
-.g-detect-btn:hover { background: var(--g-primary); color: #fff; }
-
-/* Add frame button */
-.g-add-frame {
-    width: 100%; padding: .5rem;
-    border: 2px dashed var(--g-border); border-radius: var(--g-radius);
-    background: transparent; color: var(--g-muted);
-    font-size: .8rem; font-weight: 600; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: .4rem;
-    transition: all .15s; margin-top: .25rem;
-}
-.g-add-frame:hover { border-color: var(--g-primary); color: var(--g-primary); background: var(--g-primary-light); }
-
-/* Nav buttons */
-.g-nav-btn {
-    display: inline-flex; align-items: center; gap: .35rem;
-    padding: .42rem .875rem; border-radius: var(--g-radius-sm);
-    border: 1.5px solid var(--g-border); background: #fff;
-    font-size: .78rem; font-weight: 600; color: var(--g-text);
-    cursor: pointer; transition: all .15s;
-}
-.g-nav-btn:hover { border-color: var(--g-primary); color: var(--g-primary); }
-.g-nav-btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
-.g-nav-btn.primary { background: var(--g-primary); border-color: var(--g-primary); color: #fff; }
-.g-nav-btn.primary:hover { background: var(--g-primary-dark); border-color: var(--g-primary-dark); }
-.g-step-lbl { font-size: .72rem; color: var(--g-muted); font-weight: 500; }
-
-/* Save button */
-.g-save-btn {
-    width: 100%; padding: .7rem; border-radius: 9999px; border: none;
-    background: linear-gradient(135deg, var(--g-primary), #7c3aed); color: #fff;
-    font-size: .9rem; font-weight: 700; cursor: pointer;
-    box-shadow: 0 4px 16px rgba(99,102,241,.4);
-    display: flex; align-items: center; justify-content: center; gap: .5rem;
-    transition: transform .15s, box-shadow .15s;
-}
-.g-save-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,.5); }
-.g-save-btn:active { transform: scale(.98); }
-
-/* JSON box */
-.g-json-box {
-    background: #1e293b; color: #94a3b8;
-    padding: .7rem; border-radius: 8px;
-    font-family: monospace; font-size: .68rem;
-    max-height: 140px; overflow-y: auto;
-    white-space: pre-wrap; word-break: break-all;
-    margin-top: .5rem; position: relative;
-}
-.g-json-copy {
-    position: absolute; top: .3rem; right: .3rem;
-    background: rgba(255,255,255,.1); border: none; color: #94a3b8;
-    padding: .12rem .35rem; border-radius: 3px; font-size: .6rem; cursor: pointer;
-}
-.g-json-copy:hover { background: rgba(255,255,255,.2); color: #fff; }
-
-/* Canvas area */
-.gen-canvas-area {
-    flex: 1; display: flex; flex-direction: column;
-    background: #0f172a; min-height: 0; overflow: hidden;
-}
-.gen-canvas-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: .38rem 1rem; background: rgba(15,23,42,.95);
-    flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,.07);
-    gap: .5rem;
-}
-.gen-canvas-dims { color: #475569; font-size: .66rem; font-family: monospace; }
-.gen-drag-tip {
-    font-size: .65rem; color: rgba(99,102,241,.85);
-    font-style: italic; white-space: nowrap; display: none;
-    background: rgba(99,102,241,.1); padding: .12rem .4rem; border-radius: 4px;
-}
-.gen-zoom-grp { display: flex; align-items: center; gap: 4px; }
-.g-zoom-btn {
-    width: 22px; height: 22px; border-radius: 50%; border: none;
-    background: rgba(255,255,255,.1); color: #e2e8f0;
-    font-size: .82rem; font-weight: 700; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background .15s; padding: 0; line-height: 1;
-}
-.g-zoom-btn:hover { background: rgba(255,255,255,.25); }
-#zoom-level {
-    color: #e2e8f0; min-width: 36px; text-align: center;
-    font-size: .66rem; font-family: monospace;
-}
-#zoom-fit { width: 28px; border-radius: 4px; font-size: .55rem; letter-spacing: .02em; }
-#canvas-viewport {
-    flex: 1; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-    padding: 1.5rem; min-height: 200px;
-}
-#result_canvas {
-    transform-origin: center;
-    transition: transform .18s cubic-bezier(.4,0,.2,1);
-    flex-shrink: 0; width: 100%; position: relative;
-}
-
-/* Canvas couple divider */
-#gen-couple-divider {
-    position: absolute; top: 0; bottom: 0; left: 50%;
-    width: 3px; background: rgba(99,102,241,.7);
-    z-index: 20; display: none; pointer-events: none;
-}
-#gen-couple-divider::after {
-    content: 'SPLIT';
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(99,102,241,.9); color: #fff;
-    font-size: .5rem; font-weight: 700; letter-spacing: .05em;
-    padding: .18rem .28rem; border-radius: 3px; white-space: nowrap;
-}
-
-/* Drag overlays on canvas */
-.gen-drag-ov {
-    position: absolute; inset: 0;
-    border: 2px dashed transparent; box-sizing: border-box;
-    display: none; cursor: grab; z-index: 8;
-    transition: border-color .15s;
-}
-.gen-drag-ov.visible { display: block; }
-.gen-drag-ov:hover { border-color: rgba(99,102,241,.5); }
-.gen-drag-ov.sel { border-color: var(--g-primary); border-style: solid; }
-.gen-drag-ov.dragging { cursor: grabbing !important; }
-.gen-drag-lbl {
-    position: absolute; top: 3px; left: 3px;
-    background: var(--g-primary); color: #fff;
-    font-size: .58rem; font-weight: 700;
-    padding: .08rem .28rem; border-radius: 3px;
-    pointer-events: none; opacity: 0; transition: opacity .15s;
-}
-.gen-drag-ov:hover .gen-drag-lbl, .gen-drag-ov.sel .gen-drag-lbl { opacity: 1; }
-.gen-resize-hdl {
-    position: absolute; bottom: 0; right: 0;
-    width: 13px; height: 13px;
-    background: var(--g-primary); border-radius: 3px 0 0 0;
-    cursor: se-resize; opacity: 0; transition: opacity .15s; z-index: 9;
-}
-.gen-drag-ov:hover .gen-resize-hdl, .gen-drag-ov.sel .gen-resize-hdl { opacity: .9; }
-.gen-resize-hdl:hover { opacity: 1 !important; }
-
-/* Modal */
-.modal{display:flex;position:fixed;inset:0;background:rgba(0,0,0,.8);justify-content:center;align-items:center;z-index:16777372;}
-.modal-inner{flex-direction:column;display:flex;position:relative;color:#313131;background:#fff;max-width:calc(100dvw - 4rem);max-height:calc(100dvh - 4rem);}
-.modal-body{overflow-y:scroll;padding:2rem;white-space:pre;}
-.modal-buttonbar{display:flex;background:color-mix(in srgb,#6366f1,#fff 60%);gap:1px;}
-.modal-button{flex-grow:1;display:inline-flex;padding:1rem;gap:.25rem;font-size:1rem;color:#fff;text-align:center;cursor:pointer;user-select:none;border:none;background:#6366f1;justify-content:center;align-items:center;}
-.modal-button:hover{background:#4f46e5;}
-
-/* Suppress AdminInput default labels inside our G-label wrapped fields */
-.gen-frame-body .adminLabel { display: none !important; }
-.gen-frame-body .adminInput { margin-bottom: 0 !important; }
-.gen-frame-body .adminImageSelection-preview { max-height: 65px; border-radius: 5px; }
-
-/* Responsive */
-@media (max-width: 900px) {
-    .gen-body { flex-direction: column; }
-    .gen-sidebar { width: 100%; max-width: 100%; min-width: 0; border-right: none; border-bottom: 1px solid var(--g-border); max-height: 56vh; }
-    .gen-canvas-area { min-height: 44vh; }
-}
-@media (max-width: 560px) {
-    .gen-step-tab .gen-step-label { display: none; }
-    .gen-step-tab { padding: 0 .7rem; }
-}
-</style>
+<link rel="stylesheet" href="<?=$assetService->getUrl('resources/css/generator.css')?>">
 
 <div class="gen-root">
 
@@ -635,6 +179,8 @@ echo $font_styles;
             <span class="gen-step-label">Details &amp; Save</span>
         </div>
     </nav>
+    <!-- Progress bar -->
+    <div class="gen-progress-bar"><div class="gen-progress-fill" id="gen-progress-fill" style="width:25%"></div></div>
 
     <!-- Hidden inputs for generator.js -->
     <input id="current_config"  type="hidden" value='<?= json_encode($collageJson) ?>' />
@@ -830,6 +376,20 @@ echo $font_styles;
                     <!-- Photo slots -->
                     <div class="g-card">
                         <div class="g-card-title"><i class="fa fa-object-group"></i> Photo Slots</div>
+
+                        <!-- Alignment tools (shown when a slot is selected) -->
+                        <div id="gen-align-row" style="display:none;">
+                            <div class="g-label" style="margin-bottom:.3rem;">Align selected slot</div>
+                            <div class="gen-align-tools">
+                                <button type="button" class="gen-align-btn" data-align="left"   title="Align left"><i class="fa fa-align-left"></i></button>
+                                <button type="button" class="gen-align-btn" data-align="center-h" title="Center H"><i class="fa fa-align-center"></i>H</button>
+                                <button type="button" class="gen-align-btn" data-align="right"  title="Align right"><i class="fa fa-align-right"></i></button>
+                                <button type="button" class="gen-align-btn" data-align="top"    title="Align top"><i class="fa fa-arrow-up"></i></button>
+                                <button type="button" class="gen-align-btn" data-align="center-v" title="Center V"><i class="fa fa-align-center"></i>V</button>
+                                <button type="button" class="gen-align-btn" data-align="bottom" title="Align bottom"><i class="fa fa-arrow-down"></i></button>
+                            </div>
+                            <div style="height:.5rem;"></div>
+                        </div>
                         <div id="layout_containers">
                         <?php for ($i = 0; $i < count($demoImages); $i++) {
                             $hidden_class = ($i === 0) ? '' : 'hidden';
@@ -1031,13 +591,31 @@ echo $font_styles;
         <!-- Canvas -->
         <div class="gen-canvas-area">
             <div class="gen-canvas-bar" id="canvas-toolbar">
-                <span class="gen-canvas-dims" id="canvas-dim-label">— × — px</span>
-                <span class="gen-drag-tip" id="gen-drag-tip"><i class="fa fa-hand-paper-o"></i> Drag to move &bull; corner handle to resize</span>
-                <div class="gen-zoom-grp">
-                    <button type="button" class="g-zoom-btn" id="zoom-out" title="Zoom out">−</button>
-                    <span id="zoom-level">100%</span>
-                    <button type="button" class="g-zoom-btn" id="zoom-in" title="Zoom in">+</button>
-                    <button type="button" class="g-zoom-btn" id="zoom-fit">FIT</button>
+                <div style="display:flex;align-items:center;gap:.5rem;flex:1;min-width:0;flex-wrap:wrap;">
+                    <span class="gen-canvas-dims" id="canvas-dim-label">— × — px</span>
+                    <span class="gen-drag-tip" id="gen-drag-tip"><i class="fa fa-arrows"></i> Drag · corner handle resize · <kbd style="font-size:.55rem;padding:.05rem .25rem;background:rgba(0,0,0,.4);color:#7dd3fc;border:1px solid rgba(255,255,255,.15);border-radius:3px;">Space</kbd> pan</span>
+                    <div class="gen-toolbar-grp" id="gen-canvas-tools" style="display:none;">
+                        <div class="gen-toolbar-sep"></div>
+                        <button type="button" class="g-tool-btn" id="gen-undo-btn" title="Undo (Ctrl+Z)"><i class="fa fa-undo"></i></button>
+                        <div class="gen-toolbar-sep"></div>
+                        <button type="button" class="g-tool-btn" id="gen-grid-btn" title="Toggle grid"><i class="fa fa-th"></i></button>
+                        <button type="button" class="gen-snap-badge" id="gen-snap-btn" title="Toggle snap to grid">
+                            <i class="fa fa-magnet"></i> Snap
+                        </button>
+                        <div class="gen-toolbar-sep"></div>
+                        <button type="button" class="g-tool-btn" id="gen-center-h-btn" title="Center selected horizontally"><i class="fa fa-align-center"></i> H</button>
+                        <button type="button" class="g-tool-btn" id="gen-center-v-btn" title="Center selected vertically"><i class="fa fa-align-center"></i> V</button>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:.4rem;">
+                    <button type="button" class="g-tool-btn" id="gen-shortcuts-btn" title="Keyboard shortcuts"><i class="fa fa-keyboard-o"></i></button>
+                    <div class="gen-toolbar-sep"></div>
+                    <div class="gen-zoom-grp">
+                        <button type="button" class="g-zoom-btn" id="zoom-out" title="Zoom out (−)">−</button>
+                        <span id="zoom-level" title="Click to reset to 100%">100%</span>
+                        <button type="button" class="g-zoom-btn" id="zoom-in" title="Zoom in (+)">+</button>
+                        <button type="button" class="g-zoom-btn" id="zoom-fit" title="Fit to viewport (0)">FIT</button>
+                    </div>
                 </div>
             </div>
 
@@ -1056,11 +634,22 @@ echo $font_styles;
                                 <img class='picture-frame absolute object-left-top rotate-0 max-w-none hidden'>
                                 <div class='gen-drag-ov' data-fidx='$i'>
                                     <span class='gen-drag-lbl'>#" . ($i + 1) . "</span>
-                                    <div class='gen-resize-hdl' data-fidx='$i'></div>
+                                    <span class='gen-pos-tooltip'></span>
+                                    <div class='gen-resize-hdl' data-fidx='$i' data-dir='nw'></div>
+                                    <div class='gen-resize-hdl' data-fidx='$i' data-dir='n'></div>
+                                    <div class='gen-resize-hdl' data-fidx='$i' data-dir='ne'></div>
+                                    <div class='gen-resize-hdl' data-fidx='$i' data-dir='e'></div>
+                                    <div class='gen-resize-hdl' data-fidx='$i' data-dir='se'></div>
+                                    <div class='gen-resize-hdl' data-fidx='$i' data-dir='s'></div>
+                                    <div class='gen-resize-hdl' data-fidx='$i' data-dir='sw'></div>
+                                    <div class='gen-resize-hdl' data-fidx='$i' data-dir='w'></div>
                                 </div>
                               </div>\n";
                     } ?>
 
+                    <div id="gen-grid-overlay"></div>
+                    <div class="gen-snap-line h" id="snap-h"></div>
+                    <div class="gen-snap-line v" id="snap-v"></div>
                     <div id="gen-couple-divider"></div>
 
                     <div id="collage_frame" class="absolute h-full w-full" style="z-index:10;">
@@ -1082,6 +671,33 @@ echo $font_styles;
     </div><!-- /.gen-body -->
 </div><!-- /.gen-root -->
 
+<!-- Keyboard shortcuts overlay -->
+<div class="gen-shortcut-overlay" id="gen-shortcut-overlay">
+    <div class="gen-shortcut-box">
+        <div class="gen-shortcut-title"><i class="fa fa-keyboard-o"></i>&nbsp; Keyboard Shortcuts</div>
+        <div class="gen-shortcut-grid">
+            <div class="gen-shortcut-row"><kbd>↑ ↓ ← →</kbd> Nudge frame 1px</div>
+            <div class="gen-shortcut-row"><kbd>Shift</kbd>+<kbd>↑↓←→</kbd> Nudge 10px</div>
+            <div class="gen-shortcut-row"><kbd>Ctrl</kbd>+<kbd>↑↓←→</kbd> Nudge 100px</div>
+            <div class="gen-shortcut-row"><kbd>Ctrl</kbd>+<kbd>Z</kbd> Undo last move</div>
+            <div class="gen-shortcut-row"><kbd>+</kbd> / <kbd>−</kbd> Zoom in / out</div>
+            <div class="gen-shortcut-row"><kbd>0</kbd> Fit canvas to view</div>
+            <div class="gen-shortcut-row"><kbd>Space</kbd>+drag Pan canvas</div>
+            <div class="gen-shortcut-row"><kbd>G</kbd> Toggle grid</div>
+            <div class="gen-shortcut-row"><kbd>S</kbd> Toggle snap</div>
+            <div class="gen-shortcut-row"><kbd>Del</kbd> Delete selected slot</div>
+            <div class="gen-shortcut-row"><kbd>Tab</kbd> Next slot</div>
+            <div class="gen-shortcut-row"><kbd>?</kbd> This panel</div>
+        </div>
+        <button class="gen-shortcut-close" onclick="document.getElementById('gen-shortcut-overlay').classList.remove('show')">Close</button>
+    </div>
+</div>
+
+<!-- Undo toast -->
+<div class="gen-undo-toast" id="gen-undo-toast">
+    <i class="fa fa-undo"></i> <span id="gen-undo-msg">Undone</span>
+</div>
+
 <form id="configuration_form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST" enctype="multipart/form-data" class="hidden">
     <input type="hidden" name="new-configuration" value="">
 </form>
@@ -1091,390 +707,6 @@ $assetService = AssetService::getInstance();
 include PathUtility::getAbsolutePath('admin/components/footer.scripts.php');
 echo '<script src="' . $assetService->getUrl('resources/js/admin/generator.js') . '"></script>';
 ?>
-<script>
-/* ════════════════════════════════════════════════════════════════
-   GENERATOR — Wizard + Drag-Drop + Couple Mode + Spinners + Zoom
-════════════════════════════════════════════════════════════════ */
-
-// ── Wizard ───────────────────────────────────────────────────
-var genCurStep = 1, GEN_STEPS = 4;
-
-function genGoTo(step) {
-    step = Math.max(1, Math.min(GEN_STEPS, step));
-    genCurStep = step;
-    document.querySelectorAll('.gen-panel').forEach(function(el) {
-        el.classList.toggle('active', +el.dataset.panel === step);
-    });
-    document.querySelectorAll('.gen-step-tab[data-go]').forEach(function(el) {
-        var s = +el.dataset.go;
-        el.classList.toggle('active', s === step);
-        el.classList.toggle('done',   s < step);
-    });
-    var prev = document.getElementById('gen-prev');
-    var next = document.getElementById('gen-next');
-    var lbl  = document.getElementById('gen-step-lbl');
-    if (prev) prev.disabled = step === 1;
-    if (lbl)  lbl.textContent = 'Step ' + step + ' of ' + GEN_STEPS;
-    if (next) {
-        if (step === GEN_STEPS) {
-            next.innerHTML = '<i class="fa fa-save"></i> Save';
-            next.onclick   = function() { saveConfiguration(); };
-        } else {
-            next.innerHTML = 'Next <i class="fa fa-chevron-right"></i>';
-            next.onclick   = function() { genStep(1); };
-        }
-    }
-    var tip = document.getElementById('gen-drag-tip');
-    if (tip) tip.style.display = (step === 3) ? 'flex' : 'none';
-    document.querySelectorAll('.gen-drag-ov').forEach(function(ov) {
-        ov.classList.toggle('visible', step === 3);
-        ov.style.pointerEvents = (step === 3) ? 'auto' : 'none';
-    });
-}
-function genStep(dir) { genGoTo(genCurStep + dir); }
-document.querySelectorAll('.gen-step-tab[data-go]').forEach(function(el) {
-    el.addEventListener('click', function() { genGoTo(+el.dataset.go); });
-});
-
-// ── Collapse/expand frame card ────────────────────────────────
-function genToggleFrame(hd) {
-    var card = hd.closest('.gen-frame-card');
-    if (!card) return;
-    card.classList.toggle('open');
-    var idx = +card.dataset.picture.replace('picture-', '');
-    genSelectFrame(idx);
-}
-
-// ── Select a frame slot ───────────────────────────────────────
-function genSelectFrame(idx) {
-    document.querySelectorAll('.gen-frame-card').forEach(function(c) { c.classList.remove('selected'); });
-    var card = document.querySelector('[data-picture="picture-' + idx + '"]');
-    if (card) { card.classList.add('selected'); card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
-    document.querySelectorAll('.gen-drag-ov').forEach(function(o) { o.classList.remove('sel'); });
-    var ov = document.querySelector('.gen-drag-ov[data-fidx="' + idx + '"]');
-    if (ov) ov.classList.add('sel');
-}
-
-// ── Auto-detect canvas size from BG image ────────────────────
-function genDetectBgSize() {
-    var bgPath = $('input[name="generator-background"]').val();
-    if (!bgPath) {
-        if (typeof openToast === 'function') openToast('Please select a background image first', 'isWarning', 3000);
-        return;
-    }
-    var tmp = new Image();
-    tmp.onload = function() {
-        var w = tmp.naturalWidth, h = tmp.naturalHeight;
-        $('input[name="final_width"]').val(w).trigger('change');
-        $('input[name="final_height"]').val(h).trigger('change');
-        if (typeof openToast === 'function') openToast('Canvas set to ' + w + ' × ' + h + ' px', 'isSuccess', 2500);
-        setTimeout(function() { if (window._genFit) window._genFit(); }, 300);
-    };
-    tmp.onerror = function() {
-        if (typeof openToast === 'function') openToast('Could not read image dimensions', 'isError', 3000);
-    };
-    var src = (typeof toPublicUrl === 'function') ? toPublicUrl(bgPath) : bgPath;
-    tmp.src = src + (src.indexOf('?') >= 0 ? '&' : '?') + '_t=' + Date.now();
-}
-document.getElementById('gen-detect-btn1') && document.getElementById('gen-detect-btn1').addEventListener('click', genDetectBgSize);
-document.getElementById('gen-detect-btn2') && document.getElementById('gen-detect-btn2').addEventListener('click', genDetectBgSize);
-
-// ── Canvas size presets ───────────────────────────────────────
-document.querySelectorAll('.g-preset').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.g-preset').forEach(function(b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        $('input[name="final_width"]').val(btn.dataset.w).trigger('change');
-        $('input[name="final_height"]').val(btn.dataset.h).trigger('change');
-    });
-});
-
-// ── Drag-move + resize frames on canvas ──────────────────────
-(function() {
-    var mode = null; // 'drag' | 'resize'
-    var activeIdx = null;
-    var sx, sy, sl, st, sw, sh;
-
-    function getScale() {
-        var cv = document.getElementById('result_canvas');
-        var cw = parseFloat($('input[name="final_width"]').val())  || 1;
-        var ch = parseFloat($('input[name="final_height"]').val()) || 1;
-        return { x: cv.offsetWidth / cw, y: cv.offsetHeight / ch };
-    }
-    function numVal(name) {
-        return parseFloat($('input[name="' + name + '"]').val()) || 0;
-    }
-    function resolveFrameSize(idx) {
-        var wRaw = $('input[name="picture-width-'  + idx + '"]').val();
-        var hRaw = $('input[name="picture-height-' + idx + '"]').val();
-        var s = getScale();
-        var el = document.getElementById('picture-' + idx);
-        var fw = /^-?\d+\.?\d*$/.test(wRaw.trim()) ? parseFloat(wRaw) : (el ? el.offsetWidth  / s.x : 400);
-        var fh = /^-?\d+\.?\d*$/.test(hRaw.trim()) ? parseFloat(hRaw) : (el ? el.offsetHeight / s.y : 300);
-        return { w: fw, h: fh };
-    }
-
-    document.addEventListener('mousedown', function(e) {
-        if (genCurStep !== 3) return;
-        var rh = e.target.closest('.gen-resize-hdl');
-        if (rh) {
-            activeIdx = +rh.dataset.fidx;
-            var sz = resolveFrameSize(activeIdx);
-            sx = e.clientX; sy = e.clientY; sw = sz.w; sh = sz.h;
-            $('input[name="picture-width-'  + activeIdx + '"]').val(Math.round(sw));
-            $('input[name="picture-height-' + activeIdx + '"]').val(Math.round(sh));
-            mode = 'resize'; e.preventDefault(); genSelectFrame(activeIdx); return;
-        }
-        var ov = e.target.closest('.gen-drag-ov');
-        if (ov) {
-            activeIdx = +ov.dataset.fidx;
-            sx = e.clientX; sy = e.clientY;
-            sl = numVal('picture-x-position-' + activeIdx);
-            st = numVal('picture-y-position-' + activeIdx);
-            mode = 'drag'; ov.classList.add('dragging'); e.preventDefault(); genSelectFrame(activeIdx);
-        }
-    });
-
-    document.addEventListener('mousemove', function(e) {
-        if (!mode) return;
-        var s  = getScale();
-        var dx = e.clientX - sx, dy = e.clientY - sy;
-        var cw = parseFloat($('input[name="final_width"]').val());
-        var ch = parseFloat($('input[name="final_height"]').val());
-        if (mode === 'drag') {
-            var nx = Math.max(0, Math.min(cw - 10, sl + dx / s.x));
-            var ny = Math.max(0, Math.min(ch - 10, st + dy / s.y));
-            $('input[name="picture-x-position-' + activeIdx + '"]').val(Math.round(nx));
-            $('input[name="picture-y-position-' + activeIdx + '"]').val(Math.round(ny));
-            $('input[name="picture-x-position-' + activeIdx + '"]').trigger('change');
-        } else {
-            var nw = Math.max(40, sw + dx / s.x);
-            var nh = Math.max(40, sh + dy / s.y);
-            $('input[name="picture-width-'  + activeIdx + '"]').val(Math.round(nw));
-            $('input[name="picture-height-' + activeIdx + '"]').val(Math.round(nh));
-            $('input[name="picture-width-'  + activeIdx + '"]').trigger('change');
-        }
-    });
-
-    document.addEventListener('mouseup', function() {
-        document.querySelectorAll('.gen-drag-ov').forEach(function(o) { o.classList.remove('dragging'); });
-        mode = null; activeIdx = null;
-    });
-
-    // Touch
-    document.addEventListener('touchstart', function(e) {
-        if (genCurStep !== 3) return;
-        var ov = e.target.closest('.gen-drag-ov');
-        if (ov) {
-            var t = e.touches[0]; activeIdx = +ov.dataset.fidx;
-            sx = t.clientX; sy = t.clientY;
-            sl = numVal('picture-x-position-' + activeIdx);
-            st = numVal('picture-y-position-' + activeIdx);
-            mode = 'drag'; genSelectFrame(activeIdx);
-        }
-    }, { passive: true });
-    document.addEventListener('touchmove', function(e) {
-        if (mode !== 'drag') return;
-        var t = e.touches[0], s = getScale();
-        $('input[name="picture-x-position-' + activeIdx + '"]').val(Math.round(sl + (t.clientX - sx) / s.x)).trigger('change');
-        $('input[name="picture-y-position-' + activeIdx + '"]').val(Math.round(st + (t.clientY - sy) / s.y)).trigger('change');
-    }, { passive: true });
-    document.addEventListener('touchend', function() { mode = null; activeIdx = null; });
-}());
-
-// ── Couple Mode ───────────────────────────────────────────────
-(function() {
-    var tog = document.getElementById('gen-couple-toggle');
-    if (!tog) return;
-    tog.addEventListener('change', function() {
-        var on = this.checked;
-        var div = document.getElementById('gen-couple-divider');
-        if (div) div.style.display = on ? 'block' : 'none';
-        if (on) {
-            genApplyCouple();
-            if (typeof openToast === 'function') openToast('Couple mode ON — 3 + 3 mirrored slots', 'isSuccess', 2500);
-        } else {
-            if (typeof openToast === 'function') openToast('Couple mode OFF', 'isSuccess', 2000);
-        }
-    });
-}());
-
-function genApplyCouple() {
-    var cw = parseFloat($('input[name="final_width"]').val())  || 1500;
-    var ch = parseFloat($('input[name="final_height"]').val()) || 1000;
-    var cv = document.getElementById('result_canvas');
-    var sx = cv.offsetWidth / cw, sy = cv.offsetHeight / ch;
-
-    for (var i = 0; i < 3; i++) {
-        var card = document.querySelector('[data-picture="picture-' + i + '"]');
-        if (!card || card.classList.contains('hidden')) continue;
-        var el   = document.getElementById('picture-' + i);
-        var wRaw = $('input[name="picture-width-'  + i + '"]').val();
-        var hRaw = $('input[name="picture-height-' + i + '"]').val();
-        var fw   = /^-?\d+\.?\d*$/.test(wRaw.trim()) ? parseFloat(wRaw) : (el ? el.offsetWidth  / sx : 400);
-        var fh   = /^-?\d+\.?\d*$/.test(hRaw.trim()) ? parseFloat(hRaw) : (el ? el.offsetHeight / sy : 300);
-        var fx   = parseFloat($('input[name="picture-x-position-' + i + '"]').val()) || 0;
-        var fy   = parseFloat($('input[name="picture-y-position-' + i + '"]').val()) || 0;
-        var mi   = i + 3;
-        var mc   = document.querySelector('[data-picture="picture-' + mi + '"]');
-        var md   = document.getElementById('picture-' + mi);
-        if (mc) mc.classList.remove('hidden');
-        if (md) md.classList.remove('hidden');
-        $('input[name="picture-x-position-' + mi + '"]').val(Math.round(cw - fx - fw)).trigger('change');
-        $('input[name="picture-y-position-' + mi + '"]').val(Math.round(fy)).trigger('change');
-        $('input[name="picture-width-'  + mi + '"]').val(Math.round(fw)).trigger('change');
-        $('input[name="picture-height-' + mi + '"]').val(Math.round(fh)).trigger('change');
-    }
-    changeGeneralSetting();
-}
-
-// ── Canvas zoom ───────────────────────────────────────────────
-(function() {
-    var zoom = 1.0, MIN = 0.1, MAX = 4.0, STEP = 0.1;
-    function setZoom(z) {
-        zoom = Math.min(MAX, Math.max(MIN, +z.toFixed(2)));
-        var cv = document.getElementById('result_canvas');
-        if (cv) cv.style.transform = 'scale(' + zoom + ')';
-        var lbl = document.getElementById('zoom-level');
-        if (lbl) lbl.textContent = Math.round(zoom * 100) + '%';
-    }
-    function fit() {
-        var vp = document.getElementById('canvas-viewport');
-        var cv = document.getElementById('result_canvas');
-        if (!vp || !cv) return;
-        var vw = vp.clientWidth - 48, vh = vp.clientHeight - 48;
-        var cw = cv.offsetWidth,     ch = cv.offsetHeight;
-        if (cw > 0 && ch > 0) setZoom(Math.min(vw / cw, vh / ch, 1.0));
-    }
-    window._genFit = fit;
-    function updateDimLabel() {
-        var w = $('input[name="final_width"]').val();
-        var h = $('input[name="final_height"]').val();
-        var el = document.getElementById('canvas-dim-label');
-        if (el && w && h) el.textContent = w + ' × ' + h + ' px';
-    }
-    $(function() {
-        $('#zoom-in').on('click',  function() { setZoom(zoom + STEP); });
-        $('#zoom-out').on('click', function() { setZoom(zoom - STEP); });
-        $('#zoom-fit').on('click', fit);
-        var vp = document.getElementById('canvas-viewport');
-        if (vp) vp.addEventListener('wheel', function(e) {
-            e.preventDefault();
-            setZoom(zoom + (e.deltaY < 0 ? STEP : -STEP));
-        }, { passive: false });
-        $(document).on('keydown', function(e) {
-            if ($(e.target).is('input,select,textarea')) return;
-            if (e.key === '=' || e.key === '+') { e.preventDefault(); setZoom(zoom + STEP); }
-            if (e.key === '-' || e.key === '_') { e.preventDefault(); setZoom(zoom - STEP); }
-            if (e.key === '0')                  { e.preventDefault(); fit(); }
-        });
-        $('input[name="final_width"],input[name="final_height"]').on('change keyup', updateDimLabel);
-        setTimeout(updateDimLabel, 600);
-        setTimeout(fit, 750);
-        $(window).on('resize', function() { setTimeout(fit, 100); });
-    });
-}());
-
-// ── Keyboard ↑/↓ for number/text inputs ──────────────────────
-$(document).on('keydown', 'input[type="number"],input[type="text"]', function(e) {
-    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
-    var v = this.value;
-    if (!/^-?\d*\.?\d+$/.test(v.trim())) return;
-    e.preventDefault();
-    var step = (e.ctrlKey || e.metaKey) ? 100 : e.shiftKey ? 10 : 1;
-    var n = parseFloat(v) + (e.key === 'ArrowUp' ? 1 : -1) * step;
-    var mn = parseFloat(this.getAttribute('min')), mx = parseFloat(this.getAttribute('max'));
-    if (!isNaN(mn)) n = Math.max(mn, n);
-    if (!isNaN(mx)) n = Math.min(mx, n);
-    this.value = n; $(this).trigger('change');
-});
-
-// ── Number spinner +/- buttons ───────────────────────────────
-function _spin(inp, dir, ev) {
-    var step = (ev && (ev.ctrlKey || ev.metaKey)) ? 100 : (ev && ev.shiftKey) ? 10 : 1;
-    var v = inp.value;
-    if (!/^-?\d*\.?\d+$/.test(v.trim())) return;
-    var n = parseFloat(v) + dir * step;
-    var mn = parseFloat(inp.getAttribute('min')), mx = parseFloat(inp.getAttribute('max'));
-    if (!isNaN(mn)) n = Math.max(mn, n);
-    if (!isNaN(mx)) n = Math.min(mx, n);
-    inp.value = n; $(inp).trigger('change');
-}
-function initSpinners() {
-    document.querySelectorAll('input[type="number"]').forEach(function(inp) {
-        if (inp.closest('.g-spin')) return;
-        var wrap = document.createElement('div'); wrap.className = 'g-spin';
-        var minus = document.createElement('button');
-        minus.type = 'button'; minus.className = 'g-spin-btn'; minus.innerHTML = '&minus;';
-        minus.title = 'Decrease (Shift ×10, Ctrl ×100)';
-        minus.addEventListener('mousedown', function(ev) { ev.preventDefault(); });
-        minus.addEventListener('click',     function(ev) { _spin(inp, -1, ev); });
-        var plus = document.createElement('button');
-        plus.type = 'button'; plus.className = 'g-spin-btn'; plus.innerHTML = '+';
-        plus.title = 'Increase (Shift ×10, Ctrl ×100)';
-        plus.addEventListener('mousedown', function(ev) { ev.preventDefault(); });
-        plus.addEventListener('click',     function(ev) { _spin(inp, 1, ev); });
-        inp.parentNode.insertBefore(wrap, inp);
-        wrap.appendChild(minus); wrap.appendChild(inp); wrap.appendChild(plus);
-    });
-}
-
-// ── Live JSON preview ─────────────────────────────────────────
-function updateConfigDisplay() {
-    var cfg = {
-        width: $('input[name="final_width"]').val(),
-        height: $('input[name="final_height"]').val(),
-        text_custom_style: $('input[name="text_enabled"][data-trigger="general"]').is(':checked'),
-        text_font_size: $('input[name="text_font_size"]').val(),
-        text_rotation: $('input[name="text_rotation"]').val(),
-        text_locationx: $('input[name="text_location_x"]').val(),
-        text_locationy: $('input[name="text_location_y"]').val(),
-        text_font_color: $('input[name="text_font_color"]').val(),
-        text_font: $('input[name="text_font_family"]').val(),
-        text_line1: $('input[name="text_line_1"]').val(),
-        text_line2: $('input[name="text_line_2"]').val(),
-        text_line3: $('input[name="text_line_3"]').val(),
-        text_linespace: $('input[name="text_line_space"]').val(),
-        apply_frame: $('select[name="apply_frame"]').val(),
-        frame: $('input[name="generator-frame"]').val(),
-        background: $('input[name="generator-background"]').val(),
-        background_color: $('input[name="background_color"]').val(),
-        background_on_top: $('input[name="generator-background_on_top"][data-trigger="general"]').is(':checked'),
-        placeholder: $('input[name="enable_placeholder_image"][data-trigger="general"]').is(':checked'),
-        placeholderpath: $('input[name="placeholder_image"]').val(),
-        placeholderposition: $('input[name="placeholder_image_position"]').val(),
-        layout: []
-    };
-    $('div.image_layout:visible').each(function() {
-        var row = [];
-        $(this).find('input[data-prop]').each(function() {
-            var v = $(this).val();
-            if ($(this).attr('type') === 'checkbox') v = $(this).is(':checked') && cfg.apply_frame === 'always';
-            row.push(v);
-        });
-        cfg.layout.push(row);
-    });
-    var box = document.getElementById('config-json-content');
-    if (box) box.textContent = JSON.stringify(cfg, null, 2);
-}
-$(document).on('change keyup', 'input,select', function() { setTimeout(updateConfigDisplay, 100); });
-$(function() { setTimeout(updateConfigDisplay, 500); });
-
-function genCopyConfig() {
-    var c = document.getElementById('config-json-content');
-    if (!c) return;
-    navigator.clipboard.writeText(c.innerText).then(function() {
-        if (typeof openToast === 'function') openToast('JSON copied!', 'isSuccess', 2000);
-    });
-}
-
-// ── Init ──────────────────────────────────────────────────────
-$(function() {
-    genGoTo(1);
-    setTimeout(initSpinners, 450);
-    setTimeout(function() { if (window._genFit) window._genFit(); }, 800);
-});
-</script>
 <?php
 if ($success) {
     echo '<script>setTimeout(function(){openToast("' . $languageService->translate('collage:generator:configuration_saved') . '")},500);</script>';

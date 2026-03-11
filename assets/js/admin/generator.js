@@ -639,3 +639,788 @@ function calculate(tokens) {
         return tokens[0];
     }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   GENERATOR v2 UX — append after core functions above
+══════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   GENERATOR v2 — Silky smooth RAF drag · Undo · Grid+Snap
+   Pan (Space) · Pinch zoom · 8-dir resize · Alignment tools
+   Hold-to-repeat spinners · Scroll-wheel on inputs · Shortcuts
+════════════════════════════════════════════════════════════════ */
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════
+// 1. WIZARD
+// ═══════════════════════════════════════════════════════════════
+var genCurStep = 1, GEN_STEPS = 4;
+
+function genGoTo(step) {
+    step = Math.max(1, Math.min(GEN_STEPS, step));
+    genCurStep = step;
+    document.querySelectorAll('.gen-panel').forEach(function(el) {
+        el.classList.toggle('active', +el.dataset.panel === step);
+    });
+    document.querySelectorAll('.gen-step-tab[data-go]').forEach(function(el) {
+        var s = +el.dataset.go;
+        el.classList.toggle('active', s === step);
+        el.classList.toggle('done',   s < step);
+    });
+    // Progress bar
+    var pf = document.getElementById('gen-progress-fill');
+    if (pf) pf.style.width = Math.round((step / GEN_STEPS) * 100) + '%';
+    var prev = document.getElementById('gen-prev');
+    var next = document.getElementById('gen-next');
+    var lbl  = document.getElementById('gen-step-lbl');
+    if (prev) prev.disabled = step === 1;
+    if (lbl)  lbl.textContent = 'Step ' + step + ' of ' + GEN_STEPS;
+    if (next) {
+        if (step === GEN_STEPS) {
+            next.innerHTML = '<i class="fa fa-save"></i> Save';
+            next.onclick   = function() { saveConfiguration(); };
+        } else {
+            next.innerHTML = 'Next <i class="fa fa-chevron-right"></i>';
+            next.onclick   = function() { genStep(1); };
+        }
+    }
+    var tip = document.getElementById('gen-drag-tip');
+    if (tip) tip.style.display = (step === 3) ? 'flex' : 'none';
+    // Show canvas tools on step 3
+    var tools = document.getElementById('gen-canvas-tools');
+    if (tools) tools.style.display = (step === 3) ? 'flex' : 'none';
+    document.querySelectorAll('.gen-drag-ov').forEach(function(ov) {
+        ov.classList.toggle('visible', step === 3);
+        ov.style.pointerEvents = (step === 3) ? 'auto' : 'none';
+    });
+}
+function genStep(dir) { genGoTo(genCurStep + dir); }
+document.querySelectorAll('.gen-step-tab[data-go]').forEach(function(el) {
+    el.addEventListener('click', function() { genGoTo(+el.dataset.go); });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 2. FRAME CARD — expand/collapse + select
+// ═══════════════════════════════════════════════════════════════
+function genToggleFrame(hd) {
+    var card = hd.closest('.gen-frame-card');
+    if (!card) return;
+    card.classList.toggle('open');
+    var idx = +card.dataset.picture.replace('picture-', '');
+    genSelectFrame(idx);
+}
+
+var _selectedFrameIdx = null;
+function genSelectFrame(idx) {
+    _selectedFrameIdx = idx;
+    document.querySelectorAll('.gen-frame-card').forEach(function(c) { c.classList.remove('selected'); });
+    var card = document.querySelector('[data-picture="picture-' + idx + '"]');
+    if (card) { card.classList.add('selected'); card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    document.querySelectorAll('.gen-drag-ov').forEach(function(o) { o.classList.remove('sel'); });
+    var ov = document.querySelector('.gen-drag-ov[data-fidx="' + idx + '"]');
+    if (ov) ov.classList.add('sel');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 3. HELPERS
+// ═══════════════════════════════════════════════════════════════
+function getScale() {
+    var cv = document.getElementById('result_canvas');
+    if (!cv) return { x: 1, y: 1 };
+    var cw = parseFloat($('input[name="final_width"]').val())  || 1;
+    var ch = parseFloat($('input[name="final_height"]').val()) || 1;
+    // Account for current zoom so drag distance maps correctly
+    var zoomFactor = window._genZoom || 1;
+    return { x: (cv.offsetWidth  * zoomFactor) / cw,
+             y: (cv.offsetHeight * zoomFactor) / ch };
+}
+function numVal(name) { return parseFloat($('input[name="' + name + '"]').val()) || 0; }
+function setVal(name, v) { $('input[name="' + name + '"]').val(v).trigger('change'); }
+
+function resolveFrameSize(idx) {
+    var wRaw = $('input[name="picture-width-'  + idx + '"]').val();
+    var hRaw = $('input[name="picture-height-' + idx + '"]').val();
+    var s  = getScale();
+    var el = document.getElementById('picture-' + idx);
+    var fw = /^-?\d+\.?\d*$/.test((wRaw||'').trim()) ? parseFloat(wRaw) : (el ? el.offsetWidth  / s.x : 400);
+    var fh = /^-?\d+\.?\d*$/.test((hRaw||'').trim()) ? parseFloat(hRaw) : (el ? el.offsetHeight / s.y : 300);
+    return { w: fw, h: fh };
+}
+
+// Snap to grid helper
+var SNAP_SIZE = 25;
+var _snapEnabled = false;
+function maybeSnap(v) { return _snapEnabled ? Math.round(v / SNAP_SIZE) * SNAP_SIZE : v; }
+function showSnapLines(x, y) {
+    var sh = document.getElementById('snap-h'), sv = document.getElementById('snap-v');
+    if (sh) { sh.style.top = (window._genZoom||1) * y + 'px'; sh.classList.toggle('active', _snapEnabled); }
+    if (sv) { sv.style.left = (window._genZoom||1) * x + 'px'; sv.classList.toggle('active', _snapEnabled); }
+}
+function hideSnapLines() {
+    var sh = document.getElementById('snap-h'), sv = document.getElementById('snap-v');
+    if (sh) sh.classList.remove('active');
+    if (sv) sv.classList.remove('active');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 4. UNDO STACK
+// ═══════════════════════════════════════════════════════════════
+var _undoStack = [];
+var _undoTimer = null;
+
+function undoPush(idx) {
+    _undoStack.push({
+        idx: idx,
+        x: numVal('picture-x-position-' + idx),
+        y: numVal('picture-y-position-' + idx),
+        w: $('input[name="picture-width-'  + idx + '"]').val(),
+        h: $('input[name="picture-height-' + idx + '"]').val()
+    });
+    if (_undoStack.length > 50) _undoStack.shift();
+}
+
+function undoLast() {
+    var s = _undoStack.pop();
+    if (!s) { if (typeof openToast==='function') openToast('Nothing to undo', 'isWarning', 1800); return; }
+    setVal('picture-x-position-' + s.idx, s.x);
+    setVal('picture-y-position-' + s.idx, s.y);
+    $('input[name="picture-width-'  + s.idx + '"]').val(s.w).trigger('change');
+    $('input[name="picture-height-' + s.idx + '"]').val(s.h).trigger('change');
+    genSelectFrame(s.idx);
+    showUndoToast('Undone');
+}
+
+function showUndoToast(msg) {
+    var t = document.getElementById('gen-undo-toast');
+    var m = document.getElementById('gen-undo-msg');
+    if (!t) return;
+    if (m) m.textContent = msg || 'Done';
+    t.classList.add('show');
+    clearTimeout(_undoTimer);
+    _undoTimer = setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('gen-undo-btn');
+    if (btn) btn.addEventListener('click', undoLast);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 5. RAF DRAG + 8-DIR RESIZE (silky smooth)
+// ═══════════════════════════════════════════════════════════════
+(function() {
+    var mode = null; // 'drag' | 'resize' | 'pan'
+    var resizeDir = 'se';
+    var activeIdx = null;
+    var sx = 0, sy = 0;
+    var sl = 0, st = 0, sw = 0, sh = 0; // start l/t/w/h
+    var rafId = null;
+    var pendingX = 0, pendingY = 0;
+    var _panOriginX = 0, _panOriginY = 0;
+    var _vpScrollX  = 0, _vpScrollY  = 0;
+
+    window._genPanMode = false;
+    var spaceDown = false;
+
+    document.addEventListener('keydown', function(e) {
+        if (e.code === 'Space' && !$(e.target).is('input,select,textarea')) {
+            spaceDown = true;
+            var vp = document.getElementById('canvas-viewport');
+            if (vp) vp.style.cursor = 'grab';
+        }
+    });
+    document.addEventListener('keyup', function(e) {
+        if (e.code === 'Space') {
+            spaceDown = false;
+            var vp = document.getElementById('canvas-viewport');
+            if (vp) vp.style.cursor = '';
+        }
+    });
+
+    function applyFrame(nx, ny, nw, nh) {
+        var cw = parseFloat($('input[name="final_width"]').val())  || 9999;
+        var ch = parseFloat($('input[name="final_height"]').val()) || 9999;
+        nx = maybeSnap(Math.max(0, Math.min(cw - 10, nx)));
+        ny = maybeSnap(Math.max(0, Math.min(ch - 10, ny)));
+        nw = Math.max(20, nw); nh = Math.max(20, nh);
+        showSnapLines(nx, ny);
+        if (mode === 'drag') {
+            $('input[name="picture-x-position-' + activeIdx + '"]').val(Math.round(nx));
+            $('input[name="picture-y-position-' + activeIdx + '"]').val(Math.round(ny));
+            $('input[name="picture-x-position-' + activeIdx + '"]').trigger('change');
+        } else {
+            $('input[name="picture-width-'  + activeIdx + '"]').val(Math.round(nw));
+            $('input[name="picture-height-' + activeIdx + '"]').val(Math.round(nh));
+            $('input[name="picture-x-position-' + activeIdx + '"]').val(Math.round(nx));
+            $('input[name="picture-y-position-' + activeIdx + '"]').val(Math.round(ny));
+            $('input[name="picture-width-'  + activeIdx + '"]').trigger('change');
+        }
+    }
+
+    function rafLoop() {
+        applyFrame(pendingX, pendingY, sw, sh);
+        rafId = null;
+    }
+
+    document.addEventListener('mousedown', function(e) {
+        if (genCurStep !== 3) return;
+        // Space-pan mode
+        if (spaceDown || window._genPanMode) {
+            var vp = document.getElementById('canvas-viewport');
+            if (vp) { _panOriginX = e.clientX; _panOriginY = e.clientY; _vpScrollX = vp.scrollLeft; _vpScrollY = vp.scrollTop; mode = 'pan'; vp.style.cursor = 'grabbing'; e.preventDefault(); return; }
+        }
+        var rh = e.target.closest('.gen-resize-hdl');
+        if (rh) {
+            activeIdx = +rh.dataset.fidx;
+            resizeDir = rh.dataset.dir || 'se';
+            var sz = resolveFrameSize(activeIdx);
+            sx = e.clientX; sy = e.clientY;
+            sl = numVal('picture-x-position-' + activeIdx);
+            st = numVal('picture-y-position-' + activeIdx);
+            sw = sz.w; sh = sz.h;
+            undoPush(activeIdx);
+            mode = 'resize'; e.preventDefault(); genSelectFrame(activeIdx); return;
+        }
+        var ov = e.target.closest('.gen-drag-ov');
+        if (ov) {
+            activeIdx = +ov.dataset.fidx;
+            sx = e.clientX; sy = e.clientY;
+            sl = numVal('picture-x-position-' + activeIdx);
+            st = numVal('picture-y-position-' + activeIdx);
+            var sz2 = resolveFrameSize(activeIdx);
+            sw = sz2.w; sh = sz2.h;
+            undoPush(activeIdx);
+            mode = 'drag'; ov.classList.add('dragging'); e.preventDefault(); genSelectFrame(activeIdx);
+        }
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!mode) return;
+        if (mode === 'pan') {
+            var vp = document.getElementById('canvas-viewport');
+            if (vp) { vp.scrollLeft = _vpScrollX - (e.clientX - _panOriginX); vp.scrollTop = _vpScrollY - (e.clientY - _panOriginY); }
+            return;
+        }
+        var s  = getScale();
+        var dx = (e.clientX - sx) / s.x;
+        var dy = (e.clientY - sy) / s.y;
+        if (mode === 'drag') {
+            pendingX = sl + dx; pendingY = st + dy;
+        } else {
+            // 8-direction resize
+            var nx = sl, ny = st, nw = sw, nh = sh;
+            if (resizeDir.indexOf('e')  >= 0) nw = Math.max(20, sw + dx);
+            if (resizeDir.indexOf('s')  >= 0) nh = Math.max(20, sh + dy);
+            if (resizeDir.indexOf('w')  >= 0) { nw = Math.max(20, sw - dx); nx = sl + dx; }
+            if (resizeDir.indexOf('n')  >= 0) { nh = Math.max(20, sh - dy); ny = st + dy; }
+            pendingX = nx; pendingY = ny; sw = nw; sh = nh;
+        }
+        if (!rafId) rafId = requestAnimationFrame(rafLoop);
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (mode === 'pan') {
+            var vp = document.getElementById('canvas-viewport');
+            if (vp) vp.style.cursor = spaceDown ? 'grab' : '';
+        }
+        if (mode && mode !== 'pan') {
+            document.querySelectorAll('.gen-drag-ov').forEach(function(o) { o.classList.remove('dragging'); });
+            hideSnapLines();
+            showUndoToast('Move frame — Ctrl+Z to undo');
+            changeGeneralSetting && changeGeneralSetting();
+        }
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        mode = null; activeIdx = null;
+    });
+
+    // ── Touch drag ──────────────────────────────────────────
+    document.addEventListener('touchstart', function(e) {
+        if (genCurStep !== 3) return;
+        if (e.touches.length === 2) return; // handled by pinch zoom
+        var ov = e.target.closest('.gen-drag-ov');
+        if (!ov) return;
+        var t = e.touches[0]; activeIdx = +ov.dataset.fidx;
+        sx = t.clientX; sy = t.clientY;
+        sl = numVal('picture-x-position-' + activeIdx);
+        st = numVal('picture-y-position-' + activeIdx);
+        var sz = resolveFrameSize(activeIdx);
+        sw = sz.w; sh = sz.h;
+        undoPush(activeIdx);
+        mode = 'drag'; genSelectFrame(activeIdx);
+    }, { passive: true });
+    document.addEventListener('touchmove', function(e) {
+        if (mode !== 'drag') return;
+        var t = e.touches[0], s = getScale();
+        pendingX = sl + (t.clientX - sx) / s.x;
+        pendingY = st + (t.clientY - sy) / s.y;
+        if (!rafId) rafId = requestAnimationFrame(rafLoop);
+    }, { passive: true });
+    document.addEventListener('touchend', function() {
+        if (mode === 'drag') { hideSnapLines(); changeGeneralSetting && changeGeneralSetting(); }
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        mode = null; activeIdx = null;
+    });
+}());
+
+// ═══════════════════════════════════════════════════════════════
+// 6. ZOOM + PAN + PINCH
+// ═══════════════════════════════════════════════════════════════
+(function() {
+    var zoom = 1.0, MIN = 0.08, MAX = 5.0, STEP = 0.1;
+    window._genZoom = zoom;
+
+    function setZoom(z, cx, cy) {
+        var prev = zoom;
+        zoom = Math.min(MAX, Math.max(MIN, parseFloat(z.toFixed(3))));
+        window._genZoom = zoom;
+        var cv  = document.getElementById('result_canvas');
+        var vp  = document.getElementById('canvas-viewport');
+        if (cv) cv.style.transform = 'scale(' + zoom + ')';
+        var lbl = document.getElementById('zoom-level');
+        if (lbl) lbl.textContent = Math.round(zoom * 100) + '%';
+        // Keep zoom centered around cx,cy if provided
+        if (vp && cx !== undefined) {
+            vp.scrollLeft += (cx - vp.getBoundingClientRect().left) * (zoom / prev - 1);
+            vp.scrollTop  += (cy - vp.getBoundingClientRect().top)  * (zoom / prev - 1);
+        }
+    }
+    function fit() {
+        var vp = document.getElementById('canvas-viewport');
+        var cv = document.getElementById('result_canvas');
+        if (!vp || !cv) return;
+        var vw = vp.clientWidth - 48, vh = vp.clientHeight - 48;
+        var cw = cv.offsetWidth, ch = cv.offsetHeight;
+        if (cw > 0 && ch > 0) setZoom(Math.min(vw / cw, vh / ch, 1.0));
+    }
+    window._genFit = fit;
+
+    function updateDimLabel() {
+        var w = $('input[name="final_width"]').val();
+        var h = $('input[name="final_height"]').val();
+        var el = document.getElementById('canvas-dim-label');
+        if (el && w && h) el.textContent = w + ' × ' + h + ' px';
+    }
+
+    $(function() {
+        $('#zoom-in').on('click', function() { setZoom(zoom + STEP); });
+        $('#zoom-out').on('click', function() { setZoom(zoom - STEP); });
+        $('#zoom-fit').on('click', fit);
+        $('#zoom-level').on('click', function() { setZoom(1.0); });
+
+        var vp = document.getElementById('canvas-viewport');
+        if (vp) {
+            // Ctrl+wheel = zoom, plain wheel = scroll
+            vp.addEventListener('wheel', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    setZoom(zoom + (e.deltaY < 0 ? STEP : -STEP), e.clientX, e.clientY);
+                }
+            }, { passive: false });
+        }
+
+        // Pinch-to-zoom
+        var _pt1 = null, _pt2 = null, _ptzStart = 1;
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 2) { _pt1 = e.touches[0]; _pt2 = e.touches[1]; _ptzStart = zoom; }
+        }, { passive: true });
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length === 2 && _pt1 && _pt2) {
+                var d0 = Math.hypot(_pt1.clientX - _pt2.clientX, _pt1.clientY - _pt2.clientY);
+                var d1 = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                setZoom(_ptzStart * (d1 / d0));
+            }
+        }, { passive: true });
+        document.addEventListener('touchend', function(e) {
+            if (e.touches.length < 2) { _pt1 = _pt2 = null; }
+        }, { passive: true });
+
+        $('input[name="final_width"],input[name="final_height"]').on('change keyup', function() {
+            updateDimLabel();
+            setTimeout(fit, 120);
+        });
+        setTimeout(updateDimLabel, 600);
+        setTimeout(fit, 800);
+        $(window).on('resize', function() { setTimeout(fit, 100); });
+    });
+}());
+
+// ═══════════════════════════════════════════════════════════════
+// 7. GRID + SNAP TOGGLE
+// ═══════════════════════════════════════════════════════════════
+(function() {
+    var gridBtn = document.getElementById('gen-grid-btn');
+    var snapBtn = document.getElementById('gen-snap-btn');
+    var overlay = document.getElementById('gen-grid-overlay');
+    var gridOn  = false;
+
+    if (gridBtn) gridBtn.addEventListener('click', function() {
+        gridOn = !gridOn;
+        gridBtn.classList.toggle('active', gridOn);
+        if (overlay) overlay.classList.toggle('visible', gridOn);
+    });
+    if (snapBtn) snapBtn.addEventListener('click', function() {
+        _snapEnabled = !_snapEnabled;
+        snapBtn.classList.toggle('active', _snapEnabled);
+        if (typeof openToast === 'function') openToast('Snap ' + (_snapEnabled ? 'ON' : 'OFF'), 'isSuccess', 1500);
+    });
+}());
+
+// ═══════════════════════════════════════════════════════════════
+// 8. PAN MODE BUTTON
+// ═══════════════════════════════════════════════════════════════
+(function() {
+    var panBtn = document.getElementById('gen-pan-btn');
+    if (!panBtn) return;
+    panBtn.addEventListener('click', function() {
+        window._genPanMode = !window._genPanMode;
+        panBtn.classList.toggle('active', window._genPanMode);
+        var vp = document.getElementById('canvas-viewport');
+        if (vp) vp.style.cursor = window._genPanMode ? 'grab' : '';
+    });
+}());
+
+// ═══════════════════════════════════════════════════════════════
+// 9. KEYBOARD — nudge, undo, shortcuts, delete, tab-select
+// ═══════════════════════════════════════════════════════════════
+$(document).on('keydown', function(e) {
+    var inInput = $(e.target).is('input,select,textarea');
+
+    // Shortcuts overlay
+    if (!inInput && e.key === '?') {
+        var ov = document.getElementById('gen-shortcut-overlay');
+        if (ov) ov.classList.toggle('show');
+        return;
+    }
+
+    // Ctrl+Z undo
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        if (!inInput) { e.preventDefault(); undoLast(); return; }
+    }
+
+    // Grid / Snap hotkeys
+    if (!inInput && e.key === 'g') { var gb = document.getElementById('gen-grid-btn'); if (gb) gb.click(); return; }
+    if (!inInput && e.key === 's') { var sb = document.getElementById('gen-snap-btn'); if (sb) sb.click(); return; }
+
+    // Zoom shortcuts
+    if (!inInput) {
+        if (e.key === '=' || e.key === '+') { e.preventDefault(); $('#zoom-in').trigger('click'); return; }
+        if (e.key === '-' || e.key === '_') { e.preventDefault(); $('#zoom-out').trigger('click'); return; }
+        if (e.key === '0')                  { e.preventDefault(); if (window._genFit) window._genFit(); return; }
+    }
+
+    // Arrow nudge for selected frame (step 3)
+    if (genCurStep === 3 && !inInput && ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].indexOf(e.key) >= 0) {
+        if (_selectedFrameIdx === null) return;
+        e.preventDefault();
+        var step = (e.ctrlKey || e.metaKey) ? 100 : e.shiftKey ? 10 : 1;
+        var idx = _selectedFrameIdx;
+        undoPush(idx);
+        if (e.key === 'ArrowLeft')  setVal('picture-x-position-' + idx, maybeSnap(numVal('picture-x-position-' + idx) - step));
+        if (e.key === 'ArrowRight') setVal('picture-x-position-' + idx, maybeSnap(numVal('picture-x-position-' + idx) + step));
+        if (e.key === 'ArrowUp')    setVal('picture-y-position-' + idx, maybeSnap(numVal('picture-y-position-' + idx) - step));
+        if (e.key === 'ArrowDown')  setVal('picture-y-position-' + idx, maybeSnap(numVal('picture-y-position-' + idx) + step));
+        return;
+    }
+
+    // Delete selected frame
+    if (genCurStep === 3 && !inInput && (e.key === 'Delete' || e.key === 'Backspace')) {
+        if (_selectedFrameIdx !== null) { hideImage('picture-' + _selectedFrameIdx); return; }
+    }
+
+    // Tab = select next visible frame
+    if (genCurStep === 3 && !inInput && e.key === 'Tab') {
+        e.preventDefault();
+        var visibleIdxs = [];
+        document.querySelectorAll('.gen-frame-card:not(.hidden)').forEach(function(c) {
+            var n = +(c.dataset.picture||'picture-0').replace('picture-','');
+            if (!document.getElementById('picture-' + n).classList.contains('hidden')) visibleIdxs.push(n);
+        });
+        if (!visibleIdxs.length) return;
+        var cur = _selectedFrameIdx !== null ? _selectedFrameIdx : -1;
+        var ni  = (visibleIdxs.indexOf(cur) + 1) % visibleIdxs.length;
+        genSelectFrame(visibleIdxs[ni]);
+        return;
+    }
+
+    // Arrow ↑/↓ on number/text inputs
+    if (inInput && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        var inp = e.target;
+        var v = inp.value;
+        if (!/^-?\d*\.?\d+$/.test(v.trim())) return;
+        e.preventDefault();
+        var st2 = (e.ctrlKey || e.metaKey) ? 100 : e.shiftKey ? 10 : 1;
+        var n = parseFloat(v) + (e.key === 'ArrowUp' ? 1 : -1) * st2;
+        var mn = parseFloat(inp.getAttribute('min')), mx = parseFloat(inp.getAttribute('max'));
+        if (!isNaN(mn)) n = Math.max(mn, n);
+        if (!isNaN(mx)) n = Math.min(mx, n);
+        inp.value = n; $(inp).trigger('change');
+    }
+});
+
+// Scroll wheel on focused number inputs
+$(document).on('wheel', 'input[type="number"]', function(e) {
+    if (document.activeElement !== this) return;
+    e.preventDefault();
+    var step = e.shiftKey ? 10 : 1;
+    var n = (parseFloat(this.value) || 0) + (e.deltaY < 0 ? step : -step);
+    var mn = parseFloat(this.getAttribute('min')), mx = parseFloat(this.getAttribute('max'));
+    if (!isNaN(mn)) n = Math.max(mn, n);
+    if (!isNaN(mx)) n = Math.min(mx, n);
+    this.value = Math.round(n); $(this).trigger('change');
+}, { passive: false });
+
+// ═══════════════════════════════════════════════════════════════
+// 10. ALIGNMENT TOOLS
+// ═══════════════════════════════════════════════════════════════
+document.querySelectorAll('.g-align-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var action = btn.dataset.align;
+        var cw = parseFloat($('input[name="final_width"]').val())  || 1500;
+        var ch = parseFloat($('input[name="final_height"]').val()) || 1000;
+
+        if (action === 'dist-h' || action === 'dist-v') {
+            // Distribute all visible frames evenly
+            var items = [];
+            document.querySelectorAll('.gen-frame-card:not(.hidden)').forEach(function(c) {
+                var n = +(c.dataset.picture||'picture-0').replace('picture-','');
+                if (!document.getElementById('picture-' + n).classList.contains('hidden')) {
+                    items.push({ idx: n, sz: resolveFrameSize(n) });
+                }
+            });
+            if (items.length < 2) return;
+            if (action === 'dist-h') {
+                var totalW = items.reduce(function(a,i){ return a+i.sz.w; },0);
+                var gap    = (cw - totalW) / (items.length + 1);
+                var cx2    = gap;
+                items.forEach(function(it) { undoPush(it.idx); setVal('picture-x-position-' + it.idx, Math.round(cx2)); cx2 += it.sz.w + gap; });
+            } else {
+                var totalH = items.reduce(function(a,i){ return a+i.sz.h; },0);
+                var gapY   = (ch - totalH) / (items.length + 1);
+                var cy2    = gapY;
+                items.forEach(function(it) { undoPush(it.idx); setVal('picture-y-position-' + it.idx, Math.round(cy2)); cy2 += it.sz.h + gapY; });
+            }
+            showUndoToast('Distributed — Ctrl+Z to undo');
+            return;
+        }
+
+        if (_selectedFrameIdx === null) { if (typeof openToast==='function') openToast('Select a frame first', 'isWarning', 2000); return; }
+        var idx = _selectedFrameIdx;
+        var sz  = resolveFrameSize(idx);
+        undoPush(idx);
+        if (action === 'left')     setVal('picture-x-position-' + idx, 0);
+        if (action === 'right')    setVal('picture-x-position-' + idx, Math.round(cw - sz.w));
+        if (action === 'center-h') setVal('picture-x-position-' + idx, Math.round((cw - sz.w) / 2));
+        if (action === 'top')      setVal('picture-y-position-' + idx, 0);
+        if (action === 'bottom')   setVal('picture-y-position-' + idx, Math.round(ch - sz.h));
+        if (action === 'center-v') setVal('picture-y-position-' + idx, Math.round((ch - sz.h) / 2));
+        showUndoToast('Aligned — Ctrl+Z to undo');
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 11. SPINNERS — hold-to-repeat
+// ═══════════════════════════════════════════════════════════════
+function _spin(inp, dir, ev) {
+    var step = (ev && (ev.ctrlKey || ev.metaKey)) ? 100 : (ev && ev.shiftKey) ? 10 : 1;
+    var v = inp.value;
+    if (!/^-?\d*\.?\d+$/.test((v||'').trim())) return;
+    var n = parseFloat(v) + dir * step;
+    var mn = parseFloat(inp.getAttribute('min')), mx = parseFloat(inp.getAttribute('max'));
+    if (!isNaN(mn)) n = Math.max(mn, n);
+    if (!isNaN(mx)) n = Math.min(mx, n);
+    inp.value = n; $(inp).trigger('change');
+}
+
+function initSpinners() {
+    document.querySelectorAll('input[type="number"]').forEach(function(inp) {
+        if (inp.closest('.g-spin')) return;
+        var wrap = document.createElement('div'); wrap.className = 'g-spin';
+        inp.parentNode.insertBefore(wrap, inp);
+        wrap.appendChild(document.createTextNode('')); // placeholder
+
+        function makeBtn(dir, label) {
+            var btn = document.createElement('button');
+            btn.type = 'button'; btn.className = 'g-spin-btn';
+            btn.innerHTML = label;
+            btn.title = (dir < 0 ? 'Decrease' : 'Increase') + ' (Shift ×10, Ctrl ×100)';
+            var holdTimer = null, holdInterval = null;
+            btn.addEventListener('mousedown', function(ev) {
+                ev.preventDefault();
+                btn.classList.add('holding');
+                _spin(inp, dir, ev);
+                holdTimer = setTimeout(function() {
+                    holdInterval = setInterval(function() { _spin(inp, dir, ev); }, 60);
+                }, 400);
+            });
+            function stopHold() {
+                btn.classList.remove('holding');
+                clearTimeout(holdTimer); clearInterval(holdInterval);
+            }
+            btn.addEventListener('mouseup',    stopHold);
+            btn.addEventListener('mouseleave', stopHold);
+            btn.addEventListener('touchend',   stopHold);
+            return btn;
+        }
+        var minus = makeBtn(-1, '&minus;');
+        var plus  = makeBtn( 1, '+');
+        wrap.appendChild(minus); wrap.appendChild(inp); wrap.appendChild(plus);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 12. SHORTCUTS PANEL
+// ═══════════════════════════════════════════════════════════════
+$(function() {
+    var scBtn = document.getElementById('gen-shortcuts-btn');
+    if (scBtn) scBtn.addEventListener('click', function() {
+        var ov = document.getElementById('gen-shortcut-overlay');
+        if (ov) ov.classList.toggle('show');
+    });
+    // Also close on overlay backdrop click
+    var ov2 = document.getElementById('gen-shortcut-overlay');
+    if (ov2) ov2.addEventListener('click', function(e) {
+        if (e.target === ov2) ov2.classList.remove('show');
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 13. CANVAS UNDO BUTTON IN TOOLBAR
+// ═══════════════════════════════════════════════════════════════
+$(function() {
+    var undoToolBtn = document.getElementById('gen-undo-btn');
+    if (undoToolBtn) undoToolBtn.addEventListener('click', undoLast);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 14. AUTO-DETECT BG SIZE
+// ═══════════════════════════════════════════════════════════════
+function genDetectBgSize() {
+    var bgPath = $('input[name="generator-background"]').val();
+    if (!bgPath) { if (typeof openToast==='function') openToast('Please select a background image first', 'isWarning', 3000); return; }
+    var tmp = new Image();
+    tmp.onload = function() {
+        var w = tmp.naturalWidth, h = tmp.naturalHeight;
+        $('input[name="final_width"]').val(w).trigger('change');
+        $('input[name="final_height"]').val(h).trigger('change');
+        if (typeof openToast==='function') openToast('Canvas set to ' + w + ' × ' + h + ' px', 'isSuccess', 2500);
+        setTimeout(function() { if (window._genFit) window._genFit(); }, 200);
+    };
+    tmp.onerror = function() { if (typeof openToast==='function') openToast('Could not read image dimensions', 'isError', 3000); };
+    var src = (typeof toPublicUrl === 'function') ? toPublicUrl(bgPath) : bgPath;
+    tmp.src = src + (src.indexOf('?') >= 0 ? '&' : '?') + '_t=' + Date.now();
+}
+$('#gen-detect-btn1,#gen-detect-btn2').on('click', genDetectBgSize);
+
+// ═══════════════════════════════════════════════════════════════
+// 15. CANVAS SIZE PRESETS
+// ═══════════════════════════════════════════════════════════════
+document.querySelectorAll('.g-preset').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.g-preset').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        $('input[name="final_width"]').val(btn.dataset.w).trigger('change');
+        $('input[name="final_height"]').val(btn.dataset.h).trigger('change');
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 16. COUPLE MODE
+// ═══════════════════════════════════════════════════════════════
+(function() {
+    var tog = document.getElementById('gen-couple-toggle');
+    if (!tog) return;
+    tog.addEventListener('change', function() {
+        var on = this.checked;
+        var div = document.getElementById('gen-couple-divider');
+        if (div) div.style.display = on ? 'block' : 'none';
+        if (on) { genApplyCouple(); if (typeof openToast==='function') openToast('Couple mode ON — 3 + 3 mirrored slots', 'isSuccess', 2500); }
+        else    { if (typeof openToast==='function') openToast('Couple mode OFF', 'isSuccess', 2000); }
+    });
+}());
+
+function genApplyCouple() {
+    var cw = parseFloat($('input[name="final_width"]').val())  || 1500;
+    var ch = parseFloat($('input[name="final_height"]').val()) || 1000;
+    for (var i = 0; i < 3; i++) {
+        var card = document.querySelector('[data-picture="picture-' + i + '"]');
+        if (!card || card.classList.contains('hidden')) continue;
+        var sz = resolveFrameSize(i);
+        var fx = numVal('picture-x-position-' + i);
+        var fy = numVal('picture-y-position-' + i);
+        var mi = i + 3;
+        var mc = document.querySelector('[data-picture="picture-' + mi + '"]');
+        var md = document.getElementById('picture-' + mi);
+        if (mc) mc.classList.remove('hidden');
+        if (md) md.classList.remove('hidden');
+        setVal('picture-x-position-' + mi, Math.round(cw - fx - sz.w));
+        setVal('picture-y-position-' + mi, Math.round(fy));
+        $('input[name="picture-width-'  + mi + '"]').val(Math.round(sz.w)).trigger('change');
+        $('input[name="picture-height-' + mi + '"]').val(Math.round(sz.h)).trigger('change');
+    }
+    if (typeof changeGeneralSetting === 'function') changeGeneralSetting();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 17. LIVE JSON PREVIEW
+// ═══════════════════════════════════════════════════════════════
+function updateConfigDisplay() {
+    var cfg = {
+        width: $('input[name="final_width"]').val(),
+        height: $('input[name="final_height"]').val(),
+        text_custom_style: $('input[name="text_enabled"][data-trigger="general"]').is(':checked'),
+        text_font_size: $('input[name="text_font_size"]').val(),
+        text_rotation: $('input[name="text_rotation"]').val(),
+        text_locationx: $('input[name="text_location_x"]').val(),
+        text_locationy: $('input[name="text_location_y"]').val(),
+        text_font_color: $('input[name="text_font_color"]').val(),
+        text_font: $('input[name="text_font_family"]').val(),
+        text_line1: $('input[name="text_line_1"]').val(),
+        text_line2: $('input[name="text_line_2"]').val(),
+        text_line3: $('input[name="text_line_3"]').val(),
+        text_linespace: $('input[name="text_line_space"]').val(),
+        apply_frame: $('select[name="apply_frame"]').val(),
+        frame: $('input[name="generator-frame"]').val(),
+        background: $('input[name="generator-background"]').val(),
+        background_color: $('input[name="background_color"]').val(),
+        background_on_top: $('input[name="generator-background_on_top"][data-trigger="general"]').is(':checked'),
+        placeholder: $('input[name="enable_placeholder_image"][data-trigger="general"]').is(':checked'),
+        placeholderpath: $('input[name="placeholder_image"]').val(),
+        placeholderposition: $('input[name="placeholder_image_position"]').val(),
+        layout: []
+    };
+    $('div.image_layout:visible').each(function() {
+        var row = [];
+        $(this).find('input[data-prop]').each(function() {
+            var v = $(this).val();
+            if ($(this).attr('type') === 'checkbox') v = $(this).is(':checked') && cfg.apply_frame === 'always';
+            row.push(v);
+        });
+        cfg.layout.push(row);
+    });
+    var box = document.getElementById('config-json-content');
+    if (box) box.textContent = JSON.stringify(cfg, null, 2);
+}
+// Debounce config display updates
+var _cfgTimer = null;
+$(document).on('change keyup', 'input,select', function() {
+    clearTimeout(_cfgTimer); _cfgTimer = setTimeout(updateConfigDisplay, 150);
+});
+$(function() { setTimeout(updateConfigDisplay, 500); });
+
+function genCopyConfig() {
+    var c = document.getElementById('config-json-content');
+    if (!c) return;
+    navigator.clipboard.writeText(c.innerText).then(function() {
+        if (typeof openToast === 'function') openToast('JSON copied!', 'isSuccess', 2000);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 18. FIX DUPLICATE progress bar & init
+// ═══════════════════════════════════════════════════════════════
+$(function() {
+    // Remove the duplicate progress bar that may have been inserted
+    var all = document.querySelectorAll('[id="gen-progress-fill"]');
+    if (all.length > 1) { all[all.length - 1].closest('.gen-progress-bar,.gen-progress') && all[all.length - 1].parentNode.remove(); }
+    genGoTo(1);
+    setTimeout(initSpinners, 400);
+    setTimeout(function() { if (window._genFit) window._genFit(); }, 750);
+});
