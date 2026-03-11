@@ -46,7 +46,7 @@ class AdminInput
                 type="' . $setting['type'] . '"
                 name="' . $setting['name'] . '"
                 value="' . $setting['value'] . '"
-                placeholder="' . $setting['placeholder'] . '"
+                placeholder="' . ($setting['placeholder'] ?? '') . '"
 				' . $attributes . '
             />
         ';
@@ -156,7 +156,6 @@ class AdminInput
                 type="color"
                 name="' . $setting['name'] . '"
                 value="' . $setting['value'] . '"
-                placeholder="' . $setting['placeholder'] . '"
 				' . $attributes . '
             />
         ';
@@ -171,7 +170,7 @@ class AdminInput
                 type="' . ($setting['type'] === 'number' ? 'number' : 'text') . '"
                 name="' . $setting['name'] . '"
                 value="' . $setting['value'] . '"
-                placeholder="' . $setting['placeholder'] . '"
+                placeholder="' . ($setting['placeholder'] ?? '') . '"
             />
         ';
     }
@@ -196,7 +195,7 @@ class AdminInput
                     min="' . $setting['range_min'] . '"
                     max="' . $setting['range_max'] . '"
                     step="' . $setting['range_step'] . '"
-                    placeholder="' . $setting['placeholder'] . '"
+                    placeholder="' . ($setting['placeholder'] ?? '') . '"
 					' . $attributes . '
                 />
                 <div class="w-full flex text-gray-300">

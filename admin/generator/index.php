@@ -241,11 +241,9 @@ echo $font_styles;
                             <div class="g-toggle-row">
                                 <div><div class="g-toggle-lbl">Show Background</div></div>
                                 <label class="g-switch">
-                                    <?= AdminInput::renderCheckbox([
-                                        'name'       => 'show-background',
-                                        'value'      => !empty($config['collage']['background']) ? 'true' : 'false',
-                                        'attributes' => ['data-trigger' => 'general'],
-                                    ], 'collage:generator:show_background') ?>
+                                    <input type="hidden" name="show-background" value="false">
+                                    <input type="checkbox" name="show-background" value="true" data-trigger="general" <?= !empty($config['collage']['background']) ? 'checked="checked"' : '' ?>>
+                                    <span class="g-slider"></span>
                                 </label>
                             </div>
                             <div class="g-toggle-row">
@@ -254,11 +252,9 @@ echo $font_styles;
                                     <div class="g-toggle-sub">Background overlays photos (transparent PNG)</div>
                                 </div>
                                 <label class="g-switch">
-                                    <?= AdminInput::renderCheckbox([
-                                        'name'       => 'generator-background_on_top',
-                                        'value'      => !empty($config['collage']['background_on_top']) ? 'true' : 'false',
-                                        'attributes' => ['data-trigger' => 'general'],
-                                    ], 'collage:collage_background_on_top') ?>
+                                    <input type="hidden" name="generator-background_on_top" value="false">
+                                    <input type="checkbox" name="generator-background_on_top" value="true" data-trigger="general" <?= !empty($config['collage']['background_on_top']) ? 'checked="checked"' : '' ?>>
+                                    <span class="g-slider"></span>
                                 </label>
                             </div>
                         </div>
@@ -362,11 +358,9 @@ echo $font_styles;
                                 <div class="g-toggle-row" style="border:none;padding:.4rem 0;">
                                     <span class="g-toggle-lbl" style="font-size:.76rem;">Show Frame</span>
                                     <label class="g-switch">
-                                        <?= AdminInput::renderCheckbox([
-                                            'name'       => 'show-frame',
-                                            'value'      => !empty($config['collage']['frame']) ? 'true' : 'false',
-                                            'attributes' => ['data-trigger' => 'general'],
-                                        ], 'collage:generator:show_frame') ?>
+                                        <input type="hidden" name="show-frame" value="false">
+                                        <input type="checkbox" name="show-frame" value="true" data-trigger="general" <?= !empty($config['collage']['frame']) ? 'checked="checked"' : '' ?>>
+                                        <span class="g-slider"></span>
                                     </label>
                                 </div>
                             </div>
@@ -469,11 +463,9 @@ echo $font_styles;
                                             <div style="display:flex;align-items:center;gap:.4rem;width:100%;">
                                                 <span style="font-size:.65rem;color:var(--g-muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Single Frame</span>
                                                 <label class="g-switch">
-                                                    <?= AdminInput::renderCheckbox([
-                                                        'name'       => 'picture-show-frame-' . $i,
-                                                        'value'      => 'false',
-                                                        'attributes' => ['data-prop' => 'single_frame', 'data-trigger' => 'image'],
-                                                    ], 'collage:generator:show_single_frame') ?>
+                                                    <input type="hidden" name="picture-show-frame-<?= $i ?>" value="false">
+                                                    <input type="checkbox" name="picture-show-frame-<?= $i ?>" value="true" data-prop="single_frame" data-trigger="image">
+                                                    <span class="g-slider"></span>
                                                 </label>
                                             </div>
                                         </div>
@@ -500,10 +492,9 @@ echo $font_styles;
                         <div class="g-card-title" style="justify-content:space-between;">
                             <span><i class="fa fa-font"></i> Text Overlay</span>
                             <label class="g-switch">
-                                <?= AdminInput::renderCheckbox([
-                                    'name' => 'text_enabled', 'value' => 'false',
-                                    'attributes' => ['data-trigger' => 'general'],
-                                ], 'collage:textoncollage_enabled') ?>
+                                <input type="hidden" name="text_enabled" value="false">
+                                <input type="checkbox" name="text_enabled" value="true" data-trigger="general">
+                                <span class="g-slider"></span>
                             </label>
                         </div>
                         <div class="g-row3" style="margin-bottom:.5rem;">
@@ -538,10 +529,9 @@ echo $font_styles;
                         <div class="g-card-title" style="justify-content:space-between;">
                             <span><i class="fa fa-image"></i> Placeholder</span>
                             <label class="g-switch">
-                                <?= AdminInput::renderCheckbox([
-                                    'name' => 'enable_placeholder_image', 'value' => 'false',
-                                    'attributes' => ['data-trigger' => 'general'],
-                                ], 'collage:collage_placeholder') ?>
+                                <input type="hidden" name="enable_placeholder_image" value="false">
+                                <input type="checkbox" name="enable_placeholder_image" value="true" data-trigger="general">
+                                <span class="g-slider"></span>
                             </label>
                         </div>
                         <div class="g-row2">
