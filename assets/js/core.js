@@ -85,12 +85,44 @@ const photoBooth = (function () {
         currentCollageFile = '',
         imgFilter = config.filters.defaults,
         isProcessingEffects = false,
+        stageGuardObserver,
         command,
         startTime,
         endTime,
-        totalTime;
+        totalTime,
+        sessionFiles = [],
+        captureBasename = '';
+
+    function getFilterString(f) {
+        return typeof f === 'string' ? f : f && f.value ? f.value : 'plain';
+    }
+    window.photoboothCurrentFilter = getFilterString(imgFilter);
+
+    const setActiveStage = (stage) => {
+        photoboothTools.console.log('setActiveStage: ' + stage);
+        startPage.removeClass('stage--active');
+        loader.removeClass('stage--active');
+        resultPage.removeClass('stage--active');
+        if (stage === 'start') {
+            startPage.addClass('stage--active');
+        } else if (stage === 'loader') {
+            loader.addClass('stage--active');
+        } else if (stage === 'result') {
+            resultPage.addClass('stage--active');
+        }
+    };
+
+    const ensureIdleStage = () => {
+        if (!api.takingPic && !api.isFilterProcessing && !resultPage.hasClass('stage--active')) {
+            photoboothTools.console.log('ensureIdleStage: forcing start (takingPic=' + api.takingPic + ')');
+            setActiveStage('start');
+            loader.removeClass('showBackgroundImage');
+            loader.css('background-image', '');
+        }
+    };
 
     api.takingPic = false;
+    api.isFilterProcessing = false;
     api.nextCollageNumber = 0;
     api.chromaimage = '';
     api.filename = '';
@@ -121,11 +153,16 @@ const photoBooth = (function () {
     api.reset = function () {
         loader.css('--stage-background', 'var(--background-countdown-color)');
         loader.removeClass('stage--active');
+        loader.removeClass('showBackgroundImage');
+        loader.css('background-image', '');
         loaderButtonBar.empty();
         loaderMessage.empty();
         loaderMessage.removeClass('stage-message--error');
         resultPage.removeAttr('style data-img');
         resultPage.removeClass('stage--active');
+        sessionFiles = [];
+        captureBasename = '';
+        api.isFilterProcessing = false;
         gallery.removeClass('gallery--open');
         gallery.find('.gallery__inner').hide();
         previewVideo.hide();
@@ -137,11 +174,20 @@ const photoBooth = (function () {
 
         photoboothTools.overlay.close();
         photoboothTools.modal.close();
+
+        /* Clear canvas so next countdown doesn't show previous captured frame */
+        const canvas = videoSensor.get(0);
+        if (canvas && canvas.getContext) {
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
     };
 
     api.init = function () {
         api.reset();
-        startPage.addClass('stage--active');
+        setActiveStage('start');
         if (usesBackgroundPreview) {
             photoboothPreview.startVideo(CameraDisplayMode.BACKGROUND);
             photoboothTools.console.logDev('Preview: core: start video (BACKGROUND) from api.init.');
@@ -161,6 +207,26 @@ const photoBooth = (function () {
         if (params.has('screensaverPreview')) {
             api.screensaver.show(true);
         }
+
+        if (!stageGuardObserver && loader.length) {
+            stageGuardObserver = new MutationObserver(() => {
+                if (
+                    loader.hasClass('stage--active') &&
+                    !api.takingPic &&
+                    !api.isFilterProcessing &&
+                    !resultPage.hasClass('stage--active')
+                ) {
+                    ensureIdleStage();
+                }
+            });
+            stageGuardObserver.observe(loader.get(0), {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        }
+
+        setTimeout(ensureIdleStage, 0);
+        setTimeout(ensureIdleStage, 500);
     };
 
     api.screensaver = createScreensaver({
@@ -569,8 +635,7 @@ const photoBooth = (function () {
         }
 
         videoBackground.hide();
-        startPage.removeClass('stage--active');
-        loader.addClass('stage--active');
+        setActiveStage('loader');
         api.screensaver.hide();
 
         if (config.get_request.countdown) {
@@ -674,6 +739,7 @@ const photoBooth = (function () {
                 photoboothTools.console.log('Took ' + data.style, result);
                 photoboothTools.console.logDev('Taking picture took ' + totalTime + 'ms');
                 imgFilter = config.filters.defaults;
+                window.photoboothCurrentFilter = getFilterString(imgFilter);
                 $('#filternav .sidenav-list-item--active').removeClass('sidenav-list-item--active');
                 $('.sidenav-list-item[data-filter="' + imgFilter + '"]').addClass('sidenav-list-item--active');
                 previewFrameCollage.hide();
@@ -859,6 +925,7 @@ const photoBooth = (function () {
                 photoboothTools.console.log('Took ' + data.style, result);
                 photoboothTools.console.logDev('Taking video took ' + totalTime + 'ms');
                 imgFilter = config.filters.defaults;
+                window.photoboothCurrentFilter = getFilterString(imgFilter);
                 $('#filternav .sidenav-list-item--active').removeClass('sidenav-list-item--active');
                 $('.sidenav-list-item[data-filter="' + imgFilter + '"]').addClass('sidenav-list-item--active');
 
@@ -928,9 +995,13 @@ const photoBooth = (function () {
 
     api.processPic = function (result) {
         startTime = new Date().getTime();
-        loader.addClass('stage--active');
-        startPage.removeClass('stage--active');
-        resultPage.removeClass('stage--active');
+        const isFilterReprocess = resultPage.hasClass('stage--active') || !!resultPage.attr('data-img');
+        api.isFilterProcessing = isFilterReprocess;
+        if (!isFilterReprocess) {
+            loader.addClass('stage--active');
+            startPage.removeClass('stage--active');
+            resultPage.removeClass('stage--active');
+        }
         setFiltersEnabled(false);
         loaderMessage.html(
             '<i class="' +
@@ -962,9 +1033,11 @@ const photoBooth = (function () {
                 filter: imgFilter,
                 style: api.photoStyle,
                 collageLayout: api.collageLayout,
-                collageLimit: api.collageLimit
+                collageLimit: api.collageLimit,
+                reprocess: isFilterReprocess ? 1 : 0
             },
             success: (data) => {
+                api.isFilterProcessing = false;
                 setFiltersEnabled(true);
                 photoboothTools.console.log(api.photoStyle + ' processed', data);
                 endTime = new Date().getTime();
@@ -984,7 +1057,6 @@ const photoBooth = (function () {
                 } else if (api.photoStyle === PhotoStyle.CHROMA) {
                     api.renderChroma(data.file);
                 } else {
-                    const isFilterReprocess = resultPage.hasClass('stage--active') || !!resultPage.attr('data-img');
                     api.renderPic(data.file, data.images);
                     // Auto-add collage slideshow GIF to gallery
                     if (data.slideshow && !isFilterReprocess) {
@@ -1003,6 +1075,7 @@ const photoBooth = (function () {
                 }
             },
             error: (jqXHR, textStatus) => {
+                api.isFilterProcessing = false;
                 setFiltersEnabled(true);
                 api.errorPic({
                     error: 'Request failed: ' + textStatus
@@ -1084,9 +1157,7 @@ const photoBooth = (function () {
             api.addImage(filename);
         }
 
-        startPage.removeClass('stage--active');
-        loader.removeClass('stage--active');
-        resultPage.addClass('stage--active');
+        setActiveStage('result');
 
         const chromaimage = environment.publicFolders.keying + '/' + filename;
         processChromaImage(chromaimage, true, filename);
@@ -1287,7 +1358,38 @@ const photoBooth = (function () {
 
         // gallery doesn't support videos atm
         if (!photoboothTools.isVideoFile(filename)) {
-            api.addImage(filename);
+            // First capture: initialise session tracking
+            if (!captureBasename) {
+                captureBasename = filename;
+                sessionFiles = [filename];
+                api.addImage(filename);
+            } else if (sessionFiles.indexOf(filename) === -1) {
+                // New filter variant — add as separate gallery entry
+                sessionFiles.push(filename);
+                api.addImage(filename);
+            } else {
+                // Same filter re-applied — cache-bust gallery thumb
+                const cbCacheKey = '?v=' + Date.now();
+                galimages.find('a').each(function () {
+                    const a = $(this);
+                    const origHref = a.attr('data-original-href') || a.attr('href') || '';
+                    if (origHref.split('/').pop().split('?')[0] === filename) {
+                        a.attr('href', environment.publicFolders.images + '/' + filename + cbCacheKey);
+                        a.removeAttr('data-original-href');
+                        const img = a.find('img');
+                        if (img.length) {
+                            const thumbBase =
+                                (config.gallery.use_thumb
+                                    ? environment.publicFolders.thumbs
+                                    : environment.publicFolders.images) +
+                                '/' +
+                                filename;
+                            img.attr('src', thumbBase + cbCacheKey);
+                            img.removeAttr('data-original-src');
+                        }
+                    }
+                });
+            }
         }
 
         // if image is a video render the qr code as image (video should be displayed over this)
@@ -1296,16 +1398,14 @@ const photoBooth = (function () {
             : environment.publicFolders.images + '/' + filename;
 
         const preloadImage = new Image();
+        const imageCacheKey = '?v=' + Date.now();
         preloadImage.onload = () => {
-            startPage.removeClass('stage--active');
-
             resultPage.css({
-                '--stage-background-image': `url(${imageUrl}?filter=${imgFilter})`
+                '--stage-background-image': `url(${imageUrl}${imageCacheKey}&filter=${imgFilter})`
             });
             resultPage.attr('data-img', filename);
-            resultPage.addClass('stage--active');
-
-            loader.removeClass('stage--active showBackgroundImage');
+            setActiveStage('result');
+            loader.removeClass('showBackgroundImage');
             loader.css('background-image', '');
 
             if (config.qr.enabled && config.qr.result != 'hidden') {
@@ -1321,7 +1421,12 @@ const photoBooth = (function () {
                     resultPage.append(qrWrapper);
                 });
 
-                qrResultImage.src = environment.publicFolders.api + '/qrcode.php?filename=' + filename;
+                const qrSessionList =
+                    sessionFiles.length > 0 ? sessionFiles : files && files.length ? files : [filename];
+                qrResultImage.src =
+                    environment.publicFolders.api +
+                    '/qrcode.php?multiple=' +
+                    encodeURIComponent(qrSessionList.join(','));
                 qrResultImage.alt = 'QR-Code';
                 qrResultImage.classList.add('stage-code__image');
                 qrWrapper.append(qrResultImage);
@@ -1558,7 +1663,8 @@ const photoBooth = (function () {
         $(this).addClass('sidenav-list-item--active');
 
         imgFilter = $(this).data('filter');
-        const result = { file: resultPage.attr('data-img') };
+        window.photoboothCurrentFilter = getFilterString(imgFilter);
+        const result = { file: captureBasename || resultPage.attr('data-img') };
 
         photoboothTools.console.logDev('Applying filter: ' + imgFilter, result);
 

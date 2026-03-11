@@ -231,10 +231,18 @@ function initPhotoSwipeFromDOM(gallerySelector) {
 
                     onInit: (el, pswp) => {
                         pswp.on('change', () => {
-                            el.href =
-                                environment.publicFolders.api +
-                                '/download.php?image=' +
-                                pswp.currSlide.data.src.split('\\').pop().split('/').pop();
+                            const src = pswp.currSlide.data.src || '';
+                            const basename = src.split('\\').pop().split('/').pop().split('?')[0];
+                            let url =
+                                environment.publicFolders.api + '/download.php?image=' + encodeURIComponent(basename);
+                            const curFilter =
+                                typeof window.photoboothCurrentFilter !== 'undefined'
+                                    ? window.photoboothCurrentFilter
+                                    : '';
+                            if (curFilter && String(curFilter) !== 'plain') {
+                                url += '&filter=' + encodeURIComponent(String(curFilter));
+                            }
+                            el.href = url;
                         });
                     }
                 });
@@ -306,7 +314,7 @@ function initPhotoSwipeFromDOM(gallerySelector) {
             const { content } = e;
             if (content.type === 'video-slide') {
                 e.preventDefault();
-                const src    = content.data.element.dataset.videoSrc;
+                const src = content.data.element.dataset.videoSrc;
                 const poster = content.data.element.dataset.videoPoster;
 
                 const video = document.createElement('video');
@@ -317,7 +325,8 @@ function initPhotoSwipeFromDOM(gallerySelector) {
                 video.style.cssText = 'max-width:100%;max-height:90vh;display:block;';
 
                 const wrap = document.createElement('div');
-                wrap.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000;';
+                wrap.style.cssText =
+                    'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000;';
                 wrap.appendChild(video);
 
                 content.element = wrap;

@@ -68,6 +68,7 @@
     --radius-lg: 0.5rem;
     --radius-xl: 0.75rem;
     --radius-2xl: 1rem;
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --animate-spin: spin 1s linear infinite;
     --default-transition-duration: 150ms;
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -308,9 +309,6 @@
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
-  .top-1 {
-    top: calc(var(--spacing) * 1);
-  }
   .top-2 {
     top: calc(var(--spacing) * 2);
   }
@@ -325,9 +323,6 @@
   }
   .right-0 {
     right: calc(var(--spacing) * 0);
-  }
-  .right-1 {
-    right: calc(var(--spacing) * 1);
   }
   .right-2 {
     right: calc(var(--spacing) * 2);
@@ -563,10 +558,6 @@
   .h-auto {
     height: auto;
   }
-  .h-fit {
-    height: -moz-fit-content;
-    height: fit-content;
-  }
   .h-full {
     height: 100%;
   }
@@ -672,9 +663,6 @@
   .min-w-0 {
     min-width: calc(var(--spacing) * 0);
   }
-  .min-w-72 {
-    min-width: calc(var(--spacing) * 72);
-  }
   .min-w-\[115px\] {
     min-width: 115px;
   }
@@ -736,9 +724,6 @@
   .grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .grid-cols-\[repeat\(auto-fit\,_minmax\(100px\,_1fr\)\)\] {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  }
   .grid-cols-\[repeat\(auto-fit\,_minmax\(150px\,_1fr\)\)\] {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
@@ -747,6 +732,9 @@
   }
   .flex-row {
     flex-direction: row;
+  }
+  .flex-wrap {
+    flex-wrap: wrap;
   }
   .place-items-center {
     place-items: center;
@@ -782,9 +770,6 @@
   }
   .overflow-hidden {
     overflow: hidden;
-  }
-  .overflow-x-auto {
-    overflow-x: auto;
   }
   .overflow-x-hidden {
     overflow-x: hidden;
@@ -960,12 +945,6 @@
   .bg-yellow-300 {
     background-color: var(--color-yellow-300);
   }
-  .bg-cover {
-    background-size: cover;
-  }
-  .bg-center {
-    background-position: center;
-  }
   .fill-blue-600 {
     fill: var(--color-blue-600);
   }
@@ -1049,6 +1028,9 @@
   }
   .pt-5 {
     padding-top: calc(var(--spacing) * 5);
+  }
+  .pt-6 {
+    padding-top: calc(var(--spacing) * 6);
   }
   .pr-3 {
     padding-right: calc(var(--spacing) * 3);
@@ -1294,6 +1276,10 @@
     transition-property: all;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  .ease-in-out {
+    --tw-ease: var(--ease-in-out);
+    transition-timing-function: var(--ease-in-out);
   }
   .group-\[\&\.isOpen\]\:grid {
     &:is(:where(.group).isOpen *) {
@@ -1596,6 +1582,11 @@
       max-height: 75vh;
     }
   }
+  .md\:w-1\/3 {
+    @media (width >= 48rem) {
+      width: 33.333333%;
+    }
+  }
   .md\:w-64 {
     @media (width >= 48rem) {
       width: calc(var(--spacing) * 64);
@@ -1635,11 +1626,6 @@
   .md\:p-4 {
     @media (width >= 48rem) {
       padding: calc(var(--spacing) * 4);
-    }
-  }
-  .md\:p-5 {
-    @media (width >= 48rem) {
-      padding: calc(var(--spacing) * 5);
     }
   }
   .md\:p-8 {
@@ -2096,6 +2082,10 @@ code {
   syntax: "*";
   inherits: false;
 }
+@property --tw-ease {
+  syntax: "*";
+  inherits: false;
+}
 @property --tw-content {
   syntax: "*";
   initial-value: "";
@@ -2168,6 +2158,7 @@ code {
       --tw-drop-shadow-color: initial;
       --tw-drop-shadow-alpha: 100%;
       --tw-drop-shadow-size: initial;
+      --tw-ease: initial;
       --tw-content: "";
       --tw-scale-x: 1;
       --tw-scale-y: 1;

@@ -26,6 +26,7 @@ $('[data-trigger=\'image\']').change(handleInputUpdate);
 $('input[name^="picture-image-"]').on('change', function () {
   var index = $(this).attr('name').replace('picture-image-', '');
   updateImage(index);
+  // Update card background to show selected image
   var path = $(this).val();
   var card = $(this).closest('div[data-picture]');
   if (card.length && path) {
@@ -34,49 +35,49 @@ $('input[name^="picture-image-"]').on('change', function () {
 });
 $('#loadCurrentConfiguration').click(loadCurrentConfig);
 
+// Upload from computer in image select modal
 $(document).on('change', '.adminImageSelectUploadInput', function () {
   var fileInput = this;
   var file = fileInput.files && fileInput.files[0];
   if (!file) return;
-  var targetName = $(fileInput).attr('data-target-name');
+  var targetName = $(fileInput).data('target-name');
   var parent = $(fileInput).closest('.adminImageSelection');
   if (!parent.length || !targetName) return;
   var formData = new FormData();
   formData.append('type', 'upload_image');
   if (typeof csrf !== 'undefined' && csrf && csrf.token) formData.append('csrf', csrf.token);
   formData.append('image', file);
-  var apiUrl = (typeof environment !== 'undefined' && environment && environment.baseUrl)
-    ? (environment.baseUrl.replace(/\/$/, '') + '/api/admin.php') : 'api/admin.php';
-  fetch(apiUrl, { method: 'POST', body: formData })
-    .then(function (res) {
-      if (!res.ok) return res.json().then(function (body) { throw new Error(body.error || 'Upload failed'); });
-      return res.json();
-    })
-    .then(function (data) {
-      var path = data.path;
-      if (!path) throw new Error('No path returned');
-      var previewElement = parent.find('.adminImageSelection-preview')[0];
-      var textElement = parent.find('.adminImageSelection-text')[0];
-      var inputElement = parent.find('input[name="' + targetName + '"]')[0];
-      if (!inputElement) return;
-      var publicUrl = toPublicUrl(path);
-      $(inputElement).val(path);
-      if (previewElement) {
-        $(previewElement).attr('src', publicUrl);
-        $(previewElement).parent().removeClass('hidden');
-      }
-      if (textElement) $(textElement).text(path);
-      $(inputElement).trigger('change');
-      parent.removeClass('isOpen');
-      fileInput.value = '';
-    })
-    .catch(function (err) {
-      if (typeof openToast === 'function') openToast(err.message || 'Upload failed', 'isError', 5000);
-      else alert(err.message || 'Upload failed');
-      fileInput.value = '';
+  var apiUrl = typeof environment !== 'undefined' && environment && environment.baseUrl ? environment.baseUrl.replace(/\/$/, '') + '/api/admin.php' : 'api/admin.php';
+  fetch(apiUrl, {
+    method: 'POST',
+    body: formData
+  }).then(function (res) {
+    if (!res.ok) return res.json().then(function (body) {
+      throw new Error(body.error || 'Upload failed');
     });
+    return res.json();
+  }).then(function (data) {
+    var path = data.path;
+    if (!path) throw new Error('No path returned');
+    var previewElement = parent.find('.adminImageSelection-preview')[0];
+    var textElement = parent.find('.adminImageSelection-text')[0];
+    var inputElement = parent.find('input[name="' + targetName + '"]')[0];
+    if (!inputElement) return;
+    var publicUrl = toPublicUrl(path);
+    $(inputElement).val(path);
+    if (previewElement) {
+      $(previewElement).attr('src', publicUrl);
+      $(previewElement).parent().removeClass('hidden');
+    }
+    if (textElement) $(textElement).text(path);
+    $(inputElement).trigger('change');
+    parent.removeClass('isOpen');
+    fileInput.value = '';
+  })["catch"](function (err) {
+    if (typeof openToast === 'function') openToast(err.message || 'Upload failed', 'isError', 5000);else alert(err.message || 'Upload failed');
+    fileInput.value = '';
+  });
 });
-
 function toPublicUrl(path) {
   if (!path) {
     return '';
@@ -250,6 +251,7 @@ function changeGeneralSetting() {
   if (c_show_background) {
     bgImgElement.removeClass('hidden');
   }
+
   // Layer stacking: background_on_top puts background ABOVE photos (matching Collage.php behavior)
   bgDiv.css('z-index', c_background_on_top ? 5 : 0);
   pictureDivs.css('z-index', 1);
