@@ -111,6 +111,9 @@ try {
         if (!Collage::createCollage($config, $vars['collageSrcImagePaths'], $vars['tmpFile'], $vars['imageFilter'])) {
             throw new \Exception('Error creating collage image.');
         }
+
+        // Couple mode: the combined canvas (both strips side-by-side) is the
+        // final output. No splitting — users cut the sheet themselves.
         if ($processor !== null && $processor instanceof ImageProcessor && method_exists($processor, 'postCollageProcessing')) {
             [$imageHandler, $vars, $config] = $processor->postCollageProcessing($imageHandler, $vars, $config);
         }

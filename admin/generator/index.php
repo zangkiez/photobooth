@@ -353,7 +353,7 @@ echo $font_styles;
                         <span class="g-couple-icon">💑</span>
                         <div class="g-couple-text">
                             <strong>Couple Split Mode</strong>
-                            <span>3 shots → 6 images. Mirrors frames so each person in the couple gets a copy.</span>
+                            <span>Capture 3 photos once and place them into both strips using the same order. If the template already includes both strips, keep the layout unchanged and reuse the same photos on both sides.</span>
                         </div>
                         <label class="g-switch" style="width:40px;height:22px;flex-shrink:0;">
                             <input type="checkbox" id="gen-couple-toggle">

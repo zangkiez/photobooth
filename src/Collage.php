@@ -18,6 +18,8 @@ class Collage
     public static string $pictureOrientation = '';
     public static bool $rotateAfterCreation = false;
     public static string $layoutPath = '';
+    public static bool $coupleMode = false;
+    public static int $coupleHalfWidth = 0;
 
     public static function reset(): void
     {
@@ -27,6 +29,8 @@ class Collage
         self::$pictureOrientation = '';
         self::$rotateAfterCreation = false;
         self::$layoutPath = '';
+        self::$coupleMode = false;
+        self::$coupleHalfWidth = 0;
     }
 
     /**
@@ -60,7 +64,10 @@ class Collage
                     ? $collageJson['layout']
                     : $collageJson;
 
-                if (str_starts_with($layout, '2x')) {
+                if (str_starts_with($layout, '2x') || !empty($collageJson['couple_mode'])) {
+                    // Prebuilt 2x / couple-strip templates contain 2× slots in JSON.
+                    // Only half that count of photos needs to be captured; they are
+                    // reused for both strips via array_merge further below.
                     $limit = (int) ceil(count($layoutConfigArray) / 2);
                 } else {
                     $limit = count($layoutConfigArray);
@@ -189,7 +196,12 @@ class Collage
 
                     if (!empty($collageJson['couple_mode'])) {
                         $coupleMode = true;
-                        $coupleHalfWidth = isset($collageJson['couple_half_width']) ? (int) $collageJson['couple_half_width'] : 0;
+                        // The template canvas already spans both strips; the cut guide
+                        // belongs at the horizontal center of the full template width.
+                        $coupleHalfWidth = (int) round(self::$collageWidth / 2);
+                        self::$coupleMode = true;
+                        self::$coupleHalfWidth = $coupleHalfWidth;
+                        self::$drawDashedLine = true;
                     }
 
                     if (isset($collageJson['placeholder']) && $collageJson['placeholder']) {
@@ -426,6 +438,9 @@ class Collage
         }
 
         if (strpos($c->collageLayout, '2x') === 0 || $coupleMode) {
+            // Prebuilt 2x and couple-strip templates store 2× the slots in their JSON
+            // (left strip: slots 0..N-1, right strip: slots N..2N-1). Reuse the
+            // captured photos for both strips without touching the template geometry.
             $editImages = array_merge($editImages, $editImages);
         }
 
@@ -450,20 +465,11 @@ class Collage
             if (!$backgroundImage instanceof \GdImage) {
                 throw new \Exception('Failed to create collage background image resource.');
             }
-            if ($coupleMode && $coupleHalfWidth > 0) {
-                // Tile the BG image for each half so each person gets a full copy
-                $halfBg = $imageHandler->resizeImage($backgroundImage, $coupleHalfWidth, self::$collageHeight);
-                if ($halfBg instanceof \GdImage) {
-                    imagecopy($my_collage, $halfBg, 0, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
-                    imagecopy($my_collage, $halfBg, $coupleHalfWidth, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
-                }
-            } else {
-                $backgroundImage = $imageHandler->resizeImage($backgroundImage, self::$collageWidth, self::$collageHeight);
-                if (!$backgroundImage instanceof \GdImage) {
-                    throw new \Exception('Failed to resize collage background image resource.');
-                }
-                imagecopy($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight);
+            $backgroundImage = $imageHandler->resizeImage($backgroundImage, self::$collageWidth, self::$collageHeight);
+            if (!$backgroundImage instanceof \GdImage) {
+                throw new \Exception('Failed to resize collage background image resource.');
             }
+            imagecopy($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight);
         } else {
             $background = imagecolorallocate($my_collage, (int) $bg_r, (int) $bg_g, (int) $bg_b);
             imagefill($my_collage, 0, 0, (int) $background);
@@ -518,26 +524,12 @@ class Collage
             $backgroundImage = $imageHandler->createFromImage($c->collageBackground);
             if ($backgroundImage instanceof \GdImage) {
                 $opacity = max(0, min(100, $c->collageBackgroundOverlayOpacity));
-                if ($coupleMode && $coupleHalfWidth > 0) {
-                    // Tile the background for each half
-                    $halfBg = $imageHandler->resizeImage($backgroundImage, $coupleHalfWidth, self::$collageHeight);
-                    if ($halfBg instanceof \GdImage) {
-                        if ($opacity >= 100) {
-                            imagecopy($my_collage, $halfBg, 0, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
-                            imagecopy($my_collage, $halfBg, $coupleHalfWidth, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
-                        } else {
-                            imagecopymerge($my_collage, $halfBg, 0, 0, 0, 0, $coupleHalfWidth, self::$collageHeight, $opacity);
-                            imagecopymerge($my_collage, $halfBg, $coupleHalfWidth, 0, 0, 0, $coupleHalfWidth, self::$collageHeight, $opacity);
-                        }
-                    }
-                } else {
-                    $backgroundImage = $imageHandler->resizeImage($backgroundImage, self::$collageWidth, self::$collageHeight);
-                    if ($backgroundImage instanceof \GdImage) {
-                        if ($opacity >= 100) {
-                            imagecopy($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight);
-                        } else {
-                            imagecopymerge($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight, $opacity);
-                        }
+                $backgroundImage = $imageHandler->resizeImage($backgroundImage, self::$collageWidth, self::$collageHeight);
+                if ($backgroundImage instanceof \GdImage) {
+                    if ($opacity >= 100) {
+                        imagecopy($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight);
+                    } else {
+                        imagecopymerge($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight, $opacity);
                     }
                 }
             }
@@ -562,24 +554,9 @@ class Collage
         }
 
         if ($c->collageTakeFrame === 'once') {
-            if ($coupleMode && $coupleHalfWidth > 0) {
-                // For couple mode: apply the frame to each half independently
-                $halfCanvas = imagecreatetruecolor($coupleHalfWidth, self::$collageHeight);
-                if ($halfCanvas instanceof \GdImage) {
-                    // Left half
-                    imagecopy($halfCanvas, $my_collage, 0, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
-                    $framedHalf = $imageHandler->applyFrame($halfCanvas);
-                    if ($framedHalf instanceof \GdImage) {
-                        imagecopy($my_collage, $framedHalf, 0, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
-                        // Right half (same frame, so re-use framedHalf directly)
-                        imagecopy($my_collage, $framedHalf, $coupleHalfWidth, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
-                    }
-                }
-            } else {
-                $my_collage = $imageHandler->applyFrame($my_collage);
-                if (!$my_collage instanceof \GdImage) {
-                    throw new \Exception('Failed to apply frame on collage resource.');
-                }
+            $my_collage = $imageHandler->applyFrame($my_collage);
+            if (!$my_collage instanceof \GdImage) {
+                throw new \Exception('Failed to apply frame on collage resource.');
             }
         }
 
@@ -666,6 +643,34 @@ class Collage
             if (!$my_collage instanceof \GdImage) {
                 throw new \Exception('Failed to rotate collage resource after creation.');
             }
+        }
+
+        // Couple mode: render single strip then duplicate side-by-side — pixel-perfect identical twins
+        if ($coupleMode) {
+            $halfW   = (int) imagesx($my_collage);
+            $fullH   = (int) imagesy($my_collage);
+            $doubled = imagecreatetruecolor($halfW * 2, $fullH);
+            if (!$doubled instanceof \GdImage) {
+                throw new \Exception('Failed to create doubled canvas for couple mode.');
+            }
+            $bgFill = imagecolorallocate($doubled, (int) $bg_r, (int) $bg_g, (int) $bg_b);
+            imagefill($doubled, 0, 0, (int) $bgFill);
+            // Left strip (original)
+            imagecopy($doubled, $my_collage, 0,      0, 0, 0, $halfW, $fullH);
+            // Right strip (pixel-perfect duplicate)
+            imagecopy($doubled, $my_collage, $halfW, 0, 0, 0, $halfW, $fullH);
+            imagedestroy($my_collage);
+            $my_collage = $doubled;
+            // Draw vertical dashed cut-guide line at x = halfW
+            $dl_r = isset($dashed_r) ? (int) $dashed_r : 128;
+            $dl_g = isset($dashed_g) ? (int) $dashed_g : 128;
+            $dl_b = isset($dashed_b) ? (int) $dashed_b : 128;
+            $imageHandler->dashedLineColor  = (string) imagecolorallocate($my_collage, $dl_r, $dl_g, $dl_b);
+            $imageHandler->dashedLineStartX = $halfW;
+            $imageHandler->dashedLineStartY = 0;
+            $imageHandler->dashedLineEndX   = $halfW;
+            $imageHandler->dashedLineEndY   = $fullH;
+            $imageHandler->drawDashedLine($my_collage);
         }
 
         // Transfer image to destImagePath with returns the image to core
