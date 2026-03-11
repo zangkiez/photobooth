@@ -21,6 +21,11 @@ include PathUtility::getAbsolutePath('admin/components/head.admin.php');
 include PathUtility::getAbsolutePath('admin/helper/index.php');
 
 $collageConfigFilePath = PathUtility::getAbsolutePath('private/collage.json');
+$collageSaveDir       = PathUtility::getAbsolutePath('private/collage');
+if (!is_dir($collageSaveDir)) {
+    @mkdir($collageSaveDir, 0755, true);
+}
+
 $collageJson = '';
 $permitSubmit = true;
 $enableWriteMessage = '';
@@ -33,12 +38,37 @@ if (file_exists($collageConfigFilePath)) {
     }
 }
 
+// Scan saved named collages in private/collage/
+$savedCollages = [];
+$scanned = glob($collageSaveDir . '/*.json');
+if ($scanned) {
+    foreach ($scanned as $sf) {
+        $sName = pathinfo($sf, PATHINFO_FILENAME);
+        $sData = json_decode((string)file_get_contents($sf), true);
+        if ($sData !== null) {
+            $savedCollages[] = ['name' => $sName, 'mtime' => (int)filemtime($sf), 'data' => $sData];
+        }
+    }
+    usort($savedCollages, fn ($a, $b) => $b['mtime'] - $a['mtime']);
+}
+
 $demoImages = ImageUtility::getDemoImages(8);
 
 $newConfiguration = '';
 if (isset($_POST['new-configuration'])) {
     $newConfiguration = $_POST['new-configuration'];
     $newConfig = $config;
+
+    // Save to named file in private/collage/
+    $rawName = trim($_POST['collage-name'] ?? '');
+    $safeName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $rawName);
+    $safeName = substr($safeName, 0, 60);
+    if ($safeName === '') {
+        $safeName = 'collage_' . date('Ymd_His');
+    }
+    $namedFilePath = $collageSaveDir . '/' . $safeName . '.json';
+    $fpNamed = fopen($namedFilePath, 'w');
+    if ($fpNamed) { fwrite($fpNamed, $newConfiguration); fclose($fpNamed); }
 
     $fp = fopen($collageConfigFilePath, 'w');
     if ($fp) {
@@ -189,6 +219,7 @@ echo $font_styles;
     <?php if ($enableWriteMessage !== '') { ?>
         <input id="enable_write_message" type="hidden" value='<?= $enableWriteMessage ?>' />
     <?php } ?>
+    <script>var savedCollagesData = <?= json_encode($savedCollages) ?>;</script>
 
     <!-- Body -->
     <div class="gen-body">
@@ -197,13 +228,14 @@ echo $font_styles;
         <aside class="gen-sidebar">
             <div class="gen-scroll">
 
-                <?php if ($collageJson !== '') { ?>
                 <div class="g-load-banner">
-                    <i class="fa fa-history"></i>
-                    <span>Saved configuration found.</span>
-                    <button id="loadCurrentConfiguration">Load</button>
+                    <i class="fa fa-folder-open-o"></i>
+                    <span><?= count($savedCollages) ?> collage<?= count($savedCollages) !== 1 ? 's' : '' ?> saved</span>
+                    <button type="button" onclick="genOpenLoadModal()">Load</button>
+                    <?php if ($collageJson !== '') { ?>
+                    <button type="button" id="loadCurrentConfiguration" style="background:var(--g-muted);">Last</button>
+                    <?php } ?>
                 </div>
-                <?php } ?>
 
                 <!-- ══ STEP 1: Background ══ -->
                 <div class="gen-panel active" data-panel="1">
@@ -680,8 +712,38 @@ echo $font_styles;
     <i class="fa fa-undo"></i> <span id="gen-undo-msg">Undone</span>
 </div>
 
+<!-- Save dialog -->
+<div class="gen-dialog-overlay" id="gen-save-dialog">
+    <div class="gen-dialog">
+        <div class="gen-dialog-title"><i class="fa fa-save"></i> Save Collage</div>
+        <div class="gen-dialog-body">
+            <div class="g-label">Collage Name</div>
+            <input class="g-input" type="text" id="gen-save-name" placeholder="e.g. wedding_4x6" maxlength="60" autocomplete="off">
+            <div class="g-hint" style="margin-top:.4rem;">a-z, 0-9, _ - เท่านั้น ระบบจะแปลงอักขระอื่นให้</div>
+        </div>
+        <div class="gen-dialog-footer">
+            <button type="button" class="gen-dialog-cancel" id="gen-save-cancel">Cancel</button>
+            <button type="button" class="gen-dialog-confirm" id="gen-save-confirm"><i class="fa fa-save"></i> Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Load dialog -->
+<div class="gen-dialog-overlay" id="gen-load-dialog">
+    <div class="gen-dialog gen-dialog-lg">
+        <div class="gen-dialog-title"><i class="fa fa-folder-open-o"></i> Load Collage</div>
+        <div class="gen-dialog-body">
+            <div class="gen-collage-list" id="gen-collage-list"></div>
+        </div>
+        <div class="gen-dialog-footer">
+            <button type="button" class="gen-dialog-cancel" id="gen-load-close">Close</button>
+        </div>
+    </div>
+</div>
+
 <form id="configuration_form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST" enctype="multipart/form-data" class="hidden">
     <input type="hidden" name="new-configuration" value="">
+    <input type="hidden" name="collage-name" value="">
 </form>
 
 <?php

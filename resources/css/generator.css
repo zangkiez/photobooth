@@ -583,6 +583,51 @@ kbd {
 .modal-button{flex-grow:1;display:inline-flex;padding:1rem;gap:.25rem;font-size:1rem;color:#fff;text-align:center;cursor:pointer;user-select:none;border:none;background:#6366f1;justify-content:center;align-items:center;}
 .modal-button:hover{background:#4f46e5;}
 
+/* ── Save / Load dialog ── */
+.gen-dialog-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    z-index: 9999; display: none; align-items: center; justify-content: center; padding: 1rem;
+}
+.gen-dialog-overlay.show { display: flex; }
+.gen-dialog {
+    background: #fff; border-radius: 12px; padding: 1.5rem;
+    width: 360px; max-width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    animation: gen-dialog-in .15s ease;
+}
+.gen-dialog-lg { width: 480px; }
+@keyframes gen-dialog-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+.gen-dialog-title { font-size: .95rem; font-weight: 700; margin-bottom: 1rem; color: var(--g-text); display:flex; align-items:center; gap:.4rem; }
+.gen-dialog-body { margin-bottom: 1.25rem; }
+.gen-dialog-footer { display: flex; justify-content: flex-end; gap: .5rem; }
+.gen-dialog-cancel {
+    padding: .35rem .85rem; border-radius: 7px; border: 1.5px solid var(--g-border);
+    background: #fff; color: var(--g-muted); font-size: .8rem; font-weight: 600; cursor: pointer;
+}
+.gen-dialog-cancel:hover { border-color: var(--g-text); color: var(--g-text); }
+.gen-dialog-confirm {
+    padding: .35rem .85rem; border-radius: 7px; border: none;
+    background: var(--g-primary); color: #fff; font-size: .8rem; font-weight: 600; cursor: pointer; display:flex; align-items:center; gap:.35rem;
+}
+.gen-dialog-confirm:hover { background: var(--g-primary-dark); }
+/* Collage list inside load dialog */
+.gen-collage-list { display: flex; flex-direction: column; gap: .4rem; max-height: 340px; overflow-y: auto; }
+.gen-collage-item {
+    display: flex; align-items: center; gap: .6rem;
+    padding: .5rem .7rem; border: 1.5px solid var(--g-border); border-radius: 8px;
+    transition: border-color .12s;
+}
+.gen-collage-item:hover { border-color: var(--g-primary); }
+.gen-collage-item > i { color: var(--g-primary); font-size: 1rem; flex-shrink:0; }
+.gen-collage-info { flex: 1; min-width: 0; }
+.gen-collage-info strong { display: block; font-size: .82rem; color: var(--g-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gen-collage-info span { font-size: .66rem; color: var(--g-muted); }
+.gen-collage-load-btn {
+    padding: .22rem .6rem; border-radius: 6px; border: none;
+    background: var(--g-primary); color: #fff; font-size: .7rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.gen-collage-load-btn:hover { background: var(--g-primary-dark); }
+.gen-collage-empty { font-size: .8rem; color: var(--g-muted); text-align: center; padding: 1.5rem 0; }
+
 /* Suppress AdminInput default labels inside our G-label wrapped fields */
 .gen-frame-body .adminLabel { display: none !important; }
 .gen-frame-body .adminInput { margin-bottom: 0 !important; }

@@ -74,7 +74,6 @@ return [
         'background' => 'resources/img/background/สำเนาของ Second​ hand​ Market​ _​ Music​ _3.png',
         'background_on_top' => true,
         'slideshow_enabled' => true,
-        'placeholderpath' => 'resources/img/background/01.jpg',
     ],
     'textoncollage' => [
         'line1' => 'Between',

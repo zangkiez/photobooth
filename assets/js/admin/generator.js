@@ -103,13 +103,15 @@ function toPublicUrl(path) {
     return `${baseUrl}/${path.replace(/^\//, '')}`;
 }
 function loadCurrentConfig() {
-    //loading the configuration just like in the backend
     const raw = $('#current_config').val();
     const current_config = raw ? JSON.parse(raw) : null;
-    if (!current_config) {
-        changeGeneralSetting();
-        return;
-    }
+    if (!current_config) { changeGeneralSetting(); return; }
+    loadConfigFromData(current_config);
+}
+
+function loadConfigFromData(current_config) {
+    if (!current_config) { changeGeneralSetting(); return; }
+    //loading the configuration just like in the backend
     const collageConfig = config.collage;
     const textConfig = config.textoncollage;
     let collage_height = 1200;
@@ -218,29 +220,111 @@ function loadCurrentConfig() {
     $('#result_canvas').find("div[id^='picture-']").addClass('hidden');
     $('#layout_containers').find("div[data-picture^='picture-']").addClass('hidden');
 
-    for (let i = 0; i < layout.length; i++) {
-        let identifier = 'picture-' + i;
-        let inputLayout = $("div[data-picture='" + identifier + "']");
-        inputLayout.removeClass('hidden');
-        let exampleImage = $('#' + identifier);
-        exampleImage.removeClass('hidden');
+    if (Array.isArray(layout)) {
+        for (let i = 0; i < layout.length; i++) {
+            let identifier = 'picture-' + i;
+            let inputLayout = $("div[data-picture='" + identifier + "']");
+            inputLayout.removeClass('hidden');
+            let exampleImage = $('#' + identifier);
+            exampleImage.removeClass('hidden');
 
-        inputLayout.find('input[data-prop]').each(function (propertyPosition) {
-            let inputType = $(this).attr('type');
-            if (inputType === 'range') {
-                $(this).parent().find('span:first').text(layout[i][propertyPosition]);
-            } else if (inputType === 'checkbox') {
-                $(this).prop('checked', layout[i][propertyPosition]);
-            }
-            if (propertyPosition !== 5) {
-                $(this).val(layout[i][propertyPosition]);
-            }
-        });
+            inputLayout.find('input[data-prop]').each(function (propertyPosition) {
+                let inputType = $(this).attr('type');
+                if (inputType === 'range') {
+                    $(this).parent().find('span:first').text(layout[i][propertyPosition]);
+                } else if (inputType === 'checkbox') {
+                    $(this).prop('checked', layout[i][propertyPosition]);
+                }
+                if (propertyPosition !== 5) {
+                    $(this).val(layout[i][propertyPosition]);
+                }
+            });
+        }
     }
 
     //start rendering
     syncPctInputs();
     changeGeneralSetting();
+}
+
+// ── Save dialog ──────────────────────────────────────────────────
+function genOpenSaveDialog(stringedConfiguration, canSubmit) {
+    const overlay = document.getElementById('gen-save-dialog');
+    const nameInput = document.getElementById('gen-save-name');
+    // pre-fill with last used name
+    const lastUsed = $("input[name='collage-name']").val();
+    nameInput.value = lastUsed || '';
+    overlay.classList.add('show');
+    nameInput.focus();
+    nameInput.select();
+
+    function doSave() {
+        const name = nameInput.value.trim();
+        if (!name) { nameInput.focus(); return; }
+        overlay.classList.remove('show');
+        $("input[name='collage-name']").val(name);
+        if (canSubmit === '1') {
+            $("input[name='new-configuration']").val(stringedConfiguration);
+            $('#configuration_form').trigger('submit');
+        } else {
+            photoboothTools.modal.open();
+            const modalBody = photoboothTools.modal.element.querySelector('.modal-body');
+            const enableWriteMessage = $('#enable_write_message').val();
+            const messageDiv = document.createElement('div');
+            messageDiv.innerText = enableWriteMessage;
+            modalBody.appendChild(messageDiv);
+            const jsonDiv = document.createElement('div');
+            jsonDiv.innerText = stringedConfiguration;
+            jsonDiv.style.fontFamily = 'monospace';
+            modalBody.appendChild(jsonDiv);
+        }
+    }
+
+    document.getElementById('gen-save-confirm').onclick = doSave;
+    nameInput.onkeydown = function(e) { if (e.key === 'Enter') doSave(); };
+    document.getElementById('gen-save-cancel').onclick = function() { overlay.classList.remove('show'); };
+    overlay.onclick = function(e) { if (e.target === overlay) overlay.classList.remove('show'); };
+}
+
+// ── Load dialog ──────────────────────────────────────────────────
+function genOpenLoadModal() {
+    const saves = (typeof savedCollagesData !== 'undefined') ? savedCollagesData : [];
+    const list = document.getElementById('gen-collage-list');
+    const overlay = document.getElementById('gen-load-dialog');
+    list.innerHTML = '';
+
+    if (!saves.length) {
+        list.innerHTML = '<p class="gen-collage-empty"><i class="fa fa-inbox"></i><br>No saved collages yet.</p>';
+    } else {
+        saves.forEach(function(s) {
+            const row = document.createElement('div');
+            row.className = 'gen-collage-item';
+            const d = new Date(s.mtime * 1000);
+            const dateStr = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+            const slots = Array.isArray(s.data && s.data.layout) ? s.data.layout.length + ' slots' :
+                          Array.isArray(s.data) ? s.data.length + ' slots' : '';
+            row.innerHTML =
+                '<i class="fa fa-file-image-o"></i>' +
+                '<div class="gen-collage-info"><strong>' + escapeHtml(s.name) + '</strong>' +
+                '<span>' + dateStr + (slots ? ' · ' + slots : '') + '</span></div>' +
+                '<button type="button" class="gen-collage-load-btn">Load</button>';
+            row.querySelector('.gen-collage-load-btn').onclick = function () {
+                overlay.classList.remove('show');
+                // update collage-name so save will default to same name
+                $("input[name='collage-name']").val(s.name);
+                loadConfigFromData(s.data);
+            };
+            list.appendChild(row);
+        });
+    }
+
+    overlay.classList.add('show');
+    document.getElementById('gen-load-close').onclick = function() { overlay.classList.remove('show'); };
+    overlay.onclick = function(e) { if (e.target === overlay) overlay.classList.remove('show'); };
+}
+
+function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function changeGeneralSetting() {
@@ -572,7 +656,9 @@ function saveConfiguration() {
         layout: []
     };
 
-    $('div.image_layout:visible').each(function () {
+    // .not('.hidden'): slots live inside a non-active panel (display:none) when user is on step 4
+    // so jQuery :visible returns false — use explicit class check instead
+    $('div.image_layout').not('.hidden').each(function () {
         let container = $(this);
         let single_image_layout = [];
         container.find('input[data-prop]').each(function () {
@@ -588,23 +674,7 @@ function saveConfiguration() {
     const canSubmit = $('#can_submit').val();
     const stringedConfiguration = customStringify(configuration);
 
-    if (canSubmit === '1') {
-        $("input[name='new-configuration']").val(stringedConfiguration);
-        $('#configuration_form').trigger('submit');
-    } else {
-        photoboothTools.modal.open();
-        const modalBody = photoboothTools.modal.element.querySelector('.modal-body');
-        const enableWriteMessage = $('#enable_write_message').val();
-
-        const messageDiv = document.createElement('div');
-        messageDiv.innerText = enableWriteMessage;
-        modalBody.appendChild(messageDiv);
-
-        const jsonDiv = document.createElement('div');
-        jsonDiv.innerText = stringedConfiguration;
-        jsonDiv.style.fontFamily = 'monospace';
-        modalBody.appendChild(jsonDiv);
-    }
+    genOpenSaveDialog(stringedConfiguration, canSubmit);
 }
 
 function customStringify(configuration) {
@@ -612,17 +682,21 @@ function customStringify(configuration) {
     for (const key of Object.keys(configuration)) {
         let val = configuration[key];
         if (val instanceof Array) {
-            textResult += '\n\t"' + key + '": [';
-            for (let prop of val) {
-                textResult += '\n\t\t' + JSON.stringify(prop) + ',';
+            if (val.length === 0) {
+                textResult += '\n\t"' + key + '": [],';
+            } else {
+                textResult += '\n\t"' + key + '": [';
+                for (let prop of val) {
+                    textResult += '\n\t\t' + JSON.stringify(prop) + ',';
+                }
+                textResult = textResult.slice(0, -1); // remove last comma inside array
+                textResult += '\n\t],';
             }
-            textResult = textResult.slice(0, -1);
-            textResult += '\n\t],';
             continue;
         }
         textResult += '\n\t"' + key + '": ' + JSON.stringify(val) + ',';
     }
-    textResult = textResult.slice(0, -1);
+    textResult = textResult.slice(0, -1); // remove trailing comma of last key
     textResult += '\n}';
     return textResult;
 }
@@ -1661,7 +1735,7 @@ function updateConfigDisplay() {
         placeholderposition: $('input[name="placeholder_image_position"]').val(),
         layout: []
     };
-    $('div.image_layout:visible').each(function () {
+    $('div.image_layout').not('.hidden').each(function () {
         var row = [];
         $(this)
             .find('input[data-prop]')

@@ -1,6 +1,6 @@
 {
-	"width": "1500",
-	"height": "1000",
+	"width": "3875",
+	"height": "5763",
 	"text_custom_style": false,
 	"text_font_size": "50",
 	"text_rotation": "0",
@@ -20,7 +20,6 @@
 	"placeholder": false,
 	"placeholderpath": "",
 	"placeholderposition": "1",
-	"layout": [
-		["424","395","x*0.5","y*0.5","0",false]
+	"layout": 
 	]
 }
