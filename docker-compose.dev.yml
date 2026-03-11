@@ -1,7 +1,15 @@
 # ============================================================
 # Photobooth Dev — Mac (และ Linux)
-# รัน: docker compose -f docker-compose.dev.yml up -d
-# อัปเดต: git pull && docker compose -f docker-compose.dev.yml up -d --build
+# รัน    : docker compose -f docker-compose.dev.yml up -d --build
+# อัปเดต : git pull && docker compose -f docker-compose.dev.yml up -d --build
+# หยุด   : docker compose -f docker-compose.dev.yml down
+#
+# ⚠️  ปกติให้ใช้ ddev start แทน — ไฟล์นี้เป็นทางเลือกสำหรับคนไม่อยากลง DDEV
+#
+# Build pipeline: assets/js/ + assets/sass/ (source, ES6/SCSS)
+#                       ↓ gulp (Babel + sass)
+#                 resources/js/ + resources/css/ (compiled, served to browser)
+# → แก้โค้ดที่ assets/ เท่านั้น; gulp watch ทำงานอัตโนมัติใน container
 #
 # Config PHP/Apache อยู่ใน Docker (docker/php.ini, docker/apache-photobooth.conf)
 # Config แอป (webserver URL, printer) จาก env ด้านล่าง — ไม่ต้องมีไฟล์ config บน host
@@ -24,11 +32,12 @@ services:
       # ไม่ mount config — สร้างจาก env ใน entrypoint
     environment:
       - TZ=Asia/Bangkok
-      # URL ที่เปิดจากเบราว์เซอร์ (ถ้าใช้ tunnel ใส่ URL นั้น)
+      # URL ที่เปิดจากเบราว์เซอร์ (ถ้าใช้ Cloudflare Tunnel ให้ใส่ URL นั้นแทน)
       - PHOTOBOOTH_WEBSERVER_URL=http://localhost:9080
-      # ชื่อเครื่องพิมพ์บน host (ถ้ารัน print-relay บน Mac)
+      # ชื่อเครื่องพิมพ์บน host (ต้องรัน bin/print-relay บน Mac ก่อน → port 6631)
       - PHOTOBOOTH_PRINTER_NAME=Dai_Nippon_Printing_DP_QW410
-    # Mac: print-relay รันบน host ที่ port 6631
+      # ตรวจสอบด้วย: lpstat -p บน Mac แล้วใช้ชื่อที่ได้
+    # print-relay: container → host.docker.internal:6631 → bin/print-relay (Mac) → CUPS
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

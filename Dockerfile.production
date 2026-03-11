@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------
 FROM php:8.4-apache AS builder
 
+# รวม Node.js ไว้ใน layer เดียวกัน — ลด build time + image size
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         git \
@@ -21,12 +22,8 @@ RUN apt-get update \
         gnupg \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd zip \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Node.js 20
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -44,7 +41,7 @@ RUN git submodule update --init 2>/dev/null || true
 # PHP dependencies (production เท่านั้น — ไม่รัน post-install เพื่อไม่ติดตั้ง tools dev)
 RUN php bin/composer install --no-dev --no-interaction --no-scripts --ignore-platform-reqs
 
-# Frontend build
+# Frontend build: assets/ (source) → resources/ (compiled output)
 RUN npm ci \
     && npm run build:gulp \
     && npm run build:head \
@@ -76,35 +73,34 @@ RUN a2enmod rewrite \
     && echo "LimitRequestLine 12000" >> /etc/apache2/conf-available/photobooth-limits.conf \
     && a2enconf photobooth-limits.conf
 
-ENV APACHE_DOCUMENT_ROOT=/var/www/html
 WORKDIR /var/www/html
 
-# Copy โฟลเดอร์ docker/ จาก builder (generate-config + entrypoint)
-COPY --from=builder /var/www/html/docker ./docker
-
-# PHP + Apache config จาก repo (จบใน Docker ไม่ต้องตั้งบน host)
-COPY --from=builder /var/www/html/docker/php.ini /usr/local/etc/php/conf.d/photobooth.ini
+# Config ที่จบใน Docker (PHP + Apache) — copy จาก builder โดยตรง
+COPY --from=builder /var/www/html/docker/php.ini        /usr/local/etc/php/conf.d/photobooth.ini
 COPY --from=builder /var/www/html/docker/apache-photobooth.conf /etc/apache2/sites-available/photobooth.conf
 RUN a2dissite 000-default.conf 2>/dev/null || true \
     && a2ensite photobooth.conf
 
-RUN chmod +x /var/www/html/docker/entrypoint-prod.sh
+# generate-config.php + entrypoint (ต้องอยู่ใน docker/ ให้ entrypoint เรียกได้)
+COPY --from=builder /var/www/html/docker/generate-config.php ./docker/generate-config.php
+COPY --chmod=755 --from=builder /var/www/html/docker/entrypoint-prod.sh ./docker/entrypoint-prod.sh
 
-# Copy จาก builder เฉพาะสิ่งที่รันได้ (ไม่เอา node_modules, .git, dev tools)
-COPY --from=builder /var/www/html/api                 ./api
+# Copy จาก builder เฉพาะสิ่งที่รันได้
+# หมายเหตุ: ไม่ copy assets/ — เป็น source ของ gulp ใช้แค่ตอน build
+#           browser ใช้ resources/js + resources/css โดยตรง
+COPY --from=builder /var/www/html/api                ./api
 COPY --from=builder /var/www/html/admin              ./admin
-COPY --from=builder /var/www/html/assets             ./assets
 COPY --from=builder /var/www/html/chroma             ./chroma
 COPY --from=builder /var/www/html/config             ./config
 COPY --from=builder /var/www/html/faq                ./faq
 COPY --from=builder /var/www/html/gallery            ./gallery
 COPY --from=builder /var/www/html/lib                ./lib
-COPY --from=builder /var/www/html/login               ./login
+COPY --from=builder /var/www/html/login              ./login
 COPY --from=builder /var/www/html/manual             ./manual
-COPY --from=builder /var/www/html/private             ./private
+COPY --from=builder /var/www/html/private            ./private
 COPY --from=builder /var/www/html/resources          ./resources
 COPY --from=builder /var/www/html/src                ./src
-COPY --from=builder /var/www/html/template            ./template
+COPY --from=builder /var/www/html/template           ./template
 COPY --from=builder /var/www/html/vendor             ./vendor
 COPY --from=builder /var/www/html/index.php          ./
 COPY --from=builder /var/www/html/view.php           ./
@@ -115,7 +111,7 @@ COPY --from=builder /var/www/html/bin/composer       ./bin/composer
 
 # โฟลเดอร์ที่ต้องมีและให้ www-data เขียนได้
 RUN mkdir -p data/images data/thumbs data/print data/qr data/temp var \
-    && chown -R www-data:www-data /var/www/html/data /var/www/html/var /var/www/html/private /var/www/html/config
+    && chown -R www-data:www-data data var private config
 
 EXPOSE 80
 ENTRYPOINT ["/var/www/html/docker/entrypoint-prod.sh"]

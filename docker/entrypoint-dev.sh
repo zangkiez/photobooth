@@ -14,8 +14,9 @@ if [ ! -d node_modules/.bin ]; then
     npm ci
 fi
 
-# Build frontend ครั้งแรก
-if [ ! -f assets/js/core.js ] || [ ! -f resources/css/framework.css ]; then
+# Build frontend ครั้งแรก (source: assets/ → compiled output: resources/)
+# เช็ค compiled output เพราะ assets/ เป็น source ที่ mount จาก host มาอยู่แล้วเสมอ
+if [ ! -f resources/js/core.js ] || [ ! -f resources/css/framework.css ]; then
     npm run build:gulp || true
     npm run build:head || true
 fi

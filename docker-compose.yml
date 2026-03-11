@@ -1,10 +1,39 @@
-version: "3.9"
+# ============================================================
+# Photobooth — docker-compose.yml (default / shorthand)
+#
+# ไฟล์นี้เป็น alias สำหรับเรียกใช้ง่าย ๆ — ชี้ไปที่ production Ubuntu
+# สำหรับ dev ใช้: docker compose -f docker-compose.dev.yml up -d
+# สำหรับ Pi    : docker compose -f docker-compose.production.pi.yml up -d
+# ============================================================
 
 services:
   photobooth:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    platform: linux/amd64
+    container_name: photobooth-production
+    restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
+    volumes:
+      - photobooth_data:/var/www/html/data
+      - photobooth_private:/var/www/html/private
+      - photobooth_var:/var/www/html/var
+      - /var/run/cups/cups.sock:/var/run/cups/cups.sock
+    env_file:
+      - .env
     environment:
-      - COMPOSER_VERSION=2
+      - TZ=Asia/Bangkok
+      - PHOTOBOOTH_FORCE_GENERATE_CONFIG=1
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+volumes:
+  photobooth_data:
+  photobooth_private:
+  photobooth_var:

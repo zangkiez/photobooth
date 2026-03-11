@@ -125,7 +125,7 @@ ddev start
 1. Build Docker image (PHP 8.4, Apache, ffmpeg, print proxy)
 2. ติดตั้ง npm dependencies (ถ้ายังไม่มี)
 3. Build frontend assets (`npm run build`) ครั้งแรก
-4. เปิด gulp watch (CSS/JS auto-rebuild เมื่อแก้ไฟล์ใน `resources/`)
+4. เปิด gulp watch (CSS/JS auto-rebuild เมื่อแก้ไฟล์ใน `assets/`)
 5. **เปิด Print Relay บน Mac host** (port 6631) อัตโนมัติ
 
 ### Dev บน Mac ด้วย Docker (ทางเลือกจาก DDEV) — config จบใน Docker
@@ -176,14 +176,14 @@ ddev qa                       # รัน linting + phpstan + tests
 | ประเภทไฟล์ | โฟลเดอร์ | หมายเหตุ |
 |-----------|---------|---------|
 | PHP source | `src/`, `api/`, `lib/` | แก้แล้วเห็นผลทันที |
-| JavaScript (source) | `resources/js/` | gulp watch compile → `assets/js/` อัตโนมัติ |
-| CSS/SCSS (source) | `resources/sass/` | gulp watch compile → `assets/css/` อัตโนมัติ |
-| JavaScript (compiled) | `assets/js/` | **อย่าแก้ตรงนี้** — ถูก overwrite โดย build |
+| JavaScript (source) | `assets/js/` | gulp watch compile → `resources/js/` อัตโนมัติ |
+| CSS/SCSS (source) | `assets/sass/` | gulp watch compile → `resources/css/` อัตโนมัติ |
+| JavaScript (compiled) | `resources/js/` | **อย่าแก้ตรงนี้** — ถูก overwrite โดย build |
 | Config | `config/my.config.inc.php` | ไฟล์ config ส่วนตัว (ไม่ commit) |
 | Template | `template/`, `view.php` | แก้ได้โดยตรง |
 
-> **สำคัญ:** แก้ไฟล์ใน `resources/js/` หรือ `resources/sass/` เท่านั้น ไม่ใช่ `assets/`
-> gulp watch จะ compile ให้อัตโนมัติ — ถ้า watch ไม่รัน ใช้ `ddev npm run build`
+> **สำคัญ:** แก้ไฟล์ใน `assets/js/` หรือ `assets/sass/` เท่านั้น ไม่ใช่ `resources/`
+> gulp watch จะ compile ให้อัตโนมัติ — ถ้า watch ไม่รัน ใช้ `ddev exec npm run build:gulp`
 
 ---
 
@@ -473,18 +473,20 @@ photobooth/
 │   ├── applyEffects.php    # สร้าง GIF + MP4 slideshow
 │   ├── capture.php         # ถ่ายรูป
 │   └── print.php           # สั่งปริ้น -> exec lp
-├── assets/                 # Compiled output — อย่าแก้ตรงนี้
-│   ├── js/                 # Compiled JS (จาก resources/js/)
-│   └── css/                # Compiled CSS (จาก resources/sass/)
+├── assets/                 # JS/CSS source — แก้ที่นี่เท่านั้น
+│   ├── js/                 # JS source (ES6)
+│   │   ├── core.js         # Main photobooth logic
+│   │   └── photoswipe.js   # Gallery + video modal
+│   └── sass/               # SCSS source — แก้ที่นี่
 ├── bin/
 │   └── print-relay         # Python relay server รันบน Mac
 ├── config/
 │   └── my.config.inc.php   # Config ส่วนตัว (ไม่ commit เข้า git)
-├── resources/
-│   ├── js/                 # JS source — แก้ที่นี่
-│   │   ├── core.js         # Main photobooth logic
-│   │   └── photoswipe.js   # Gallery + video modal
-│   └── sass/               # SCSS source — แก้ที่นี่
+├── resources/              # Compiled output — อย่าแก้ตรงนี้
+│   ├── js/                 # Compiled JS — auto-generated จาก assets/js/
+│   │   ├── core.js
+│   │   └── photoswipe.js
+│   └── css/                # Compiled CSS — auto-generated จาก assets/sass/
 ├── src/                    # PHP classes
 │   └── Utility/
 │       └── GifEncoder.php  # Pure-PHP animated GIF encoder
@@ -806,8 +808,8 @@ ddev start                       git pull
   +─ auto start print relay
   └─ ready at :9443
 
-แก้โค้ดใน resources/js/ หรือ src/
-  → gulp watch compile อัตโนมัติ
+แก้โค้ดใน assets/js/ หรือ src/
+  → gulp watch compile → resources/js/ อัตโนมัติ
 
 ทดสอบผ่าน Cloudflare Tunnel URL
   → iPhone camera OK
