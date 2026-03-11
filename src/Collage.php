@@ -145,6 +145,10 @@ class Collage
 
         $collageConfigFilePath = self::getCollageConfigPath($c->collageLayout, self::$pictureOrientation);
 
+        // Couple-mode state (populated from JSON below if the flag is present)
+        $coupleMode = false;
+        $coupleHalfWidth = 0;
+
         // Save the original admin setting for text on collage
         $adminTextOnCollageEnabled = $c->textOnCollageEnabled;
 
@@ -181,6 +185,11 @@ class Collage
                     }
                     if (isset($collageJson['background_overlay_opacity'])) {
                         $c->collageBackgroundOverlayOpacity = max(0, min(100, (int) $collageJson['background_overlay_opacity']));
+                    }
+
+                    if (!empty($collageJson['couple_mode'])) {
+                        $coupleMode = true;
+                        $coupleHalfWidth = isset($collageJson['couple_half_width']) ? (int) $collageJson['couple_half_width'] : 0;
                     }
 
                     if (isset($collageJson['placeholder']) && $collageJson['placeholder']) {
@@ -416,7 +425,7 @@ class Collage
             unset($imageResource);
         }
 
-        if (strpos($c->collageLayout, '2x') === 0) {
+        if (strpos($c->collageLayout, '2x') === 0 || $coupleMode) {
             $editImages = array_merge($editImages, $editImages);
         }
 
@@ -441,11 +450,20 @@ class Collage
             if (!$backgroundImage instanceof \GdImage) {
                 throw new \Exception('Failed to create collage background image resource.');
             }
-            $backgroundImage = $imageHandler->resizeImage($backgroundImage, self::$collageWidth, self::$collageHeight);
-            if (!$backgroundImage instanceof \GdImage) {
-                throw new \Exception('Failed to resize collage background image resource.');
+            if ($coupleMode && $coupleHalfWidth > 0) {
+                // Tile the BG image for each half so each person gets a full copy
+                $halfBg = $imageHandler->resizeImage($backgroundImage, $coupleHalfWidth, self::$collageHeight);
+                if ($halfBg instanceof \GdImage) {
+                    imagecopy($my_collage, $halfBg, 0, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
+                    imagecopy($my_collage, $halfBg, $coupleHalfWidth, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
+                }
+            } else {
+                $backgroundImage = $imageHandler->resizeImage($backgroundImage, self::$collageWidth, self::$collageHeight);
+                if (!$backgroundImage instanceof \GdImage) {
+                    throw new \Exception('Failed to resize collage background image resource.');
+                }
+                imagecopy($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight);
             }
-            imagecopy($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight);
         } else {
             $background = imagecolorallocate($my_collage, (int) $bg_r, (int) $bg_g, (int) $bg_b);
             imagefill($my_collage, 0, 0, (int) $background);
@@ -499,13 +517,27 @@ class Collage
         if ($c->collageBackgroundOnTop && !empty($c->collageBackground)) {
             $backgroundImage = $imageHandler->createFromImage($c->collageBackground);
             if ($backgroundImage instanceof \GdImage) {
-                $backgroundImage = $imageHandler->resizeImage($backgroundImage, self::$collageWidth, self::$collageHeight);
-                if ($backgroundImage instanceof \GdImage) {
-                    $opacity = max(0, min(100, $c->collageBackgroundOverlayOpacity));
-                    if ($opacity >= 100) {
-                        imagecopy($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight);
-                    } else {
-                        imagecopymerge($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight, $opacity);
+                $opacity = max(0, min(100, $c->collageBackgroundOverlayOpacity));
+                if ($coupleMode && $coupleHalfWidth > 0) {
+                    // Tile the background for each half
+                    $halfBg = $imageHandler->resizeImage($backgroundImage, $coupleHalfWidth, self::$collageHeight);
+                    if ($halfBg instanceof \GdImage) {
+                        if ($opacity >= 100) {
+                            imagecopy($my_collage, $halfBg, 0, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
+                            imagecopy($my_collage, $halfBg, $coupleHalfWidth, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
+                        } else {
+                            imagecopymerge($my_collage, $halfBg, 0, 0, 0, 0, $coupleHalfWidth, self::$collageHeight, $opacity);
+                            imagecopymerge($my_collage, $halfBg, $coupleHalfWidth, 0, 0, 0, $coupleHalfWidth, self::$collageHeight, $opacity);
+                        }
+                    }
+                } else {
+                    $backgroundImage = $imageHandler->resizeImage($backgroundImage, self::$collageWidth, self::$collageHeight);
+                    if ($backgroundImage instanceof \GdImage) {
+                        if ($opacity >= 100) {
+                            imagecopy($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight);
+                        } else {
+                            imagecopymerge($my_collage, $backgroundImage, 0, 0, 0, 0, self::$collageWidth, self::$collageHeight, $opacity);
+                        }
                     }
                 }
             }
@@ -530,9 +562,24 @@ class Collage
         }
 
         if ($c->collageTakeFrame === 'once') {
-            $my_collage = $imageHandler->applyFrame($my_collage);
-            if (!$my_collage instanceof \GdImage) {
-                throw new \Exception('Failed to apply frame on collage resource.');
+            if ($coupleMode && $coupleHalfWidth > 0) {
+                // For couple mode: apply the frame to each half independently
+                $halfCanvas = imagecreatetruecolor($coupleHalfWidth, self::$collageHeight);
+                if ($halfCanvas instanceof \GdImage) {
+                    // Left half
+                    imagecopy($halfCanvas, $my_collage, 0, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
+                    $framedHalf = $imageHandler->applyFrame($halfCanvas);
+                    if ($framedHalf instanceof \GdImage) {
+                        imagecopy($my_collage, $framedHalf, 0, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
+                        // Right half (same frame, so re-use framedHalf directly)
+                        imagecopy($my_collage, $framedHalf, $coupleHalfWidth, 0, 0, 0, $coupleHalfWidth, self::$collageHeight);
+                    }
+                }
+            } else {
+                $my_collage = $imageHandler->applyFrame($my_collage);
+                if (!$my_collage instanceof \GdImage) {
+                    throw new \Exception('Failed to apply frame on collage resource.');
+                }
             }
         }
 

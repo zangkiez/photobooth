@@ -1665,6 +1665,8 @@ document.querySelectorAll('.g-preset').forEach(function (btn) {
 // ═══════════════════════════════════════════════════════════════
 // 16. COUPLE MODE
 // ═══════════════════════════════════════════════════════════════
+var _coupleOriginalWidth = null;
+
 (function () {
     var tog = document.getElementById('gen-couple-toggle');
     if (!tog) return;
@@ -1674,16 +1676,35 @@ document.querySelectorAll('.g-preset').forEach(function (btn) {
         if (div) div.style.display = on ? 'block' : 'none';
         if (on) {
             genApplyCouple();
-            if (typeof openToast === 'function') openToast('Couple mode ON — 3 + 3 mirrored slots', 'isSuccess', 2500);
+            if (typeof openToast === 'function') openToast('Couple mode ON — full BG duplicated for each half', 'isSuccess', 2500);
         } else {
+            // Restore original canvas width
+            if (_coupleOriginalWidth !== null) {
+                $('input[name="final_width"]').val(_coupleOriginalWidth).trigger('change');
+                _coupleOriginalWidth = null;
+            }
+            // Hide the mirrored slots (3, 4, 5)
+            for (var i = 3; i <= 5; i++) {
+                var mc = document.querySelector('[data-picture="picture-' + i + '"]');
+                var md = document.getElementById('picture-' + i);
+                if (mc) mc.classList.add('hidden');
+                if (md) md.classList.add('hidden');
+            }
+            if (typeof changeGeneralSetting === 'function') changeGeneralSetting();
             if (typeof openToast === 'function') openToast('Couple mode OFF', 'isSuccess', 2000);
         }
     });
 })();
 
 function genApplyCouple() {
-    var cw = parseFloat($('input[name="final_width"]').val()) || 1500;
-    var ch = parseFloat($('input[name="final_height"]').val()) || 1000;
+    // Store the original (half-strip) width on first call
+    if (_coupleOriginalWidth === null) {
+        _coupleOriginalWidth = parseFloat($('input[name="final_width"]').val()) || 1500;
+    }
+    var origW = _coupleOriginalWidth;
+    // Double the canvas so both copies sit side-by-side
+    $('input[name="final_width"]').val(origW * 2).trigger('change');
+
     for (var i = 0; i < 3; i++) {
         var card = document.querySelector('[data-picture="picture-' + i + '"]');
         if (!card || card.classList.contains('hidden')) continue;
@@ -1695,7 +1716,8 @@ function genApplyCouple() {
         var md = document.getElementById('picture-' + mi);
         if (mc) mc.classList.remove('hidden');
         if (md) md.classList.remove('hidden');
-        setVal('picture-x-position-' + mi, Math.round(cw - fx - sz.w));
+        // Copy to the right half (shift by original width, keep same y)
+        setVal('picture-x-position-' + mi, Math.round(origW + fx));
         setVal('picture-y-position-' + mi, Math.round(fy));
         $('input[name="picture-width-' + mi + '"]')
             .val(Math.round(sz.w))
@@ -1730,6 +1752,8 @@ function updateConfigDisplay() {
         background: $('input[name="generator-background"]').val(),
         background_color: $('input[name="background_color"]').val(),
         background_on_top: $('input[name="generator-background_on_top"][data-trigger="general"]').is(':checked'),
+        couple_mode: document.getElementById('gen-couple-toggle') ? document.getElementById('gen-couple-toggle').checked : false,
+        couple_half_width: (_coupleOriginalWidth !== null) ? _coupleOriginalWidth : 0,
         placeholder: $('input[name="enable_placeholder_image"][data-trigger="general"]').is(':checked'),
         placeholderpath: $('input[name="placeholder_image"]').val(),
         placeholderposition: $('input[name="placeholder_image_position"]').val(),
