@@ -1,6 +1,6 @@
 # DEV_GUIDE — คู่มือนักพัฒนา Photobooth
 
-> **กฎเหล็ก**: อย่าแก้ไขไฟล์ใน `resources/` โดยตรง — ไฟล์เหล่านั้นถูก **generate** ทั้งหมด  
+> **กฎเหล็ก**: อย่าแก้ไขไฟล์ใน `resources/` โดยตรง — ไฟล์เหล่านั้นถูก **generate** ทั้งหมด
 > แก้ที่ `assets/` เสมอ แล้ว build → สิ่งที่แก้จะเข้า `resources/` อัตโนมัติ
 
 ---
@@ -165,7 +165,7 @@ assets/js/admin/themes.js
 assets/js/admin/toast.js
 ```
 
-> **หมายเหตุ**: `assets/js/admin/generator.js` **ไม่ถูก** concat เข้า `main.admin.js`  
+> **หมายเหตุ**: `assets/js/admin/generator.js` **ไม่ถูก** concat เข้า `main.admin.js`
 > มันถูก compile แยกเป็น `resources/js/admin/generator.js`
 
 ### วิธีแก้ไข
@@ -410,7 +410,7 @@ ddev exec php bin/composer lint
 
 ### เมื่อ `ddev start` รัน — Gulp watch ทำงานอัตโนมัติ
 
-DDEV config ตั้งค่า hooks ให้รัน `npm run watch:gulp` ใน background อยู่แล้ว  
+DDEV config ตั้งค่า hooks ให้รัน `npm run watch:gulp` ใน background อยู่แล้ว
 ทันทีที่บันทึกไฟล์ใน `assets/js/` หรือ `assets/sass/` → resources จะ rebuild เอง
 
 ### ตรวจสอบ Node version
@@ -420,7 +420,7 @@ ddev exec node --version   # ต้องได้ v20+ (Docker มี v24)
 node --version             # บน Mac อาจเป็น v18 (ใช้ build ตรงไม่ได้)
 ```
 
-> **สำคัญ**: Build ผ่าน `ddev exec` เสมอ ไม่ใช่ `npm run build:gulp` ตรง ๆ บน Mac  
+> **สำคัญ**: Build ผ่าน `ddev exec` เสมอ ไม่ใช่ `npm run build:gulp` ตรง ๆ บน Mac
 > เพราะ Mac มี Node 18 ซึ่ง `lightningcss` ต้องการ Node ≥20
 
 ---
