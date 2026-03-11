@@ -5,7 +5,6 @@ return [
         'language' => 'th',
         'local_timezone' => 'Asia/Bangkok',
         'show_fork' => false,
-        'shutter_cheese_img' => null,
     ],
     'adminpanel' => [
         'view' => 'expert',
@@ -64,13 +63,15 @@ return [
             '2x4-4',
             '2x3-2',
             'collage.json',
+            'new.json',
         ],
-        'limit' => 3,
+        'limit' => 6,
         'dashedline_color' => '#df0c0c',
         'background_color' => '#f50a0a',
         'take_frame' => 'once',
         'frame' => 'private/images/frames/สำเนาของ Second​ hand​ Market​ _​ Music​ _3.png',
         'polaroid_effect' => true,
+        'placeholderpath' => 'resources/img/background/01.jpg',
         'background' => 'resources/img/background/สำเนาของ Second​ hand​ Market​ _​ Music​ _3.png',
         'background_on_top' => true,
         'slideshow_enabled' => true,
@@ -103,11 +104,13 @@ return [
     'background' => [
         'defaults' => 'resources/img/background.png',
         'chroma' => 'resources/img/background.png',
-        'admin' => 'resources/img/background.png',
     ],
     'preview' => [
         'mode' => 'device_cam',
         'camTakesPic' => true,
+    ],
+    'remotebuzzer' => [
+        'serverip' => '192.168.156.3',
     ],
     'textonprint' => [
         'font' => 'resources/fonts/GreatVibes-Regular.ttf',
@@ -122,8 +125,5 @@ return [
     ],
     'commands' => [
         'print' => 'lp -d Dai_Nippon_Printing_DP_QW410 -o PageSize=dnp4x6 -o media=Custom.4x6 -o scaling=100 -o position=center %s',
-    ],
-    'remotebuzzer' => [
-        'serverip' => '192.168.156.3',
     ],
 ];

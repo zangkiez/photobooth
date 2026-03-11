@@ -74,14 +74,13 @@ final class CollageConfiguration
             ->end()
             ->booleanNode('allow_selection')->defaultValue(false)->end()
             ->arrayNode('layouts_enabled')
-            ->enumPrototype()
-            ->values(CollageLayoutEnum::cases())
+            ->scalarPrototype()
             ->beforeNormalization()
             ->always(function ($value) {
-                if (is_string($value)) {
-                    $value = CollageLayoutEnum::from($value);
+                if ($value instanceof CollageLayoutEnum) {
+                    return $value->value;
                 }
-                return $value;
+                return (string) $value;
             })
             ->end()
             ->end()

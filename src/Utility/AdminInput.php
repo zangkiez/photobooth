@@ -807,6 +807,45 @@ class AdminInput
             ';
         }
 
+        // Append custom saved collages from private/collage/*.json
+        if ($settingName === 'collage[layouts_enabled]') {
+            $customCollageScanDir = PathUtility::getAbsolutePath('private/collage');
+            if (is_dir($customCollageScanDir)) {
+                $customFiles = glob($customCollageScanDir . '/*.json') ?: [];
+                // Exclude collage.json — already covered by the COLLAGE_JSON enum case
+                $customFiles = array_values(array_filter($customFiles, static fn ($f) => basename($f) !== 'collage.json'));
+                usort($customFiles, static fn ($a, $b) => filemtime($b) - filemtime($a));
+                foreach ($customFiles as $filePath) {
+                    $fileName = basename($filePath);
+                    $nameOnly = pathinfo($fileName, PATHINFO_FILENAME);
+                    $isSelected = in_array($fileName, $selectedStringValues, true);
+                    $activeClass = $isSelected
+                        ? 'bg-brand-1 text-white border-brand-1'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-brand-1';
+                    $previewSvg = self::renderCustomCollagePreviewSvg($filePath);
+                    $buttonBaseClasses = 'toggle-button p-1 border rounded-md transition-all flex flex-col ' . $activeClass;
+                    $buttonInnerHtml =
+                        '<div class="mb-1 rounded bg-white p-1">' . $previewSvg . '</div>' .
+                        '<div class="text-xs leading-tight font-semibold text-center">' . htmlspecialchars($nameOnly, ENT_QUOTES) . '</div>';
+                    $buttons .= '
+                <label class="relative cursor-pointer">
+                    <input
+                        type="checkbox"
+                        name="' . $settingName . '[]"
+                        value="' . htmlspecialchars($fileName, ENT_QUOTES) . '"
+                        class="hidden toggle-checkbox"
+                        ' . ($isSelected ? 'checked' : '') . '
+                        ' . $attributes . '
+                    />
+                    <div class="' . $buttonBaseClasses . '">
+                        ' . $buttonInnerHtml . '
+                    </div>
+                </label>
+            ';
+                }
+            }
+        }
+
         $gridClass = 'grid gap-2 mt-2';
 
         return self::renderHeadline($label) . '
@@ -1046,6 +1085,7 @@ class AdminInput
         $height = 1200.0;
         $scale = 0.1;
         $layoutArray = null;
+        $framePath = '';
 
         $jsonPath = Collage::getCollageConfigPath($layout->value, $orientation);
         if ($jsonPath !== null && is_file($jsonPath)) {
@@ -1055,12 +1095,24 @@ class AdminInput
                     $width = (float) $decoded['width'];
                     $height = (float) $decoded['height'];
                 }
+                $framePath = !empty($decoded['frame']) ? (string) $decoded['frame'] : '';
                 $layoutArray = !empty($decoded['layout']) ? $decoded['layout'] : $decoded;
             }
         }
 
         if ($height > 0) {
             $aspectRatio = $width / $height;
+        }
+
+        // If the JSON defines a frame image, show it directly as the preview
+        if ($framePath !== '') {
+            $absFrame = PathUtility::isAbsolutePath($framePath)
+                ? $framePath
+                : PathUtility::getAbsolutePath($framePath);
+            if (file_exists($absFrame)) {
+                $frameUrl = htmlspecialchars(PathUtility::getPublicPath($framePath), ENT_QUOTES);
+                return '<img class="w-full h-auto block" style="max-height:112px;object-fit:contain" src="' . $frameUrl . '" alt="" />';
+            }
         }
 
         if (!is_array($layoutArray) || $layoutArray === []) {
@@ -1163,6 +1215,102 @@ class AdminInput
                 number_format($y1, 1, '.', ''),
                 number_format($x2, 1, '.', ''),
                 number_format($y2, 1, '.', '')
+            );
+        }
+
+        $svg .= sprintf(
+            '<rect x="0" y="0" width="%s" height="%s" fill="none" stroke="#666666" stroke-width="1" rx="2"/>',
+            number_format((float) $viewBoxWidth, 1, '.', ''),
+            number_format((float) $viewBoxHeight, 1, '.', '')
+        );
+        $svg .= '</svg>';
+
+        return $svg;
+    }
+
+    private static function renderCustomCollagePreviewSvg(string $absoluteJsonPath): string
+    {
+        $width = 1800.0;
+        $height = 1200.0;
+        $scale = 0.1;
+        $layoutArray = null;
+        $framePath = '';
+
+        if (is_file($absoluteJsonPath)) {
+            $decoded = json_decode((string) file_get_contents($absoluteJsonPath), true);
+            if (is_array($decoded)) {
+                if (isset($decoded['width'], $decoded['height'])) {
+                    $width = (float) $decoded['width'];
+                    $height = (float) $decoded['height'];
+                }
+                $framePath = !empty($decoded['frame']) ? (string) $decoded['frame'] : '';
+                $layoutArray = !empty($decoded['layout']) ? $decoded['layout'] : null;
+            }
+        }
+
+        // If the JSON defines a frame image, show it directly as the preview
+        if ($framePath !== '') {
+            $absFrame = PathUtility::isAbsolutePath($framePath)
+                ? $framePath
+                : PathUtility::getAbsolutePath($framePath);
+            if (file_exists($absFrame)) {
+                $frameUrl = htmlspecialchars(PathUtility::getPublicPath($framePath), ENT_QUOTES);
+                return '<img class="w-full h-auto block" style="max-height:112px;object-fit:contain" src="' . $frameUrl . '" alt="" />';
+            }
+        }
+
+        $viewBoxWidth = (int) round($width * $scale);
+        $viewBoxHeight = (int) round($height * $scale);
+
+        if (!is_array($layoutArray) || $layoutArray === []) {
+            $positions = [
+                ['x' => 0, 'y' => 0, 'w' => 90, 'h' => 60, 'num' => 1],
+                ['x' => 90, 'y' => 0, 'w' => 90, 'h' => 60, 'num' => 2],
+                ['x' => 0, 'y' => 60, 'w' => 90, 'h' => 60, 'num' => 3],
+                ['x' => 90, 'y' => 60, 'w' => 90, 'h' => 60, 'num' => 4],
+            ];
+        } else {
+            $positions = [];
+            $photoNum = 1;
+            foreach ($layoutArray as $photoLayout) {
+                if (!is_array($photoLayout) || count($photoLayout) < 4) {
+                    continue;
+                }
+                $x = self::evaluateLayoutExpression($photoLayout[0], $width, $height);
+                $y = self::evaluateLayoutExpression($photoLayout[1], $width, $height);
+                $w = self::evaluateLayoutExpression($photoLayout[2], $width, $height);
+                $h = self::evaluateLayoutExpression($photoLayout[3], $width, $height);
+                $positions[] = [
+                    'x' => $x * $scale,
+                    'y' => $y * $scale,
+                    'w' => $w * $scale,
+                    'h' => $h * $scale,
+                    'num' => $photoNum++,
+                ];
+            }
+        }
+
+        $svg = sprintf(
+            '<svg class="w-full h-auto block" style="max-height:112px" viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
+            $viewBoxWidth,
+            $viewBoxHeight
+        );
+
+        foreach ($positions as $pos) {
+            $svg .= sprintf(
+                '<rect x="%s" y="%s" width="%s" height="%s" fill="#E29B4A" stroke="#FFFFFF" stroke-width="2" rx="2"/>',
+                number_format($pos['x'] + 2, 1, '.', ''),
+                number_format($pos['y'] + 2, 1, '.', ''),
+                number_format($pos['w'] - 4, 1, '.', ''),
+                number_format($pos['h'] - 4, 1, '.', '')
+            );
+            $centerX = $pos['x'] + $pos['w'] / 2;
+            $centerY = $pos['y'] + $pos['h'] / 2;
+            $svg .= sprintf(
+                '<text x="%s" y="%s" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF" font-size="28" font-weight="bold" font-family="Arial, sans-serif">%d</text>',
+                number_format($centerX, 1, '.', ''),
+                number_format($centerY + 2, 1, '.', ''),
+                (int) $pos['num']
             );
         }
 

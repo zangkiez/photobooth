@@ -7,6 +7,7 @@
 use Photobooth\Enum\CollageLayoutEnum;
 use Photobooth\Service\LanguageService;
 use Photobooth\Collage;
+use Photobooth\Utility\PathUtility;
 
 /**
  * Evaluate layout expression (e.g., "x*0.5" → 900 if x=1800)
@@ -62,6 +63,18 @@ function getLayoutPreviewSvg(CollageLayoutEnum $layout, string $orientation = 'l
 {
     // Try to load layout from JSON
     $layoutData = loadCollageLayoutFromJson($layout, $orientation);
+
+    // If the JSON defines a frame image, show it directly as the preview
+    if (is_array($layoutData) && !empty($layoutData['frame'])) {
+        $framePath = (string)$layoutData['frame'];
+        $absFrame = PathUtility::isAbsolutePath($framePath)
+            ? $framePath
+            : PathUtility::getAbsolutePath($framePath);
+        if (file_exists($absFrame)) {
+            $frameUrl = htmlspecialchars(PathUtility::getPublicPath($framePath), ENT_QUOTES);
+            return '<img class="collageSelector__preview" style="object-fit:contain" src="' . $frameUrl . '" alt="" />';
+        }
+    }
 
     if (!$layoutData) {
         // Fallback to simple 2x2 grid if JSON can't be loaded
@@ -217,6 +230,104 @@ function getLayoutPreviewSvg(CollageLayoutEnum $layout, string $orientation = 'l
     return $svg;
 }
 
+/**
+ * Generate SVG preview directly from a JSON file path (for custom collages)
+ */
+function getCustomLayoutPreviewSvgFromPath(string $absoluteJsonPath): string
+{
+    $width = 1800.0;
+    $height = 1200.0;
+    $scale = 0.1;
+    $layoutArray = null;
+    $framePath = '';
+
+    if (is_file($absoluteJsonPath)) {
+        $decoded = json_decode((string)file_get_contents($absoluteJsonPath), true);
+        if (is_array($decoded)) {
+            if (isset($decoded['width'], $decoded['height'])) {
+                $width = (float)$decoded['width'];
+                $height = (float)$decoded['height'];
+            }
+            $framePath = !empty($decoded['frame']) ? (string)$decoded['frame'] : '';
+            $layoutArray = !empty($decoded['layout']) ? $decoded['layout'] : null;
+        }
+    }
+
+    // If the JSON has a frame image, show it directly as the preview
+    if ($framePath !== '') {
+        $absFrame = PathUtility::isAbsolutePath($framePath)
+            ? $framePath
+            : PathUtility::getAbsolutePath($framePath);
+        if (file_exists($absFrame)) {
+            $frameUrl = htmlspecialchars(PathUtility::getPublicPath($framePath), ENT_QUOTES);
+            return '<img class="collageSelector__preview" style="object-fit:contain" src="' . $frameUrl . '" alt="" />';
+        }
+    }
+
+    $viewBoxWidth = (int)round($width * $scale);
+    $viewBoxHeight = (int)round($height * $scale);
+
+    if (!is_array($layoutArray) || $layoutArray === []) {
+        $positions = [
+            ['x' => 0, 'y' => 0, 'w' => 90, 'h' => 60, 'num' => 1],
+            ['x' => 90, 'y' => 0, 'w' => 90, 'h' => 60, 'num' => 2],
+            ['x' => 0, 'y' => 60, 'w' => 90, 'h' => 60, 'num' => 3],
+            ['x' => 90, 'y' => 60, 'w' => 90, 'h' => 60, 'num' => 4],
+        ];
+    } else {
+        $positions = [];
+        $photoNum = 1;
+        foreach ($layoutArray as $photoLayout) {
+            if (!is_array($photoLayout) || count($photoLayout) < 4) {
+                continue;
+            }
+            $x = evaluateLayoutExpression($photoLayout[0], $width, $height);
+            $y = evaluateLayoutExpression($photoLayout[1], $width, $height);
+            $w = evaluateLayoutExpression($photoLayout[2], $width, $height);
+            $h = evaluateLayoutExpression($photoLayout[3], $width, $height);
+            $positions[] = [
+                'x' => $x * $scale,
+                'y' => $y * $scale,
+                'w' => $w * $scale,
+                'h' => $h * $scale,
+                'num' => $photoNum++,
+            ];
+        }
+    }
+
+    $svg = sprintf(
+        '<svg class="collageSelector__preview" viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
+        $viewBoxWidth,
+        $viewBoxHeight
+    );
+
+    foreach ($positions as $pos) {
+        $svg .= sprintf(
+            '<rect x="%s" y="%s" width="%s" height="%s" fill="#E29B4A" stroke="#FFFFFF" stroke-width="2" rx="2"/>',
+            number_format($pos['x'] + 2, 1, '.', ''),
+            number_format($pos['y'] + 2, 1, '.', ''),
+            number_format($pos['w'] - 4, 1, '.', ''),
+            number_format($pos['h'] - 4, 1, '.', '')
+        );
+        $centerX = $pos['x'] + $pos['w'] / 2;
+        $centerY = $pos['y'] + $pos['h'] / 2;
+        $svg .= sprintf(
+            '<text x="%s" y="%s" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF" font-size="28" font-weight="bold" font-family="Arial, sans-serif">%d</text>',
+            number_format($centerX, 1, '.', ''),
+            number_format($centerY + 2, 1, '.', ''),
+            $pos['num']
+        );
+    }
+
+    $svg .= sprintf(
+        '<rect x="0" y="0" width="%s" height="%s" fill="none" stroke="#666666" stroke-width="1" rx="2"/>',
+        number_format((float)$viewBoxWidth, 1, '.', ''),
+        number_format((float)$viewBoxHeight, 1, '.', '')
+    );
+    $svg .= '</svg>';
+    return $svg;
+}
+
 function renderCollageOptionsFromEnumWithLimit(array $collageConfig): string
 {
     $languageService = LanguageService::getInstance();
@@ -231,8 +342,14 @@ function renderCollageOptionsFromEnumWithLimit(array $collageConfig): string
     // Get orientation from config (landscape or portrait)
     $orientation = $collageConfig['orientation'] ?? 'landscape';
 
+    // Normalize layouts_enabled to a flat string array for comparison
+    $layoutsEnabled = array_map(
+        static fn($v) => $v instanceof \BackedEnum ? $v->value : (string)$v,
+        is_array($collageConfig['layouts_enabled']) ? $collageConfig['layouts_enabled'] : []
+    );
+
     foreach (CollageLayoutEnum::cases() as $layout) {
-        if (in_array($layout, $collageConfig['layouts_enabled'])) {
+        if (in_array($layout->value, $layoutsEnabled, true)) {
             $collageConfig['layout'] = $layout->value;
             $limitData = Collage::calculateLimit($collageConfig);
             $limit = $limitData['limit'];
@@ -246,6 +363,41 @@ function renderCollageOptionsFromEnumWithLimit(array $collageConfig): string
                 $limit,
                 getLayoutPreviewSvg($layout, $orientation),
                 htmlspecialchars($layout->label())
+            );
+        }
+    }
+
+    // Add custom saved collages from private/collage/*.json
+    $customCollageScanDir = PathUtility::getAbsolutePath('private/collage');
+    if (is_dir($customCollageScanDir)) {
+        $customFiles = glob($customCollageScanDir . '/*.json') ?: [];
+        foreach ($customFiles as $filePath) {
+            $fileName = basename($filePath);
+            if ($fileName === 'collage.json') {
+                continue; // already handled by COLLAGE_JSON enum case
+            }
+            if (!in_array($fileName, $layoutsEnabled, true)) {
+                continue;
+            }
+            $nameOnly = pathinfo($fileName, PATHINFO_FILENAME);
+            $tmpConfig = $collageConfig;
+            $tmpConfig['layout'] = $fileName;
+            try {
+                $limitData = Collage::calculateLimit($tmpConfig);
+                $limit = $limitData['limit'];
+            } catch (\Throwable $e) {
+                $limit = 1;
+            }
+
+            $html .= sprintf(
+                '<button type="button" class="collageSelector__option cursor-pointer" data-layout="%s" data-limit="%d">' .
+                '<div class="collageSelector__preview-container">%s</div>' .
+                '<div class="collageSelector__label">%s</div>' .
+                '</button>',
+                htmlspecialchars($fileName),
+                $limit,
+                getCustomLayoutPreviewSvgFromPath($filePath),
+                htmlspecialchars($nameOnly)
             );
         }
     }
