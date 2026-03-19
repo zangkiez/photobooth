@@ -288,6 +288,47 @@ function genOpenSaveDialog(stringedConfiguration, canSubmit) {
     overlay.onclick = function(e) { if (e.target === overlay) overlay.classList.remove('show'); };
 }
 
+// ── Collage thumbnail helper ─────────────────────────────────────
+function genCollageThumb(data) {
+    var layout = Array.isArray(data && data.layout) ? data.layout : (Array.isArray(data) ? data : []);
+    var cw = parseFloat((data && data.width) || 1800) || 1800;
+    var ch = parseFloat((data && data.height) || 1200) || 1200;
+    var isCouple = !!(data && data.couple_mode);
+    var halfCount = isCouple ? Math.ceil(layout.length / 2) : layout.length;
+    var isPortrait = ch > cw;
+    var TW = isPortrait ? 44 : 64, TH = isPortrait ? 64 : 44;
+    var sx = TW / cw, sy = TH / ch;
+    function evExpr(s) {
+        var str = String(s == null ? '0' : s).trim()
+            .replace(/\bx\b/g, String(cw))
+            .replace(/\by\b/g, String(ch));
+        try { return calculate(tokenize(str)); } catch (e) { return 0; }
+    }
+    var rects = '';
+    layout.forEach(function (slot, i) {
+        if (!Array.isArray(slot) || slot.length < 4) return;
+        var x = evExpr(slot[0]), y = evExpr(slot[1]),
+            w = evExpr(slot[2]), h = evExpr(slot[3]);
+        var label = (i % halfCount) + 1;
+        var rx = Math.round(x * sx), ry = Math.round(y * sy);
+        var rw = Math.max(2, Math.round(w * sx)), rh = Math.max(2, Math.round(h * sy));
+        var fs = Math.max(4, Math.min(8, Math.round(rh * 0.38)));
+        rects += '<rect x="' + rx + '" y="' + ry + '" width="' + rw + '" height="' + rh +
+                 '" fill="rgba(99,102,241,.2)" stroke="#6366f1" stroke-width="0.7" rx="1"/>';
+        rects += '<text x="' + (rx + rw / 2) + '" y="' + (ry + rh / 2 + fs * 0.38) +
+                 '" font-size="' + fs + '" fill="#6366f1" text-anchor="middle" font-family="sans-serif">' +
+                 label + '</text>';
+    });
+    var centerLine = isCouple
+        ? '<line x1="' + Math.round(TW / 2) + '" y1="1" x2="' + Math.round(TW / 2) + '" y2="' + (TH - 1) +
+          '" stroke="#bbb" stroke-width="0.7" stroke-dasharray="2,1.5"/>'
+        : '';
+    return '<svg class="gen-collage-thumb" width="' + TW + '" height="' + TH +
+           '" viewBox="0 0 ' + TW + ' ' + TH + '" xmlns="http://www.w3.org/2000/svg">' +
+           '<rect width="' + TW + '" height="' + TH + '" fill="#f3f4f6" rx="2" stroke="#d1d5db" stroke-width="0.5"/>' +
+           centerLine + rects + '</svg>';
+}
+
 // ── Load dialog ──────────────────────────────────────────────────
 function genOpenLoadModal() {
     const saves = (typeof savedCollagesData !== 'undefined') ? savedCollagesData : [];
@@ -303,12 +344,22 @@ function genOpenLoadModal() {
             row.className = 'gen-collage-item';
             const d = new Date(s.mtime * 1000);
             const dateStr = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-            const slots = Array.isArray(s.data && s.data.layout) ? s.data.layout.length + ' slots' :
-                          Array.isArray(s.data) ? s.data.length + ' slots' : '';
+            const isCouple = !!(s.data && s.data.couple_mode);
+            const layoutArr = Array.isArray(s.data && s.data.layout) ? s.data.layout :
+                              (Array.isArray(s.data) ? s.data : []);
+            const totalSlots = layoutArr.length;
+            const photoCount = isCouple ? Math.ceil(totalSlots / 2) : totalSlots;
+            const shotWord = photoCount === 1 ? 'SHOT' : 'SHOTS';
+            const slotLabel = totalSlots
+                ? (isCouple
+                    ? photoCount + ' ' + shotWord + ' · 2 STRIPS'
+                    : photoCount + ' ' + shotWord + ' · 1 STRIP')
+                : '';
+            const badge = isCouple ? '<span class="gen-couple-badge">2-STRIPS</span>' : '';
             row.innerHTML =
-                '<i class="fa fa-file-image-o"></i>' +
-                '<div class="gen-collage-info"><strong>' + escapeHtml(s.name) + '</strong>' +
-                '<span>' + dateStr + (slots ? ' · ' + slots : '') + '</span></div>' +
+                genCollageThumb(s.data) +
+                '<div class="gen-collage-info"><strong>' + escapeHtml(s.name) + badge + '</strong>' +
+                '<span>' + dateStr + (slotLabel ? ' · ' + slotLabel : '') + '</span></div>' +
                 '<button type="button" class="gen-collage-load-btn">Load</button>';
             row.querySelector('.gen-collage-load-btn').onclick = function () {
                 overlay.classList.remove('show');
@@ -633,8 +684,11 @@ function hideImage(containerId) {
 
 // eslint-disable-next-line no-unused-vars
 function saveConfiguration() {
+    var coupleActive = document.getElementById('gen-couple-toggle') && document.getElementById('gen-couple-toggle').checked;
+    var originalWidth = parseFloat($("input[name='final_width']").val()) || 0;
     let configuration = {
-        width: $("input[name='final_width']").val(),
+        // When couple mode is ON, double the canvas width so the prebuilt layout spans both strips.
+        width: coupleActive ? String(originalWidth * 2) : $("input[name='final_width']").val(),
         height: $("input[name='final_height']").val(),
         text_custom_style: $("input[name='text_enabled'][data-trigger='general']").is(':checked'),
         text_font_size: $("input[name='text_font_size']").val(),
@@ -652,8 +706,7 @@ function saveConfiguration() {
         background: $("input[name='generator-background']").val(),
         background_color: $("input[name='background_color']").val(),
         background_on_top: $("input[name='generator-background_on_top'][data-trigger='general']").is(':checked'),
-        couple_mode: document.getElementById('gen-couple-toggle') ? document.getElementById('gen-couple-toggle').checked : false,
-        couple_half_width: _coupleActive && _coupleOriginalWidth ? _coupleOriginalWidth : 0,
+        couple_mode: coupleActive,
         placeholder: $("input[name='enable_placeholder_image'][data-trigger='general']").is(':checked'),
         placeholderpath: $("input[name='placeholder_image']").val(),
         placeholderposition: $("input[name='placeholder_image_position']").val(),
@@ -674,6 +727,34 @@ function saveConfiguration() {
         });
         configuration.layout.push(single_image_layout);
     });
+
+    // Couple mode: bake the full prebuilt double-strip layout into the JSON.
+    // Slot values are evaluated against the SINGLE-STRIP dimensions (originalWidth × sH).
+    // Using the expression evaluator (not DOM measurements) avoids zoom-factor inflation:
+    // resolveFrameSize() divides by getScale() which includes window._genZoom, so a
+    // zoomed-out portrait canvas (e.g. zoom=0.375) inflates widths by 1/0.375 = 2.67×.
+    if (coupleActive && configuration.layout.length > 0) {
+        var halfCount = configuration.layout.length;
+        var sH = parseFloat($("input[name='final_height']").val()) || 1;
+        function evalSlotExpr(expr) {
+            var s = String(expr == null ? '0' : expr).trim()
+                .replace(/\bx\b/g, String(originalWidth))
+                .replace(/\by\b/g, String(sH));
+            try { return calculate(tokenize(s)); } catch (e2) { return 0; }
+        }
+        for (var ci = 0; ci < halfCount; ci++) {
+            var row = configuration.layout[ci];
+            configuration.layout[ci][0] = String(Math.round(evalSlotExpr(row[0])));
+            configuration.layout[ci][1] = String(Math.round(evalSlotExpr(row[1])));
+            configuration.layout[ci][2] = String(Math.round(evalSlotExpr(row[2])));
+            configuration.layout[ci][3] = String(Math.round(evalSlotExpr(row[3])));
+        }
+        for (var ri = 0; ri < halfCount; ri++) {
+            var mirror = configuration.layout[ri].slice();
+            mirror[0] = String(parseInt(configuration.layout[ri][0], 10) + Math.round(originalWidth));
+            configuration.layout.push(mirror);
+        }
+    }
 
     const canSubmit = $('#can_submit').val();
     const stringedConfiguration = customStringify(configuration);
@@ -1715,7 +1796,6 @@ function updateConfigDisplay() {
         background_color: $('input[name="background_color"]').val(),
         background_on_top: $('input[name="generator-background_on_top"][data-trigger="general"]').is(':checked'),
         couple_mode: document.getElementById('gen-couple-toggle') ? document.getElementById('gen-couple-toggle').checked : false,
-        couple_half_width: _coupleActive && _coupleOriginalWidth ? _coupleOriginalWidth : 0,
         placeholder: $('input[name="enable_placeholder_image"][data-trigger="general"]').is(':checked'),
         placeholderpath: $('input[name="placeholder_image"]').val(),
         placeholderposition: $('input[name="placeholder_image_position"]').val(),
@@ -1732,6 +1812,36 @@ function updateConfigDisplay() {
             });
         cfg.layout.push(row);
     });
+    // Mirror couple layout in the preview so the JSON panel shows the real saved structure.
+    // Use expression evaluation (not DOM size) to avoid zoom-factor inflation.
+    if (cfg.couple_mode && cfg.layout.length > 0) {
+        var previewOrigW = parseFloat($('input[name="final_width"]').val()) || 0;
+        var previewH = parseFloat($('input[name="final_height"]').val()) || 1;
+        cfg.width = String(previewOrigW * 2);
+        var previewHalf = cfg.layout.length;
+        function evalPreviewExpr(expr) {
+            var s = String(expr == null ? '0' : expr).trim()
+                .replace(/\bx\b/g, String(previewOrigW))
+                .replace(/\by\b/g, String(previewH));
+            try { return calculate(tokenize(s)); } catch (e2) { return 0; }
+        }
+        for (var pci = 0; pci < previewHalf; pci++) {
+            var prow = cfg.layout[pci];
+            cfg.layout[pci] = [
+                String(Math.round(evalPreviewExpr(prow[0]))),
+                String(Math.round(evalPreviewExpr(prow[1]))),
+                String(Math.round(evalPreviewExpr(prow[2]))),
+                String(Math.round(evalPreviewExpr(prow[3]))),
+                prow[4],
+                prow[5]
+            ];
+        }
+        for (var pri = 0; pri < previewHalf; pri++) {
+            var pmirror = cfg.layout[pri].slice();
+            pmirror[0] = String(parseInt(cfg.layout[pri][0], 10) + Math.round(previewOrigW));
+            cfg.layout.push(pmirror);
+        }
+    }
     var box = document.getElementById('config-json-content');
     if (box) box.textContent = JSON.stringify(cfg, null, 2);
 }

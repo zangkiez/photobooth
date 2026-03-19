@@ -627,6 +627,16 @@ kbd {
 }
 .gen-collage-load-btn:hover { background: var(--g-primary-dark); }
 .gen-collage-empty { font-size: .8rem; color: var(--g-muted); text-align: center; padding: 1.5rem 0; }
+/* Slot layout thumbnail shown in load dialog */
+.gen-collage-thumb { display: block; flex-shrink: 0; border-radius: 3px; }
+/* Badge for prebuilt double-strip (couple) templates */
+.gen-couple-badge {
+    display: inline-block; padding: .07rem .34rem;
+    background: #6366f1; color: #fff;
+    font-size: .56rem; font-weight: 700; border-radius: 4px;
+    letter-spacing: .04em; text-transform: uppercase;
+    vertical-align: middle; margin-left: .3rem;
+}
 
 /* Suppress AdminInput default labels inside our G-label wrapped fields */
 .gen-frame-body .adminLabel { display: none !important; }
