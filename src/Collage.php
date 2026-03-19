@@ -64,12 +64,14 @@ class Collage
                     ? $collageJson['layout']
                     : $collageJson;
 
-                if (str_starts_with($layout, '2x') || !empty($collageJson['couple_mode'])) {
+                if (str_starts_with($layout, '2x') || !empty($collageJson['prebuilt_double'])) {
                     // Prebuilt 2x / couple-strip templates contain 2× slots in JSON.
                     // Only half that count of photos needs to be captured; they are
                     // reused for both strips via array_merge further below.
                     $limit = (int) ceil(count($layoutConfigArray) / 2);
                 } else {
+                    // Normal layouts AND single-strip couple templates use every slot
+                    // with a unique photo; no halving needed.
                     $limit = count($layoutConfigArray);
                 }
 
@@ -196,13 +198,15 @@ class Collage
 
                     if (!empty($collageJson['couple_mode'])) {
                         $coupleMode = true;
-                        // The template canvas already spans both strips; the cut guide
-                        // belongs at the horizontal center of the full template width.
                         $coupleHalfWidth = (int) round(self::$collageWidth / 2);
                         self::$coupleMode = true;
                         self::$coupleHalfWidth = $coupleHalfWidth;
                         self::$drawDashedLine = true;
                     }
+
+                    // Prebuilt double-strip layout: the JSON already encodes both strips.
+                    // Imagecopy duplication is NOT needed — photos are reused via array_merge.
+                    $coupleIsPrebuilt = !empty($collageJson['prebuilt_double']);
 
                     if (isset($collageJson['placeholder']) && $collageJson['placeholder']) {
                         $c->collagePlaceholder = $collageJson['placeholder'];
@@ -437,10 +441,9 @@ class Collage
             unset($imageResource);
         }
 
-        if (strpos($c->collageLayout, '2x') === 0 || $coupleMode) {
-            // Prebuilt 2x and couple-strip templates store 2× the slots in their JSON
-            // (left strip: slots 0..N-1, right strip: slots N..2N-1). Reuse the
-            // captured photos for both strips without touching the template geometry.
+        if (strpos($c->collageLayout, '2x') === 0 || $coupleIsPrebuilt) {
+            // Prebuilt 2x and prebuilt_double couple templates store 2× the slots.
+            // Duplicate the captured images so every slot gets an image assigned.
             $editImages = array_merge($editImages, $editImages);
         }
 
@@ -535,7 +538,8 @@ class Collage
             }
         }
 
-        if (self::$drawDashedLine == true) {
+        // Couple-mode templates draw their own vertical cut-guide after compositing (see below).
+        if (self::$drawDashedLine == true && !$coupleMode) {
             self::$collageWidth = (int) imagesx($my_collage);
             self::$collageHeight = (int) imagesy($my_collage);
             $imageHandler->dashedLineColor = (string)imagecolorallocate($my_collage, (int)$dashed_r, (int)$dashed_g, (int)$dashed_b);
@@ -645,8 +649,9 @@ class Collage
             }
         }
 
-        // Couple mode: render single strip then duplicate side-by-side — pixel-perfect identical twins
-        if ($coupleMode) {
+        if ($coupleMode && !$coupleIsPrebuilt) {
+            // Single-strip couple template (e.g. template 11): render one strip then
+            // pixel-copy it to the right to form two identical strips side-by-side.
             $halfW   = (int) imagesx($my_collage);
             $fullH   = (int) imagesy($my_collage);
             $doubled = imagecreatetruecolor($halfW * 2, $fullH);
@@ -655,13 +660,11 @@ class Collage
             }
             $bgFill = imagecolorallocate($doubled, (int) $bg_r, (int) $bg_g, (int) $bg_b);
             imagefill($doubled, 0, 0, (int) $bgFill);
-            // Left strip (original)
             imagecopy($doubled, $my_collage, 0,      0, 0, 0, $halfW, $fullH);
-            // Right strip (pixel-perfect duplicate)
             imagecopy($doubled, $my_collage, $halfW, 0, 0, 0, $halfW, $fullH);
             imagedestroy($my_collage);
             $my_collage = $doubled;
-            // Draw vertical dashed cut-guide line at x = halfW
+            // Vertical dashed cut-guide at x = halfW
             $dl_r = isset($dashed_r) ? (int) $dashed_r : 128;
             $dl_g = isset($dashed_g) ? (int) $dashed_g : 128;
             $dl_b = isset($dashed_b) ? (int) $dashed_b : 128;
@@ -670,6 +673,18 @@ class Collage
             $imageHandler->dashedLineStartY = 0;
             $imageHandler->dashedLineEndX   = $halfW;
             $imageHandler->dashedLineEndY   = $fullH;
+            $imageHandler->drawDashedLine($my_collage);
+        } elseif ($coupleIsPrebuilt) {
+            // Prebuilt double-strip template (e.g. template 12): both strips are already
+            // rendered on the canvas — just draw the vertical cut-guide line.
+            $dl_r = isset($dashed_r) ? (int) $dashed_r : 128;
+            $dl_g = isset($dashed_g) ? (int) $dashed_g : 128;
+            $dl_b = isset($dashed_b) ? (int) $dashed_b : 128;
+            $imageHandler->dashedLineColor  = (string) imagecolorallocate($my_collage, $dl_r, $dl_g, $dl_b);
+            $imageHandler->dashedLineStartX = (int) (imagesx($my_collage) / 2);
+            $imageHandler->dashedLineStartY = 0;
+            $imageHandler->dashedLineEndX   = (int) (imagesx($my_collage) / 2);
+            $imageHandler->dashedLineEndY   = (int) imagesy($my_collage);
             $imageHandler->drawDashedLine($my_collage);
         }
 

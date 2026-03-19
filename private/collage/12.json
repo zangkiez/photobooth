@@ -18,7 +18,7 @@
 	"background_color": "#e1d0d0",
 	"background_on_top": true,
 	"couple_mode": true,
-	"placeholder": false,
+	"prebuilt_double": true,
 	"placeholderpath": "",
 	"placeholderposition": "1",
 	"layout": [
